@@ -7,7 +7,7 @@ import { colors, radii, shadows } from '@/lib/theme';
 const tabs: Record<string, { label: string; icon: IconName }> = {
   index: { label: 'Home', icon: 'home' },
   pacts: { label: 'Pacts', icon: 'pacts' },
-  copilot: { label: 'Copilot', icon: 'copilot' },
+  copilot: { label: 'Pax', icon: 'copilot' },
   progress: { label: 'Progress', icon: 'progress' },
 };
 

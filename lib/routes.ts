@@ -5,6 +5,7 @@ export const routes = {
   home: '/' as Href,
   pacts: '/pacts' as Href,
   copilot: '/copilot' as Href,
+  onboarding: '/onboarding' as Href,
   progress: '/progress' as Href,
   newPact: '/pact/new' as Href,
   kit: '/kit' as Href,

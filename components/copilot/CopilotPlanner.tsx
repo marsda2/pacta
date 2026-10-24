@@ -43,7 +43,7 @@ export function CopilotPlanner({ onStart }: CopilotPlannerProps) {
     <GlassCard padding={20}>
       <View style={styles.eyebrow}>
         <Icon name="copilot" size={16} />
-        <Text variant="eyebrow">Pacta Copilot</Text>
+        <Text variant="eyebrow">Pax</Text>
       </View>
       <Text variant="title">Let’s find your next step.</Text>
 

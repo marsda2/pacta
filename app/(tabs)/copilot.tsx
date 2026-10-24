@@ -23,7 +23,7 @@ export default function Copilot() {
 
   return (
     <Screen withTabBar>
-      <AppHeader title="Copilot" />
+      <AppHeader title="Pax" />
       <PaxSays message="Tell me what’s in the way. We’ll shrink it together." />
       <CopilotPlanner onStart={start} />
     </Screen>

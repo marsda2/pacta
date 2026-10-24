@@ -60,7 +60,7 @@ export function CopilotCard({ onStartFocus }: CopilotCardProps) {
       </View>
       <View style={styles.eyebrow}>
         <Icon name="copilot" size={16} />
-        <Text variant="eyebrow" style={{ color: colors.forest }}>Pacta Copilot</Text>
+        <Text variant="eyebrow" style={{ color: colors.forest }}>Pax</Text>
       </View>
       <Text variant="title" style={styles.title}>Let’s make it easier.</Text>
       <Text variant="body" color="muted" style={styles.subtitle}>Start with one small step.</Text>

@@ -146,7 +146,7 @@ export default function Kit() {
         <StepTracker steps={['Outline', 'Draft', 'Review']} current={1} />
       </Block>
 
-      <Block title="Copilot">
+      <Block title="Pax">
         <CopilotCard />
         <CopilotPlanner />
       </Block>
