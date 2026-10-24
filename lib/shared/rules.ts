@@ -32,9 +32,10 @@ export function checkLevel(stakeCents: number, humanMinCents = HUMAN_REVIEW_MIN_
 }
 
 // Regla de oro: la decide el código, no el prompt. Cualquier otro caso va al jurado. Sin stake,
-// se aplica la regla estricta (la del set de evaluación).
+// se aplica la regla estricta (la del set de evaluación). El código escrito a mano (dayCodeVisible)
+// es siempre requisito indispensable para demostrar que la foto es en vivo.
 export function shouldAutoApprove(audit: AgentAudit, emotionalState: 'normal' | 'overwhelmed', stakeCents = LIGHT_CHECK_BELOW_CENTS): boolean {
-  if (emotionalState === 'overwhelmed') return false;
+  if (emotionalState === 'overwhelmed' || !audit.dayCodeVisible) return false;
   if (checkLevel(stakeCents) === 'light') {
     const hardCheat = audit.cheatSignals.some((signal) => signal !== 'none' && signal !== 'screen_photo');
     return !hardCheat && audit.taskMatch && audit.confidence >= AI_LIGHT_APPROVE_CONFIDENCE;

@@ -3,9 +3,8 @@ import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { LiveCapture, type Capture } from '@/components/pact/LiveCapture';
-import { Button, Card, ErrorBanner, Icon, Screen, ScreenTitle, Text } from '@/components/ui';
+import { Button, Card, Checkbox, ErrorBanner, Icon, Screen, ScreenTitle, Text } from '@/components/ui';
 import { routes } from '@/lib/routes';
-import { checkLevel } from '@/lib/shared/rules';
 import { usePacts, type GpsCheckin } from '@/lib/store/pacts';
 import { colors, radii } from '@/lib/theme';
 
@@ -15,6 +14,7 @@ export default function LiveProof() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { getPact, submitProof } = usePacts();
   const [capture, setCapture] = useState<Capture | null>(null);
+  const [confirmedCode, setConfirmedCode] = useState(false);
   const [gps, setGps] = useState<GpsCheckin | null>(null);
   const [locating, setLocating] = useState(false);
   const [gpsNote, setGpsNote] = useState<string | null>(null);
@@ -22,7 +22,12 @@ export default function LiveProof() {
   const [error, setError] = useState<unknown>(null);
   const pact = getPact(id);
   const needsLocation = Boolean(pact?.methods.includes('location'));
-  const isLight = checkLevel(pact?.stakeCents ?? 0) === 'light';
+  const code = pact?.dayCode;
+
+  const updateCapture = (next: Capture | null) => {
+    setCapture(next);
+    if (!next) setConfirmedCode(false);
+  };
 
   const checkInLocation = () => {
     if (typeof navigator === 'undefined' || !navigator.geolocation) {
@@ -57,22 +62,34 @@ export default function LiveProof() {
     }
   };
 
+  const canSubmit = Boolean(capture) && (!code || confirmedCode) && !sending;
+
   return (
     <Screen>
       <ScreenTitle title="Show your progress." subtitle={pact?.title} onBack={() => router.back()} />
 
-      <View style={styles.tagsRow}>
-        <View style={styles.tag}>
-          <Icon name="camera" size={18} />
-          <Text variant="bodyStrong">Live photo</Text>
-        </View>
-        {pact?.dayCode ? (
-          <View style={styles.codeBadge}>
-            <Text variant="caption" color="muted">{isLight ? 'Code (optional):' : 'Write code:'}</Text>
-            <Text variant="bodyStrong" color="forest">{pact.dayCode}</Text>
+      {code ? (
+        <Card style={styles.codeCard}>
+          <View style={styles.codeHeader}>
+            <View style={styles.requiredPill}>
+              <Icon name="lock" size={14} color={colors.white} />
+              <Text variant="caption" color="white" style={styles.requiredLabel}>REQUIRED IN PHOTO</Text>
+            </View>
+            <Text variant="caption" color="muted">Anti-cheat verification</Text>
           </View>
-        ) : null}
-      </View>
+          <View style={styles.codeMain}>
+            <View style={styles.codeBox}>
+              <Text variant="title" color="forest" style={styles.codeLetters}>{code}</Text>
+            </View>
+            <View style={styles.flex}>
+              <Text variant="bodyStrong">Write &ldquo;{code}&rdquo; by hand on paper</Text>
+              <Text variant="small" color="muted">
+                Place the handwritten code next to your task or screen so it is clearly visible in the photo. Without it, the AI will reject the proof.
+              </Text>
+            </View>
+          </View>
+        </Card>
+      ) : null}
 
       {needsLocation ? (
         <Card style={styles.locationCard}>
@@ -100,40 +117,64 @@ export default function LiveProof() {
         </Card>
       ) : null}
 
-      <LiveCapture capture={capture} onChange={setCapture} />
+      <LiveCapture capture={capture} onChange={updateCapture} dayCode={code} />
+
+      {capture && code ? (
+        <Card style={styles.confirmCard}>
+          <Checkbox
+            checked={confirmedCode}
+            onChange={setConfirmedCode}
+            label={`I confirm the handwritten code "${code}" is clearly visible in this photo.`}
+            caption="Required to prove this photo is real and taken live right now."
+          />
+        </Card>
+      ) : null}
 
       <View style={styles.actions}>
         {error ? <ErrorBanner error={error} /> : null}
-        <Button label={sending ? 'Uploading…' : 'Use this photo'} icon="arrowRight" disabled={!capture || sending} onPress={submit} />
-        <Text variant="caption" color="muted" style={styles.next}>Next: review and submit.</Text>
+        <Button label={sending ? 'Uploading…' : 'Use this photo'} icon="arrowRight" disabled={!canSubmit} onPress={submit} />
+        <Text variant="caption" color="muted" style={styles.next}>
+          {capture && code && !confirmedCode
+            ? `Check the confirmation box above to verify that "${code}" is visible in your photo.`
+            : 'Next: AI review and verification.'}
+        </Text>
       </View>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  tagsRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 },
-  tag: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'flex-start',
-    gap: 8,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: radii.pill,
-    backgroundColor: colors.mintSoft,
+  codeCard: {
+    gap: 10,
+    padding: 16,
+    backgroundColor: colors.mintWash,
+    borderWidth: 2,
+    borderColor: colors.forest,
   },
-  codeBadge: {
+  codeHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
+  requiredPill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
     borderRadius: radii.pill,
-    backgroundColor: colors.mintWash,
-    borderWidth: 1,
-    borderColor: colors.mint,
+    backgroundColor: colors.forest,
   },
+  requiredLabel: { fontWeight: '700', letterSpacing: 0.6 },
+  codeMain: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+  codeBox: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: radii.md,
+    backgroundColor: colors.surface,
+    borderWidth: 2,
+    borderColor: colors.forest,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  codeLetters: { letterSpacing: 3, fontWeight: '800' },
+  confirmCard: { padding: 14, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.forest },
   locationCard: { gap: 10, padding: 14 },
   locationHeader: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
   flex: { flex: 1, gap: 2 },

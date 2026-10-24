@@ -71,6 +71,7 @@ interface PactRow {
   storage_path: string | null;
   proof_at: Date | null;
   ai_reason: string | null;
+  ai_cheat_signals: string[] | null;
   proof_count: string;
   ai_reviewed: boolean | null;
   jury_open: boolean;
@@ -114,7 +115,7 @@ const APPEALS_USED_SQL = `(select count(*) from pacta.jury_tasks j
 
 const PACT_SELECT = `
   select p.id, p.title, p.stake_cents, p.deadline, p.day_code, p.status, p.proof_methods, p.created_at, p.resolved_at,
-         pr.id as proof_id, pr.storage_path, pr.created_at as proof_at, pr.ai_reason,
+         pr.id as proof_id, pr.storage_path, pr.created_at as proof_at, pr.ai_reason, pr.ai_cheat_signals,
          (select count(*) from pacta.proofs where pact_id = p.id) as proof_count,
          (select bool_or(ai_verdict is not null) from pacta.proofs where pact_id = p.id) as ai_reviewed,
          exists (select 1 from pacta.jury_tasks j join pacta.proofs x on x.id = j.proof_id where x.pact_id = p.id) as jury_open,
@@ -122,7 +123,7 @@ const PACT_SELECT = `
          ${APPEALS_USED_SQL} as appeals_used
     from pacta.pacts p
     left join lateral (
-      select id, storage_path, created_at, ai_reason from pacta.proofs where pact_id = p.id order by created_at desc limit 1
+      select id, storage_path, created_at, ai_reason, ai_cheat_signals from pacta.proofs where pact_id = p.id order by created_at desc limit 1
     ) pr on true`;
 
 function toDto(row: PactRow): PactDto {
@@ -160,6 +161,10 @@ function reviewOf(row: PactRow): PactReviewDto | undefined {
   const open = row.status === 'AI_REVIEW' && aiReviewed && !row.jury_open;
   const expiresAt = row.proof_at ? row.proof_at.getTime() + AI_REVIEW_FALLBACK_HOURS * 3600_000 : 0;
   const bond = appealBondCents(row.stake_cents, passCovers(row.user_tier, Number(row.appeals_used)), freeAppeals());
+  const signals = Array.isArray(row.ai_cheat_signals) ? row.ai_cheat_signals : [];
+  const missingDayCode =
+    aiReviewed &&
+    (signals.includes('missing_day_code') || Boolean(row.ai_reason && /code.*(not|missing|absent|cannot|couldn't)/i.test(row.ai_reason)));
   return {
     aiReviewed,
     juryOpen: row.jury_open,
@@ -168,6 +173,7 @@ function reviewOf(row: PactRow): PactReviewDto | undefined {
     appealBondCents: open && bond !== null ? bond : undefined,
     hoursLeft: open ? Math.max(0, Math.ceil((expiresAt - Date.now()) / 3600_000)) : undefined,
     aiReason: aiReviewed && row.ai_reason ? row.ai_reason : undefined,
+    missingDayCode: missingDayCode || undefined,
   };
 }
 
@@ -483,15 +489,22 @@ async function reviewProof(
   await withTransaction(async (q) => {
     const pact = await lockPact(q, userId, pactId);
     if (pact.status !== 'AI_REVIEW') return;
+    const storedSignals = audit.dayCodeVisible ? audit.cheatSignals : [...audit.cheatSignals, 'missing_day_code'];
     await q(
       `update pacta.proofs
           set ai_prompt_version = $2, ai_verdict = $3, ai_confidence = $4, ai_cheat_signals = $5, ai_reason = $6
         where id = $1`,
-      [proofId, promptVersion, audit.verdict, audit.confidence, JSON.stringify(audit.cheatSignals), audit.reason],
+      [proofId, promptVersion, audit.verdict, audit.confidence, JSON.stringify(storedSignals), audit.reason],
     );
     if (shouldAutoApprove(audit, emotional, pact.stake_cents)) {
       await refundPact(q, pact, TRUST_DELTA.aiApproved, 'ai_approved');
       return;
+    }
+    // Si el único problema es que no se detectó el código escrito a mano y aún le queda un
+    // intento de foto, lo dejamos en AI_REVIEW para que pueda repetir la foto con el código.
+    if (!audit.dayCodeVisible) {
+      const count = await q<{ n: string }>('select count(*) as n from pacta.proofs where pact_id = $1', [pactId]);
+      if (Number(count.rows[0].n) < MAX_PROOFS_PER_PACT) return;
     }
     // Un humano cuesta más que la comisión de un pacto pequeño: con stake bajo la duda se queda
     // en AI_REVIEW (segunda prueba, testigo o apelación) y caduca hacia el Vault.

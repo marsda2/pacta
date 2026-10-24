@@ -20,6 +20,8 @@ export interface PactReviewDto {
   hoursLeft?: number;
   // Motivo devuelto por la IA cuando tuvo dudas al revisar la foto.
   aiReason?: string;
+  // True cuando la IA rechazó o dudó específicamente porque no detectó el código escrito a mano.
+  missingDayCode?: boolean;
 }
 
 // Pacto tal y como lo devuelve /api/pacts.

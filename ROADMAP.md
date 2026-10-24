@@ -215,4 +215,4 @@ La comprobación visual detectó que el redirect por defecto de Expo SDK 58 eleg
 - ✅ Selector de frecuencia en `/pact/new`: pacto único (día y hora exactos) o hábito semanal (`2x`–`7x` días/semana) con seguimiento de progreso `completedDays / targetDays`.
 - ✅ Ubicación (`locationName`) al activar `Location` y verificación GPS en `/pact/:id/proof`.
 - ✅ Tarjeta de resumen real del pacto en Home y `/pact/:id` con temporizador Pomodoro / Focus opcional, código diario visible y motivo de la IA (`aiReason`) visible en `/pact/:id/result`.
-- ✅ En `light` check (`stake < $5` o sin dinero), `shouldAutoApprove` aprueba cuando `taskMatch` es válido (`confidence >= 0.6`) sin exigir código escrito a mano ni rechazar capturas de pantalla en tareas digitales.
+- ✅ Código escrito a mano (`dayCode`) remarcado en `/pact/:id` y `/pact/:id/proof` (con overlay en cámara y confirmación obligatoria antes de enviar), y aviso específico en `/pact/:id/result` (`missingDayCode`) cuando la IA no detecta el código en la foto para volver a probar poniéndolo en pantalla.

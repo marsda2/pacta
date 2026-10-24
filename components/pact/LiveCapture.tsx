@@ -15,10 +15,11 @@ export interface Capture {
 interface LiveCaptureProps {
   capture: Capture | null;
   onChange: (capture: Capture | null) => void;
+  dayCode?: string;
 }
 
 // Captura en vivo: solo cámara, sin galería (docs/01). Si no hay cámara, modo demo.
-export function LiveCapture({ capture, onChange }: LiveCaptureProps) {
+export function LiveCapture({ capture, onChange, dayCode }: LiveCaptureProps) {
   const camera = useRef<CameraView>(null);
   const [permission, requestPermission] = useCameraPermissions();
   const [facing, setFacing] = useState<'back' | 'front'>('back');
@@ -67,6 +68,13 @@ export function LiveCapture({ capture, onChange }: LiveCaptureProps) {
         {(['tl', 'tr', 'bl', 'br'] as const).map((corner) => (
           <View key={corner} pointerEvents="none" style={[styles.corner, cornerStyle[corner]]} />
         ))}
+        {dayCode ? (
+          <View style={styles.codeOverlay}>
+            <Text variant="caption" color="white" style={{ fontWeight: '700', letterSpacing: 0.5 }}>
+              HANDWRITTEN CODE: {dayCode}
+            </Text>
+          </View>
+        ) : null}
         <View style={styles.live}>
           <View style={styles.liveDot} />
           <Text variant="caption" color="white" style={{ fontWeight: '700', letterSpacing: 0.6 }}>LIVE CAPTURE</Text>
@@ -110,6 +118,17 @@ const styles = StyleSheet.create({
   hint: { textAlign: 'center', paddingHorizontal: 24 },
   actions: { flexDirection: 'row', gap: 10, marginTop: 8, flexWrap: 'wrap', justifyContent: 'center' },
   corner: {},
+  codeOverlay: {
+    position: 'absolute',
+    top: 14,
+    left: 14,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: radii.pill,
+    backgroundColor: 'rgba(13,44,36,0.88)',
+    borderWidth: 1,
+    borderColor: colors.mint,
+  },
   live: {
     position: 'absolute',
     top: 14,

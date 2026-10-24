@@ -9,7 +9,7 @@ import { useCountdown } from '@/components/pact/useCountdown';
 import { Banner, Button, Card, Icon, LoadingBlock, ProgressBar, Screen, ScreenTitle, StatusBadge, StepTracker, Text } from '@/components/ui';
 import { apiFetch } from '@/lib/api/client';
 import { routes } from '@/lib/routes';
-import { checkLevel, formatUsd } from '@/lib/shared/rules';
+import { formatUsd } from '@/lib/shared/rules';
 import { formatDeadline } from '@/lib/shared/time';
 import type { CheckoutLinkDto } from '@/lib/shared/types';
 import { usePacts } from '@/lib/store/pacts';
@@ -65,7 +65,6 @@ export default function ActivePact() {
   const finished = pact.status === 'verified' || pact.status === 'missed';
   const targetDays = pact.targetDays ?? 1;
   const completedDays = pact.completedDays ?? 0;
-  const isLight = checkLevel(pact.stakeCents) === 'light';
 
   // El checkout se cerró sin pagar: pedimos un enlace nuevo al servidor y lo abrimos.
   // Dentro de Whop se paga en su modal y al cerrarlo el webhook ya puede haber activado el pacto.
@@ -98,11 +97,16 @@ export default function ActivePact() {
               </View>
               {pact.dayCode ? (
                 <View style={styles.metaBox}>
-                  <Text variant="caption" color="muted">{isLight ? 'Daily code (optional)' : 'Handwritten code'}</Text>
+                  <Text variant="caption" color="muted">Required handwritten code</Text>
                   <Text variant="heading" color="forest">{pact.dayCode}</Text>
                 </View>
               ) : null}
             </View>
+            {pact.dayCode ? (
+              <Text variant="caption" color="muted">
+                Write <Text variant="bodyStrong" color="forest">{pact.dayCode}</Text> by hand on a note and include it in your live photo to prove it’s real.
+              </Text>
+            ) : null}
 
             {targetDays > 1 ? (
               <View style={styles.progressSection}>
