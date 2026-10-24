@@ -11,7 +11,7 @@
 | 0 | Entorno e infraestructura | ✅ |
 | 1 | Sistema de diseño y companion Pax | ✅ (falta comparar con el kit final) |
 | 2 | Pantallas y flujos con datos de prueba | 🟡 |
-| 3 | API y datos reales (Supabase) | ✅ (falta desplegar) |
+| 3 | API y datos reales (Supabase) | ✅ |
 | 4 | Pagos con Whop | ⬜ |
 | 5 | Agente auditor + jurado Terac + antes/después | ⬜ |
 | 6 | Copilot con IA y Pax reactivo | ⬜ |
@@ -76,7 +76,7 @@ La app ya lee y escribe en Supabase (esquema `pacta`) a través de `/api/*`.
 - ✅ Servidor de desarrollo de la API: `npm run dev:api` (puerto 3000, lee `.env.local`). Datos de demo: `npm run seed`.
 - ✅ Verificado: 24 comprobaciones de la API contra la base real (altas, validaciones, 409 en transiciones inválidas, imagen servida, CORS, Trust y Vault) y el flujo completo en el navegador: el pacto creado desde la UI quedó `REFUNDED` en Postgres con su `trust_event`. Typecheck y lint limpios.
 - 🟡 Fotos en Postgres (`proof_images`) en vez del bucket `proofs`: falta `SUPABASE_SERVICE_ROLE_KEY` para firmar URLs de Storage. `proofs.storage_path` vale `db:<proof_id>`; el jurado (`api/jury/[id].ts`) usa `signedProofUrl` y hay que adaptarlo a esa ruta o mover las fotos a Storage cuando exista la clave.
-- ⬜ Desplegar y probar la API en Vercel (los cambios de esta fase aún no están en `main`).
+- ✅ Desplegado en Vercel (`8e16177`) y verificado en producción: las 24 comprobaciones de la API pasan contra https://pacta-theta.vercel.app, Home y un enlace directo `/pact/<uuid>` cargan datos reales sin errores de consola.
 
 ## Fase 4 · Pagos con Whop ⬜
 
@@ -141,4 +141,4 @@ npm run build:web        # export estático a dist/
 | 2026-10-24 | Entorno, GitHub, Vercel y Supabase (esquema `pacta`, bucket, rol y `DATABASE_URL`) listos. |
 | 2026-10-24 | Sistema de diseño, Pax y los seis flujos con datos de prueba. Galería en `/kit`. Este roadmap. |
 | 2026-10-24 | Subido a `main` y desplegado. Web exportada como SPA para corregir el error de hidratación en enlaces directos. |
-| 2026-10-24 | Fase 3: API `/api/pacts`, motor de estados con Trust y Vault, store con React Query, seed de demo. Contraseña de `pacta_app` rotada. Sin desplegar todavía. |
+| 2026-10-24 | Fase 3: API `/api/pacts`, motor de estados con Trust y Vault, store con React Query, seed de demo. Contraseña de `pacta_app` rotada. Desplegado y verificado en producción. |
