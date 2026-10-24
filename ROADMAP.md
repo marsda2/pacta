@@ -80,10 +80,16 @@ La app ya lee y escribe en Supabase (esquema `pacta`) a través de `/api/*`.
 
 ## Fase 4 · Pagos con Whop ⬜
 
-- ⬜ Verificar los puntos marcados **[verificar]** de [docs/03-whop.md](docs/03-whop.md) (checkout con metadata, eventos del webhook, comisión al reembolsar, ventana de reembolso).
-- ⬜ App, producto "PACTA Stake" y plan "High-Yield Pass" en Whop.
-- ⬜ Checkout por pacto, `POST /api/webhooks/whop` con firma e idempotencia (`webhook_events`).
-- ⬜ Reembolso al aprobar; stake al Vault al fallar.
+- ✅ Cuenta de negocio `pacta` en Whop (`biz_3luEKKKfUOfpk8`) creada con `whop quickstart`; CLI con sesión OAuth.
+- ✅ Verificado con el CLI y la doc: checkout con `--plan` y `metadata`, eventos del webhook, firma (`webhook-signature`, `unwrapWebhook` de `@whop/sdk`), reembolso con `whop payments refund`.
+- ✅ Stake mínimo fijado en **$5**: Whop no devuelve su comisión (2,7 % + $0,30) al reembolsar, así que con $1 cada pacto cumplido costaba ≈ 33 %. Ver [docs/03](docs/03-whop.md) sección 6.
+- ⬜ Verificar la ventana de reembolso y el nombre del campo de URL del iframe (**[verificar]** en docs/03).
+- ⬜ API key con permisos mínimos y `WHOP_COMPANY_ID` en `.env.local` y en Vercel.
+- ⬜ Producto "PACTA Stake" y plan "High-Yield Pass" en Whop.
+- ⬜ Checkout por pacto desde `POST /api/pacts` (devuelve `checkout_url`; pacto → `AWAITING_PAYMENT`).
+- 🟡 `POST /api/webhooks/whop` escrito (`api/webhooks/whop.ts`): firma con `unwrapWebhook` (verificada en local con firma de prueba), idempotencia en `webhook_events` y `payment.succeeded` → ACTIVE. Sin desplegar; el registro en Whop va después del despliegue.
+- 🟡 Checkout en `POST /api/pacts` (`lib/server/whop.ts`): el pacto nace AWAITING_PAYMENT con `checkoutUrl` y la app abre Whop. Probado en local: checkout de $5 creado y pacto guardado; el pago real y el webhook quedan sin probar. Sin desplegar. Falta un botón para volver a pagar un pacto sin pagar.
+- ⬜ Reembolso al aprobar (`whop payments refund`); stake al Vault al fallar.
 
 ## Fase 5 · Agente auditor y jurado Terac ⬜
 
@@ -119,7 +125,7 @@ La app ya lee y escribe en Supabase (esquema `pacta`) a través de `/api/*`.
 
 | Tema | Situación | Qué decidir |
 |---|---|---|
-| Importes del stake | El kit muestra $10 / $25 / $50. Las reglas del plan limitan el stake a $1–$20 (Whop no tiene sandbox). La UI usa $5 / $10 / $20. | Subir el máximo si la demo no mueve dinero real |
+| Importes del stake | Mínimo **$5** (decidido 2026-10-24: la comisión de Whop no se devuelve al reembolsar, ver [docs/03](docs/03-whop.md) §6). Máximo $20. El kit muestra $10 / $25 / $50 y la UI usa $5 / $10 / $20. | Confirmar si el kit ($25 / $50) se ajusta a este rango |
 | Texto del pacto fallado | El kit dice "$25 charged". El producto dice que el dinero va al Vault. La UI usa "moved to your Vault". | Confirmar el texto |
 | Logo | Marca provisional en `PactaMark`. | Entregar el SVG oficial |
 | Dominio | `pacta.vercel.app` está ocupado; hoy es `pacta-theta.vercel.app`. | Dominio propio o actualizar docs y Whop |
@@ -142,3 +148,4 @@ npm run build:web        # export estático a dist/
 | 2026-10-24 | Sistema de diseño, Pax y los seis flujos con datos de prueba. Galería en `/kit`. Este roadmap. |
 | 2026-10-24 | Subido a `main` y desplegado. Web exportada como SPA para corregir el error de hidratación en enlaces directos. |
 | 2026-10-24 | Fase 3: API `/api/pacts`, motor de estados con Trust y Vault, store con React Query, seed de demo. Contraseña de `pacta_app` rotada. Desplegado y verificado en producción. |
+| 2026-10-24 | Fase 4 (preparación): cuenta Whop `pacta` creada, comandos y eventos del CLI verificados, stake mínimo a $5 por la comisión no reembolsable. `docs/03` corregido (variants en vez de plans, `whop payments refund`). |

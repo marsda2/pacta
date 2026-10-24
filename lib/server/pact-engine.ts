@@ -1,9 +1,20 @@
 import { randomInt, randomUUID } from 'node:crypto';
 
-import { STAKE_MAX_CENTS, STAKE_MIN_CENTS, TRUST_DELTA, TRUST_MAX, TRUST_MIN } from '../shared/rules';
+import {
+  shouldAutoApprove,
+  STAKE_MAX_CENTS,
+  STAKE_MIN_CENTS,
+  TRUST_DELTA,
+  TRUST_MAX,
+  TRUST_MIN,
+  WITHDRAWAL_LOCK_DAYS_AFTER_CHEAT,
+  type JuryVote,
+} from '../shared/rules';
 import type { PactDto, PactUiStatus, ProofMethod, UserSummary } from '../shared/types';
 import { query, withTransaction, type Queryable } from './db';
 import { HttpError } from './http';
+import { createStakeCheckout } from './whop';
+import { auditProof } from './vision-agent';
 
 // Máquina de estados del pacto (docs/02). Todas las transiciones de dinero y de Trust viven
 // aquí; el cliente nunca decide un reembolso. Los pagos de Whop (fase 4) y el veredicto de la
@@ -123,10 +134,10 @@ async function lockPact(q: Queryable, userId: string, pactId: string): Promise<L
 }
 
 // FAILED → VAULTED: el stake no se pierde, pasa al Redemption Vault.
-async function vaultPact(q: Queryable, pact: LockedPact, reason: string) {
+async function vaultPact(q: Queryable, pact: LockedPact, reason: string, trustDelta: number = TRUST_DELTA.failedOrExpired) {
   await q("update pacta.pacts set status = 'VAULTED', resolved_at = now() where id = $1", [pact.id]);
   await q("insert into pacta.vault_ledger (user_id, type, amount_cents, pact_id) values ($1, 'lock', $2, $3)", [pact.user_id, pact.stake_cents, pact.id]);
-  await addTrust(q, pact.user_id, TRUST_DELTA.failedOrExpired, reason, pact.id);
+  await addTrust(q, pact.user_id, trustDelta, reason, pact.id);
   await q('update pacta.users set verified_streak = 0 where id = $1', [pact.user_id]);
 }
 
@@ -188,13 +199,26 @@ export async function createPact(userId: string, input: NewPact): Promise<PactDt
   const methods = METHODS.filter((m) => m === 'photo' || requested.includes(m));
 
   const dayCode = Array.from({ length: 4 }, () => CODE_ALPHABET[randomInt(CODE_ALPHABET.length)]).join('');
-  const { rows } = await query<{ id: string }>(
-    // Sin pagos todavía (fase 4): el pacto nace ACTIVE. Con Whop nacerá AWAITING_PAYMENT.
-    `insert into pacta.pacts (user_id, title, stake_cents, deadline, day_code, status, proof_methods)
-     values ($1, $2, $3, to_timestamp($4 / 1000.0), $5, 'ACTIVE', $6) returning id`,
-    [userId, title, stake, dueAt, dayCode, methods],
+  // El id se genera antes para que Whop lo reciba en metadata.pact_id. Si Whop falla, no se crea nada.
+  // El pacto nace AWAITING_PAYMENT y pasa a ACTIVE cuando llega payment.succeeded (api/webhooks/whop.ts).
+  const pactId = randomUUID();
+  const checkout = await createStakeCheckout(pactId, stake as number, title);
+  await query(
+    `insert into pacta.pacts (id, user_id, title, stake_cents, deadline, day_code, status, proof_methods, whop_checkout_id)
+     values ($1, $2, $3, $4, to_timestamp($5 / 1000.0), $6, 'AWAITING_PAYMENT', $7, $8)`,
+    [pactId, userId, title, stake, dueAt, dayCode, methods, checkout.checkoutId],
   );
-  return getPact(userId, rows[0].id);
+  return { ...(await getPact(userId, pactId)), checkoutUrl: checkout.purchaseUrl };
+}
+
+// AWAITING_PAYMENT → ACTIVE cuando Whop confirma el cobro (webhook payment.succeeded).
+// Corre dentro de la misma transacción que la idempotencia del webhook: si falla, Whop reintenta.
+export async function activatePaidPact(q: Queryable, pactId: string, paymentId: string): Promise<boolean> {
+  const { rowCount } = await q(
+    "update pacta.pacts set status = 'ACTIVE', whop_payment_id = $2 where id = $1 and status = 'AWAITING_PAYMENT'",
+    [pactId, paymentId],
+  );
+  return rowCount === 1;
 }
 
 // --- Prueba ----------------------------------------------------------------------------------
@@ -222,22 +246,57 @@ export async function submitProof(userId: string, pactId: string, input: NewProo
     image = { data, mime };
   }
 
+  const proofId = randomUUID();
   await withTransaction(async (q) => {
     const pact = await lockPact(q, userId, pactId);
     if (pact.status !== 'ACTIVE') throw new HttpError(409, 'not_active');
     if (pact.deadline.getTime() < Date.now()) throw new HttpError(409, 'deadline_passed');
 
-    const proofId = randomUUID();
     await q(
       `insert into pacta.proofs (id, pact_id, storage_path, captured_live, emotional_state)
        values ($1, $2, $3, true, $4)`,
       [proofId, pactId, image ? `db:${proofId}` : 'demo', emotional],
     );
     if (image) await q('insert into pacta.proof_images (proof_id, mime, data) values ($1, $2, $3)', [proofId, image.mime, image.data]);
-    // Fase 5: aquí se llama al agente de visión; si duda o sospecha trampa pasa a JURY_PENDING.
     await q("update pacta.pacts set status = 'AI_REVIEW' where id = $1", [pactId]);
   });
+
+  // Fuera de la transacción: la llamada a la IA tarda segundos. Si falla (sin clave, caída del
+  // proveedor) el pacto se queda en AI_REVIEW y nunca se aprueba por error.
+  if (image) {
+    await reviewProof(userId, pactId, proofId, image, emotional).catch((error) => console.error('ai_review_failed', error));
+  }
   return getPact(userId, pactId);
+}
+
+// AI_REVIEW → REFUNDED si la IA está segura; en cualquier otro caso → JURY_PENDING (Terac).
+async function reviewProof(
+  userId: string,
+  pactId: string,
+  proofId: string,
+  image: { data: Buffer; mime: string },
+  emotional: 'normal' | 'overwhelmed',
+) {
+  const { rows } = await query<{ title: string; day_code: string }>('select title, day_code from pacta.pacts where id = $1', [pactId]);
+  const { audit, promptVersion } = await auditProof({ image, title: rows[0].title, dayCode: rows[0].day_code, emotionalState: emotional });
+
+  await withTransaction(async (q) => {
+    const pact = await lockPact(q, userId, pactId);
+    if (pact.status !== 'AI_REVIEW') return;
+    await q(
+      `update pacta.proofs
+          set ai_prompt_version = $2, ai_verdict = $3, ai_confidence = $4, ai_cheat_signals = $5, ai_reason = $6
+        where id = $1`,
+      [proofId, promptVersion, audit.verdict, audit.confidence, JSON.stringify(audit.cheatSignals), audit.reason],
+    );
+    if (shouldAutoApprove(audit, emotional)) {
+      await refundPact(q, pact, TRUST_DELTA.aiApproved, 'ai_approved');
+      return;
+    }
+    await q("update pacta.pacts set status = 'JURY_PENDING' where id = $1", [pactId]);
+    // Estudio de Terac que atiende los casos; sin él, el caso espera y no acepta votos.
+    await q('insert into pacta.jury_tasks (proof_id, terac_task_id) values ($1, $2)', [proofId, process.env.TERAC_JURY_OPPORTUNITY_ID ?? null]);
+  });
 }
 
 export async function proofImage(proofId: string): Promise<{ mime: string; data: Buffer } | undefined> {
@@ -256,4 +315,36 @@ export async function resolvePact(userId: string, pactId: string, kept: boolean,
     else await vaultPact(q, pact, `${source}_rejected`);
   });
   return getPact(userId, pactId);
+}
+
+// Cierra un caso del jurado de Terac y aplica su veredicto al pacto. Idempotente: si el caso ya
+// estaba cerrado no hace nada.
+export async function closeJuryTask(juryTaskId: string, verdict: JuryVote): Promise<void> {
+  await withTransaction(async (q) => {
+    const closed = await q<{ proof_id: string }>(
+      `update pacta.jury_tasks set status = 'done', verdict = $2, resolved_at = now()
+        where id = $1 and status = 'pending' returning proof_id`,
+      [juryTaskId, verdict],
+    );
+    if (!closed.rows[0]) return;
+
+    const { rows } = await q<{ id: string; user_id: string }>(
+      'select pc.id, pc.user_id from pacta.proofs p join pacta.pacts pc on pc.id = p.pact_id where p.id = $1',
+      [closed.rows[0].proof_id],
+    );
+    const pact = await lockPact(q, rows[0].user_id, rows[0].id);
+    if (!REVIEW_STATUSES.includes(pact.status)) return;
+
+    if (verdict === 'APPROVE') {
+      await refundPact(q, pact, TRUST_DELTA.juryApproved, 'jury_approved');
+    } else if (verdict === 'CHEAT') {
+      await vaultPact(q, pact, 'cheat_confirmed', TRUST_DELTA.cheatConfirmed);
+      await q('update pacta.users set withdrawals_locked_until = now() + make_interval(days => $2) where id = $1', [
+        pact.user_id,
+        WITHDRAWAL_LOCK_DAYS_AFTER_CHEAT,
+      ]);
+    } else {
+      await vaultPact(q, pact, 'jury_rejected');
+    }
+  });
 }

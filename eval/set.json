@@ -1,0 +1,110 @@
+[
+  {
+    "id": "01-gym-ok",
+    "image": "images/01-gym-ok.jpg",
+    "title": "Go to the gym",
+    "dayCode": "K7QD",
+    "emotionalState": "normal",
+    "label": "APPROVE",
+    "note": "Legítima: gimnasio con el código visible."
+  },
+  {
+    "id": "02-reading-ok",
+    "image": "images/02-reading-ok.jpg",
+    "title": "Read for 30 minutes",
+    "dayCode": "M3XT",
+    "emotionalState": "normal",
+    "label": "APPROVE",
+    "note": "Legítima: libro abierto con el código visible."
+  },
+  {
+    "id": "03-meal-ok",
+    "image": "images/03-meal-ok.jpg",
+    "title": "Cook a healthy dinner",
+    "dayCode": "P9RA",
+    "emotionalState": "normal",
+    "label": "APPROVE",
+    "note": "Legítima: comida sana con el código visible."
+  },
+  {
+    "id": "04-screen-cheat",
+    "image": "images/04-screen-cheat.jpg",
+    "title": "Go to the gym",
+    "dayCode": "R5TW",
+    "emotionalState": "normal",
+    "label": "CHEAT",
+    "note": "Trampa: foto de una pantalla (moiré, bordes del monitor) que enseña un gimnasio."
+  },
+  {
+    "id": "05-wrong-code-cheat",
+    "image": "images/05-wrong-code-cheat.jpg",
+    "title": "Read for 30 minutes",
+    "dayCode": "H4NB",
+    "emotionalState": "normal",
+    "label": "CHEAT",
+    "note": "Trampa: foto reutilizada, el papel dice W2KC y el código del día es H4NB."
+  },
+  {
+    "id": "06-unrelated",
+    "image": "images/06-unrelated.jpg",
+    "title": "Cook a healthy dinner",
+    "dayCode": "Q2VC",
+    "emotionalState": "normal",
+    "label": "REJECT",
+    "note": "Escena que no tiene nada que ver con la tarea."
+  },
+  {
+    "id": "07-dim-ok",
+    "image": "images/07-dim-ok.jpg",
+    "title": "Write 500 words",
+    "dayCode": "D8FJ",
+    "emotionalState": "normal",
+    "label": "APPROVE",
+    "note": "Legítima pero ambigua: poca luz, código en sombra."
+  },
+  {
+    "id": "08-overwhelmed",
+    "image": "images/08-overwhelmed.jpg",
+    "title": "Finish the proposal",
+    "dayCode": "L6YE",
+    "emotionalState": "overwhelmed",
+    "label": "MICRO_TASK",
+    "note": "Pide clemencia por agobio: siempre va al jurado, que propone una micro-tarea de 10 minutos."
+  },
+  {
+    "id": "09-cropped-screen",
+    "image": "images/09-cropped-screen.jpg",
+    "title": "Go to the gym",
+    "dayCode": "T6MV",
+    "emotionalState": "normal",
+    "label": "CHEAT",
+    "note": "Trampa sutil: foto de una pantalla recortada a pantalla completa, sin marco ni teclado; el código es correcto."
+  },
+  {
+    "id": "10-digital-code",
+    "image": "images/10-digital-code.jpg",
+    "title": "Go to the gym",
+    "dayCode": "B9ZE",
+    "emotionalState": "normal",
+    "label": "CHEAT",
+    "note": "Trampa sutil: foto de un gimnasio real con el código escrito digitalmente encima (sin sombra ni perspectiva)."
+  },
+  {
+    "id": "11-stock-photo",
+    "image": "images/11-stock-photo.jpg",
+    "title": "Go to the gym",
+    "dayCode": "C5LN",
+    "emotionalState": "normal",
+    "label": "CHEAT",
+    "note": "Trampa sutil: foto publicitaria de estudio de otra persona, con el código en la pared."
+  },
+  {
+    "id": "12-printout",
+    "image": "images/12-printout.jpg",
+    "title": "Read for 30 minutes",
+    "dayCode": "F7PS",
+    "emotionalState": "normal",
+    "label": "CHEAT",
+    "note": "Trampa sutil: foto de una foto impresa (borde blanco, brillo de papel) con el código correcto."
+  }
+]

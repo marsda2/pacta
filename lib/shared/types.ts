@@ -22,6 +22,8 @@ export interface PactDto {
   proofImagePath?: string;
   proofAt?: number;
   completedAt?: number;
+  // Solo en la respuesta de creación: URL de Whop donde se paga el stake.
+  checkoutUrl?: string;
 }
 
 export interface UserSummary {
