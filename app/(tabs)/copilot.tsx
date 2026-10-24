@@ -24,7 +24,10 @@ export default function Copilot() {
   return (
     <Screen withTabBar>
       <AppHeader title="Pax" />
-      <PaxSays message="Tell me what’s in the way. We’ll shrink it together." />
+      <PaxSays
+        message={['Hey, I’m Pax. I’ll keep you company on every pact.', 'Tell me what’s in the way. We’ll shrink it together.']}
+        expression="idle"
+      />
       <CopilotPlanner onStart={start} />
     </Screen>
   );

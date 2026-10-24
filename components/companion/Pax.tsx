@@ -201,19 +201,60 @@ export function Pax({ expression = 'idle', waving = false, animate = true, size 
 }
 
 interface PaxSaysProps {
-  message: string;
+  // Un array se cuenta como una conversación: cada globo aparece tras unos puntos suspensivos.
+  message: string | string[];
+  // Expresión de Pax cuando ya ha terminado de hablar (mientras habla, `talking`).
   expression?: PaxExpression;
   size?: number;
 }
 
+const TYPING_MS = 1100;
+
+function TypingDots() {
+  const [phase, setPhase] = useState(0);
+  useEffect(() => {
+    const timer = setInterval(() => setPhase((p) => (p + 1) % 3), 280);
+    return () => clearInterval(timer);
+  }, []);
+  return (
+    <View style={styles.dots} accessibilityLabel="Pax is typing">
+      {[0, 1, 2].map((i) => (
+        <View key={i} style={[styles.dot, { opacity: i === phase ? 1 : 0.35 }]} />
+      ))}
+    </View>
+  );
+}
+
 // Pax con globo de texto, para el copilot y los estados vacíos.
 export function PaxSays({ message, expression = 'talking', size = 96 }: PaxSaysProps) {
+  const lines = Array.isArray(message) ? message : [message];
+  const conversation = lines.length > 1;
+  const motion = usePrefersMotion(true);
+  const [revealed, setRevealed] = useState(1);
+  const shown = motion ? Math.min(revealed, lines.length) : lines.length;
+  const talking = shown < lines.length;
+
+  useEffect(() => {
+    if (!talking) return;
+    const timer = setTimeout(() => setRevealed(shown + 1), TYPING_MS);
+    return () => clearTimeout(timer);
+  }, [talking, shown]);
+
   return (
     <View style={styles.says}>
-      <Pax expression={expression} size={size} />
-      <View style={styles.bubble}>
-        <View style={styles.tail} />
-        <Text variant="bodyStrong" style={styles.bubbleText}>{message}</Text>
+      <Pax expression={talking ? 'talking' : expression} waving={conversation && talking && shown === 1} size={size} />
+      <View style={styles.thread}>
+        {lines.slice(0, shown).map((line, index) => (
+          <View key={index} style={styles.bubble}>
+            {index === 0 ? <View style={styles.tail} /> : null}
+            <Text variant="bodyStrong" style={styles.bubbleText}>{line}</Text>
+          </View>
+        ))}
+        {talking ? (
+          <View style={[styles.bubble, styles.typing]}>
+            <TypingDots />
+          </View>
+        ) : null}
       </View>
     </View>
   );
@@ -221,8 +262,11 @@ export function PaxSays({ message, expression = 'talking', size = 96 }: PaxSaysP
 
 const styles = StyleSheet.create({
   says: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  thread: { flex: 1, gap: 6 },
+  typing: { alignSelf: 'flex-start', paddingVertical: 12 },
+  dots: { flexDirection: 'row', gap: 4 },
+  dot: { width: 7, height: 7, borderRadius: 4, backgroundColor: INK },
   bubble: {
-    flex: 1,
     padding: 14,
     borderRadius: 18,
     backgroundColor: '#FFFFFF',
