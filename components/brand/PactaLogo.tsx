@@ -1,23 +1,12 @@
-import { StyleSheet, View } from 'react-native';
-import Svg, { Defs, LinearGradient as SvgGradient, Rect, Stop } from 'react-native-svg';
+import { Image, StyleSheet, View } from 'react-native';
 
+import logoHorizontal from '@/assets/brand/logo_horizontal.png';
+import logoSymbol from '@/assets/brand/logo_symbol.png';
 import { Text } from '@/components/ui/Text';
-import { colors } from '@/lib/theme';
 
-// Marca provisional: dos eslabones enlazados. Sustituir por el SVG oficial del logo.
+// Símbolo oficial de PACTA (assets/brand).
 export function PactaMark({ size = 40 }: { size?: number }) {
-  return (
-    <Svg width={size} height={size} viewBox="0 0 64 64" accessibilityLabel="PACTA">
-      <Defs>
-        <SvgGradient id="pacta-mark" x1="0" y1="0" x2="1" y2="1">
-          <Stop offset="0" stopColor="#35C79A" />
-          <Stop offset="1" stopColor="#0E6B55" />
-        </SvgGradient>
-      </Defs>
-      <Rect x={8} y={26} width={30} height={30} rx={15} fill="none" stroke="url(#pacta-mark)" strokeWidth={9} />
-      <Rect x={26} y={8} width={30} height={30} rx={15} fill="none" stroke={colors.forest} strokeWidth={9} />
-    </Svg>
-  );
+  return <Image source={logoSymbol} style={{ width: size, height: size }} resizeMode="contain" accessibilityLabel="PACTA" />;
 }
 
 interface PactaLogoProps {
@@ -25,18 +14,16 @@ interface PactaLogoProps {
   tagline?: string;
 }
 
+// Logo horizontal oficial (1600x390). `size` es la altura del logo.
 export function PactaLogo({ size = 40, tagline }: PactaLogoProps) {
   return (
-    <View style={styles.row}>
-      <PactaMark size={size} />
-      <View>
-        <Text style={{ fontSize: size * 0.8, lineHeight: size * 0.9, fontWeight: '900', letterSpacing: -1.5 }}>PACTA</Text>
-        {tagline ? <Text variant="eyebrow" color="muted">{tagline}</Text> : null}
-      </View>
+    <View style={styles.wrap}>
+      <Image source={logoHorizontal} style={{ width: size * (1600 / 390), height: size }} resizeMode="contain" accessibilityLabel="PACTA" />
+      {tagline ? <Text variant="eyebrow" color="muted">{tagline}</Text> : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  wrap: { alignItems: 'flex-start', gap: 6 },
 });

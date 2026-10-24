@@ -34,6 +34,26 @@ import {
   Zap,
   type LucideIcon,
 } from 'lucide-react-native';
+import { Image, type ImageSourcePropType } from 'react-native';
+
+import appBlockIcon from '@/assets/brand/icons/app_block.png';
+import calendarIcon from '@/assets/brand/icons/calendar.png';
+import cameraIcon from '@/assets/brand/icons/camera.png';
+import copilotIcon from '@/assets/brand/icons/copilot.png';
+import focusIcon from '@/assets/brand/icons/focus.png';
+import helpIcon from '@/assets/brand/icons/help.png';
+import locationIcon from '@/assets/brand/icons/location.png';
+import notificationsIcon from '@/assets/brand/icons/notifications.png';
+import pactIcon from '@/assets/brand/icons/pact.png';
+import progressIcon from '@/assets/brand/icons/progress.png';
+import retryIcon from '@/assets/brand/icons/retry.png';
+import settingsIcon from '@/assets/brand/icons/settings.png';
+import timelapseIcon from '@/assets/brand/icons/timelapse.png';
+import timerIcon from '@/assets/brand/icons/timer.png';
+import uploadIcon from '@/assets/brand/icons/upload.png';
+import verifiedIcon from '@/assets/brand/icons/verified.png';
+import walletIcon from '@/assets/brand/icons/wallet.png';
+import witnessIcon from '@/assets/brand/icons/witness.png';
 
 import { colors } from '@/lib/theme';
 
@@ -74,6 +94,29 @@ const icons = {
   pacts: CircleCheck,
 } satisfies Record<string, LucideIcon>;
 
+// Iconos de marca (assets/brand/icons): máscaras monocromas que se tiñen con `color`.
+// Los nombres sin PNG siguen usando Lucide.
+const brandIcons: Partial<Record<keyof typeof icons, ImageSourcePropType>> = {
+  timer: timerIcon,
+  timelapse: timelapseIcon,
+  focus: focusIcon,
+  camera: cameraIcon,
+  location: locationIcon,
+  witness: witnessIcon,
+  upload: uploadIcon,
+  verified: verifiedIcon,
+  copilot: copilotIcon,
+  calendar: calendarIcon,
+  wallet: walletIcon,
+  notifications: notificationsIcon,
+  appBlock: appBlockIcon,
+  progress: progressIcon,
+  settings: settingsIcon,
+  retry: retryIcon,
+  help: helpIcon,
+  pacts: pactIcon,
+};
+
 export type IconName = keyof typeof icons;
 export const iconNames = Object.keys(icons) as IconName[];
 
@@ -85,6 +128,9 @@ export interface IconProps {
 }
 
 export function Icon({ name, size = 20, color = colors.forest, strokeWidth = 2 }: IconProps) {
+  const brand = brandIcons[name];
+  if (brand) return <Image source={brand} style={{ width: size, height: size, tintColor: color }} />;
+
   const Glyph = icons[name];
   return <Glyph size={size} color={color} strokeWidth={strokeWidth} />;
 }
