@@ -17,7 +17,9 @@
     "seed:eval": "tsx --env-file=.env.local scripts/seed-eval.ts",
     "whop:webhook": "tsx --env-file=.env.local scripts/whop-webhook.ts",
     "whop:auth": "tsx --env-file=.env.local scripts/whop-auth.ts",
-    "check:auth": "tsx --env-file=.env.local scripts/check-auth.ts"
+    "check:auth": "tsx --env-file=.env.local scripts/check-auth.ts",
+    "check:release": "tsx --env-file=.env.local scripts/check-release.ts",
+    "batch:launch": "tsx --env-file=.env.local scripts/launch-batch.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.3.0",

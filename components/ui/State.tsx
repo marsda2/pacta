@@ -22,6 +22,8 @@ const messages: Record<string, string> = {
   deadline_passed: 'The deadline has already passed.',
   not_in_review: 'This pact isn’t waiting for a verdict.',
   not_appealable: 'This proof can’t be appealed right now.',
+  too_many_photos: 'You can add up to 2 extra photos.',
+  bad_image: 'One of the photos couldn’t be read.',
   appeal_requires_pass: 'Human appeals are included in the High-Yield Pass.',
   no_more_attempts: 'You’ve already used your second try for this pact.',
   review_expired: 'The time to retry this proof has run out.',
@@ -43,6 +45,9 @@ const messages: Record<string, string> = {
   auth_unavailable: 'Whop sign-in is temporarily unavailable. Please try again.',
   auth_not_configured: 'Whop sign-in isn’t set up yet.',
   bad_redirect: 'Sign-in isn’t available at this address yet.',
+  witness_link_invalid: 'This witness link has expired or been replaced. Ask for a fresh invitation.',
+  witness_link_required: 'Open the invitation shared by the pact owner to review their proof.',
+  prototype_disabled: 'Demo verdicts are unavailable here.',
 };
 
 export function errorMessage(error: unknown): string {

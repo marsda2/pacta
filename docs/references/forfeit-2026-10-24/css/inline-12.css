@@ -1,0 +1,33 @@
+
+            /* Standalone iMessage-style bubble - no card, no avatar, no dots,
+               just the bubble crossfading through messages. */
+            .flxv-ov-cycle-stage {
+                position: relative;
+                min-height: 96px;
+                width: 100%;
+                max-width: 340px;
+                flex: 0 0 auto;
+                align-self: center;
+            }
+            .flxv-ov-cycle-msg {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                background: #f3f5fb;
+                color: #0b0b0c;
+                padding: 13px 16px;
+                border-radius: 20px 20px 20px 6px;
+                border: 1px solid #d8dde9;
+                font-size: 15px;
+                line-height: 1.4;
+                font-weight: 500;
+                opacity: 0;
+                transform: translateY(6px);
+                transition: opacity 360ms ease, transform 360ms ease;
+                box-shadow: 0 1px 0 rgba(255,255,255,0.65) inset, 0 6px 18px rgba(11,11,12,0.06);
+                box-sizing: border-box;
+            }
+            .flxv-ov-cycle-msg.active { opacity: 1; transform: translateY(0); }
+            @media (prefers-reduced-motion: reduce) { .flxv-ov-cycle-msg { transition: none; } }
+            

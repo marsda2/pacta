@@ -14,7 +14,13 @@ interface JuryCase {
   title: string;
   dayCode: string;
   photoUrl: string;
+  // Apelación: el usuario cree que se equivocaron y añade pruebas y una nota.
+  appeal: boolean;
+  note: string | null;
+  evidence: string[];
 }
+
+const absolute = (url: string) => (url.startsWith('/') ? `${API_URL}${url}` : url);
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL ?? '';
 
@@ -75,8 +81,21 @@ export default function JuryReview() {
                 The photo should show the handwritten code <Text variant="bodyStrong">{item.dayCode}</Text>.
               </Text>
               <View style={styles.photo}>
-                <Image source={{ uri: item.photoUrl.startsWith('/') ? `${API_URL}${item.photoUrl}` : item.photoUrl }} style={StyleSheet.absoluteFill} contentFit="contain" />
+                <Image source={{ uri: absolute(item.photoUrl) }} style={StyleSheet.absoluteFill} contentFit="contain" />
               </View>
+              {item.appeal ? (
+                <>
+                  <Text variant="small" color="muted">
+                    This is an appeal: the person thinks the first review was wrong and added more evidence.
+                  </Text>
+                  {item.note ? <Text variant="body">“{item.note}”</Text> : null}
+                  {item.evidence.map((url) => (
+                    <View key={url} style={styles.photo}>
+                      <Image source={{ uri: absolute(url) }} style={StyleSheet.absoluteFill} contentFit="contain" />
+                    </View>
+                  ))}
+                </>
+              ) : null}
               <TextField label="Why? (optional)" value={reason} onChangeText={setReason} placeholder="e.g. photo of a screen" />
               <View style={styles.decide}>
                 <Button label="Real" leadingIcon="check" fullWidth={false} disabled={sending} onPress={() => vote('APPROVE')} style={styles.flex} />

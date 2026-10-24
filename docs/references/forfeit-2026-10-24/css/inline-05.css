@@ -1,0 +1,63 @@
+
+                    /* L12-style hero phone chat - replaces the carousel/messaging UI inside .iphone-screen */
+                    .right-content > .iphone-preview > .iphone-screen { display: flex !important; flex-direction: column !important; padding: 0 !important; }
+                    .right-content > .iphone-preview > .iphone-screen .iphone-status-bar,
+                    .right-content > .iphone-preview > .iphone-screen .top-nav-bar,
+                    .right-content > .iphone-preview > .iphone-screen .message-container,
+                    .right-content > .iphone-preview > .iphone-screen .chat-input-bar { display: none !important; }
+
+                    /* New Forfeit hero widget mount point - the actual styles live in the
+                       NewForfeitWidget script in <head> (injected once as .nfw scoped CSS).
+                       To revert: drop the #hero-newforfeit div and the NewForfeitWidget.mount call below. */
+                    .right-content > .iphone-preview > .iphone-screen > .l12hp { display: none !important; }
+
+                    .l12hp { font-family: 'Figtree', system-ui, -apple-system, sans-serif; color: #0b0b0c; display: flex; flex-direction: column; height: 100%; min-height: 0; padding: 0; -webkit-font-smoothing: antialiased; }
+                    .l12hp *, .l12hp *::before, .l12hp *::after { box-sizing: border-box; }
+
+                    .l12hp-iosbar { display: flex; align-items: center; justify-content: space-between; padding: 14px 22px 6px; flex-shrink: 0; position: relative; }
+                    .l12hp-iosbar-time { font-size: 15px; font-weight: 600; color: #0b0b0c; letter-spacing: -0.01em; line-height: 1; min-width: 56px; }
+                    .l12hp-iosbar-island { width: 86px; height: 26px; background: #0b0b0c; border-radius: 999px; }
+                    .l12hp-iosbar-icons { display: flex; gap: 5px; align-items: center; min-width: 56px; justify-content: flex-end; }
+
+                    .l12hp-content { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 6px 6px 0; overflow: hidden; }
+
+                    .l12hp-chat-header { display: flex; align-items: center; gap: 10px; padding: 4px 6px 12px; border-bottom: 1px solid #e6e6e8; margin-bottom: 4px; flex-shrink: 0; }
+                    .l12hp-chat-avatar { width: 36px; height: 36px; border-radius: 50%; background: #0b0b0c; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; flex-shrink: 0; }
+                    .l12hp-chat-name { font-size: 14px; font-weight: 600; color: #0b0b0c; line-height: 1.2; font-family: 'Figtree', sans-serif; text-shadow: none; letter-spacing: 0; text-transform: none; }
+                    .l12hp-chat-sub { font-size: 11.5px; color: #8a8a90; }
+                    .l12hp-chat-day { display: none !important; }
+
+                    /* Flutter-style Chat/Goals tab pill */
+                    .l12hp-tabs { display: flex; justify-content: space-between; align-items: center; padding: 4px 4px 8px; flex-shrink: 0; }
+                    .l12hp-headbtn { width: 30px; height: 30px; border-radius: 50%; background: #ffffff; border: 1px solid #e6e6e8; box-shadow: 0 1px 3px rgba(0,0,0,0.04); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; flex-shrink: 0; position: relative; }
+                    .l12hp-headbtn-bars { display: inline-flex; flex-direction: column; gap: 3px; align-items: center; justify-content: center; }
+                    .l12hp-headbtn-bars span { display: block; width: 13px; height: 1.5px; background: #0b0b0c; border-radius: 1px; }
+                    .l12hp-headbtn-badge { position: absolute; top: -3px; right: -3px; min-width: 14px; height: 14px; padding: 0 3px; border-radius: 999px; background: #e54545; color: #ffffff; font-family: 'Figtree', sans-serif; font-size: 9.5px; font-weight: 700; line-height: 14px; text-align: center; box-shadow: 0 1px 3px rgba(229,69,69,0.35); box-sizing: border-box; }
+                    .l12hp-headbtn svg { width: 14px; height: 14px; stroke: #0b0b0c; stroke-width: 1.8; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+                    .l12hp-tabs-pill { display: inline-flex; align-items: center; background: #ececef; border-radius: 16px; padding: 2px; width: 138px; height: 30px; }
+                    .l12hp-tab { display: inline-flex; align-items: center; justify-content: center; gap: 4px; padding: 0 10px; height: 26px; border-radius: 14px; border: none; background: transparent; color: #8a8a90; font-family: 'Figtree', sans-serif; font-size: 12.5px; font-weight: 500; letter-spacing: -0.005em; cursor: pointer; flex: 1; white-space: nowrap; transition: color 160ms ease, background 160ms ease; line-height: 1; }
+                    .l12hp-tab.active { background: #ffffff; color: #0b0b0c; font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,0.05), 0 4px 10px rgba(0,0,0,0.04); }
+                    .l12hp-tab svg { width: 12px; height: 12px; stroke: currentColor; stroke-width: 2; flex-shrink: 0; }
+
+                    .l12hp-thread { display: flex; flex-direction: column; gap: 7px; flex: 1; min-height: 0; padding: 4px 10px 8px; overflow-y: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; -ms-overflow-style: none; overscroll-behavior: contain; touch-action: pan-y; }
+                    .l12hp-thread::-webkit-scrollbar { display: none; }
+                    .l12hp-thread > .l12hp-cb:first-child { margin-top: auto; }
+                    .l12hp-cb { display: flex; width: 100%; }
+                    .l12hp-cb-them { justify-content: flex-start; }
+                    .l12hp-cb-me { justify-content: flex-end; }
+                    .l12hp-cb-inner { max-width: 78%; padding: 5px 10px; border-radius: 14px; font-size: 11.5px; line-height: 1.32; font-weight: 500; background: #fff; color: #0b0b0c; border: 1px solid #e6e6e8; box-shadow: 0 4px 12px rgba(11,11,12,0.05); }
+                    .l12hp-cb-them .l12hp-cb-inner { border-bottom-left-radius: 4px; }
+                    .l12hp-cb-me .l12hp-cb-inner { border-bottom-right-radius: 4px; }
+                    .l12hp-cb-inner-img { padding: 0; overflow: hidden; background: transparent; }
+                    .l12hp-cb-img { display: block; width: 150px; max-width: 100%; height: auto; }
+
+                    /* Action widget styling is global (.olc-action / .l12hp-aw
+                       are aliased). This rule only sets the row-level layout. */
+                    .l12hp-cb-aw { width: 100%; }
+
+                    .l12hp-input { display: flex; align-items: center; gap: 8px; margin: 10px 2px 8px; padding: 5px 5px 5px 8px; background: #fff; border: 1px solid #e6e6e8; border-radius: 999px; flex-shrink: 0; min-height: 44px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
+                    .l12hp-input-add { width: 32px; height: 32px; border-radius: 50%; background: #f4f4f5; color: #0b0b0c; display: inline-flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 400; line-height: 1; flex-shrink: 0; padding-bottom: 2px; font-family: 'Figtree', sans-serif; }
+                    .l12hp-input-text { flex: 1; font-size: 14px; color: #8a8a90; font-family: 'Figtree', sans-serif; font-weight: 400; padding: 0 2px; letter-spacing: -0.005em; }
+                    .l12hp-input-mic { width: 32px; height: 32px; border-radius: 50%; background: #0b0b0c; border: none; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><rect x='9' y='2' width='6' height='13' rx='3'/><path d='M5 11a7 7 0 0 0 14 0M12 18v3'/></svg>"); background-repeat: no-repeat; background-position: center; background-size: 16px 16px; }
+                    .l12hp-home-ind { width: 120px; height: 4px; background: #0b0b0c; border-radius: 4px; margin: 6px auto 8px; flex-shrink: 0; }
+                

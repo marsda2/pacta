@@ -12,8 +12,10 @@ export interface PactReviewDto {
   juryOpen: boolean;
   // Puede subir una segunda prueba.
   canRetry: boolean;
-  // Puede pedir un juez humano.
+  // Puede pedir un panel de jueces humanos.
   canAppeal: boolean;
+  // Fianza que deja en juego si apela (0 = cubierta por el Pass). Solo si canAppeal.
+  appealBondCents?: number;
   // Horas que quedan antes de que el stake pase al Vault si nadie lo resuelve.
   hoursLeft?: number;
 }

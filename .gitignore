@@ -44,3 +44,6 @@ yarn-error.*
 
 .vercel
 .env*
+
+# Local, temporary QA state
+/.local-qa/

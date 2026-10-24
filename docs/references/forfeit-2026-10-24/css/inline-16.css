@@ -1,0 +1,34 @@
+
+                    /* Dark-mode overrides for the ported "How does Overlord
+                       keep you on track?" section. The mockups themselves
+                       (call card, charge card, Safari window, iOS lock screen,
+                       map card, evidence card, memory card) stay light because
+                       they're meant to look like the actual device UI they
+                       represent. Only the page-level text + section bg get
+                       inverted to match the surrounding olp-pitch. */
+                    .olp-pitch .sw-section { background: transparent !important; color: #ffffff !important; padding: 0 !important; max-width: 1100px; margin: 140px auto 0 !important; }
+                    @media (max-width: 768px) {
+                        .olp-pitch .sw-section { margin-top: 96px !important; }
+                    }
+                    .olp-pitch .sw-head { max-width: 760px; margin: 0 auto 56px; }
+                    .olp-pitch .sw-head-eyebrow { color: rgba(255,255,255,0.55); }
+                    .olp-pitch .sw-head-h2 { color: #ffffff; }
+                    .olp-pitch .sw-head-sub { color: rgba(255,255,255,0.66); }
+                    .olp-pitch .sw-vlist { gap: 72px; }
+                    .olp-pitch .sw-vrow-num { color: rgba(255,255,255,0.72); }
+                    .olp-pitch .sw-vrow-h { color: #ffffff; }
+                    .olp-pitch .sw-vrow-body { color: rgba(255,255,255,0.66); }
+                    .olp-pitch .sw-aw-meta { color: rgba(255,255,255,0.72); }
+
+                    /* Invert the call card to white so it pops against the
+                       dark section instead of disappearing into it. */
+                    .olp-pitch .sw-aw-call {
+                        background: #ffffff !important;
+                        color: #0b0b0c !important;
+                        box-shadow: 0 16px 40px rgba(0,0,0,0.30) !important;
+                    }
+                    .olp-pitch .sw-aw-call-status { color: #626269 !important; }
+                    .olp-pitch .sw-aw-call-name { color: #0b0b0c !important; }
+                    .olp-pitch .sw-aw-call-sub { color: #626269 !important; }
+                    .olp-pitch .sw-aw-call-btn.reject { background: #ececef !important; color: #0b0b0c !important; }
+                    

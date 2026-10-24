@@ -1,111 +1,72 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Platform, Share, StyleSheet, View } from 'react-native';
 
 import { PaxSays } from '@/components/companion/Pax';
 import { PactResultCard } from '@/components/pact/PactResultCard';
 import { Button, Card, ErrorBanner, LoadingBlock, Screen, ScreenTitle, SectionLabel, Text } from '@/components/ui';
+import { apiFetch } from '@/lib/api/client';
 import { routes } from '@/lib/routes';
+import { formatUsd } from '@/lib/shared/rules';
 import { usePacts } from '@/lib/store/pacts';
 
-// Flujo 06 · Pact result (y estado intermedio "reviewing" mientras no hay veredicto)
 export default function PactResult() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { getPact, resolvePact, appealPact, loading } = usePacts();
+  const { getPact, loading } = usePacts();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<unknown>(null);
+  const [witnessUrl, setWitnessUrl] = useState<string | null>(null);
   const pact = getPact(id);
 
-  const appeal = async () => {
+  const inviteWitness = async () => {
     setBusy(true);
     setError(null);
     try {
-      await appealPact(id);
-    } catch (e) {
-      setError(e);
-    } finally {
-      setBusy(false);
-    }
+      const { path } = await apiFetch<{ path: string }>(`/api/pacts/${id}/witness-link`, { method: 'POST' });
+      setWitnessUrl(`${Platform.OS === 'web' ? window.location.origin : 'https://pacta-theta.vercel.app'}${path}`);
+    } catch (e) { setError(e); }
+    finally { setBusy(false); }
+  };
+  const share = async () => {
+    if (!witnessUrl) return;
+    try { await Share.share({ message: `Would you review my PACTA proof? ${witnessUrl}` }); }
+    catch { /* The selectable link below also works on browsers without sharing. */ }
   };
 
-  const decide = async (kept: boolean) => {
-    setBusy(true);
-    setError(null);
-    try {
-      await resolvePact(id, kept, 'demo');
-    } catch (e) {
-      setError(e);
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  if (!pact && loading) {
-    return (
-      <Screen>
-        <LoadingBlock />
-      </Screen>
-    );
-  }
-
-  if (!pact) {
-    return (
-      <Screen>
-        <ScreenTitle title="Pact not found" onBack={() => router.replace(routes.home)} />
-      </Screen>
-    );
-  }
+  if (!pact && loading) return <Screen><LoadingBlock /></Screen>;
+  if (!pact) return <Screen><ScreenTitle title="Pact not found" onBack={() => router.replace(routes.home)} /></Screen>;
 
   const reviewing = pact.status === 'pending' || pact.status === 'progress' || pact.status === 'scheduled';
-  // La IA dudó (o el stake es bajo y no se abrió jurado): el usuario decide cómo seguir.
   const review = pact.review;
   const doubt = !!review && review.aiReviewed && !review.juryOpen;
-  const paxMessage = review?.juryOpen
-    ? 'A human reviewer from the Terac jury is looking at your proof.'
-    : doubt
-      ? 'I’m not sure about this photo. You can retake it, ask a witness, or appeal to a human.'
-      : 'Hang tight. A witness or the Terac jury will take a look.';
+  const message = review?.juryOpen
+    ? 'Your proof is waiting for the Terac jury. We’ll update your pact when the review is complete.'
+    : doubt ? 'I’m not sure about this photo. You can retake it, ask a witness, or appeal to a human.'
+    : 'Your pact is still in progress. Open its details to see the next step.';
 
   return (
     <Screen>
       <ScreenTitle title={reviewing ? 'Reviewing your proof.' : pact.title} subtitle={reviewing ? pact.title : undefined} onBack={() => router.replace(routes.home)} />
-
       {reviewing ? (
         <>
-          <PaxSays message={paxMessage} expression={doubt ? 'worried' : 'talking'} />
-          {doubt ? (
-            <Card style={styles.demo}>
+          <PaxSays message={message} expression={doubt ? 'worried' : 'talking'} />
+          {pact.rawStatus === 'AI_REVIEW' ? (
+            <Card style={styles.options}>
               <SectionLabel>Your options</SectionLabel>
-              <Text variant="small" color="muted">
-                {review.hoursLeft !== undefined
-                  ? `If nothing changes in ${review.hoursLeft}h, your stake moves to your Vault. You don’t lose it.`
-                  : 'Pick how to continue.'}
-              </Text>
-              {review.canRetry ? <Button label="Retake the photo" icon="camera" onPress={() => router.push(routes.proof(pact.id))} /> : null}
-              <Button label="Ask a witness" icon="arrowRight" variant="mint" onPress={() => router.push(routes.witness(pact.id))} />
-              {review.canAppeal ? <Button label={busy ? 'Sending…' : 'Appeal to a human reviewer'} variant="outline" disabled={busy} onPress={appeal} /> : null}
+              {review?.hoursLeft !== undefined ? <Text variant="small" color="muted">If nothing changes in {review.hoursLeft}h, your stake moves to your Vault.</Text> : null}
+              {review?.canRetry ? <Button label="Retake the photo" icon="camera" onPress={() => router.push(routes.proof(pact.id))} /> : null}
+              <Button label={busy ? 'Preparing invitation…' : 'Ask a witness'} icon="arrowRight" variant="mint" disabled={busy} onPress={inviteWitness} />
+              {witnessUrl ? <View style={styles.options}><Text variant="small" color="muted">Send this private link to someone who can review your proof. It expires with this review.</Text><Text variant="caption" selectable>{witnessUrl}</Text><Button label="Share invitation" variant="outline" onPress={share} /></View> : null}
+              {review?.canAppeal ? <Button label={review.appealBondCents ? `Appeal to a human panel · ${formatUsd(review.appealBondCents)} at stake` : 'Appeal to a human panel'} variant="outline" onPress={() => router.push(routes.appeal(pact.id))} /> : null}
               {error ? <ErrorBanner error={error} /> : null}
             </Card>
           ) : null}
-          <Card style={styles.demo}>
-            <SectionLabel>Prototype controls</SectionLabel>
-            <Text variant="small" color="muted">
-              Verdicts will come from the AI auditor and the Terac jury (roadmap phase 5). For now, pick an outcome.
-            </Text>
-            {doubt ? null : <Button label="Ask a witness" icon="arrowRight" variant="mint" onPress={() => router.push(routes.witness(pact.id))} />}
-            {doubt ? null : error ? <ErrorBanner error={error} /> : null}
-            <Button label="Simulate: pact kept" variant="outline" disabled={busy} onPress={() => decide(true)} />
-            <Button label="Simulate: deadline missed" variant="outline" disabled={busy} onPress={() => decide(false)} />
-          </Card>
+          <Button label="View pact details" variant="outline" onPress={() => router.push(routes.pact(pact.id))} />
         </>
       ) : (
         <View style={styles.result}>
-          <PactResultCard
-            pact={pact}
-            onPlanNext={() => router.replace(routes.newPact)}
-            onViewDetails={() => router.push(routes.pact(pact.id))}
-          />
+          <PactResultCard pact={pact} onPlanNext={() => router.replace(routes.newPact)} onViewDetails={() => router.push(routes.pact(pact.id))} />
           <Button label="Back to my pacts" variant="link" onPress={() => router.replace(routes.pacts)} />
         </View>
       )}
@@ -113,7 +74,4 @@ export default function PactResult() {
   );
 }
 
-const styles = StyleSheet.create({
-  demo: { gap: 12 },
-  result: { gap: 16 },
-});
+const styles = StyleSheet.create({ options: { gap: 12 }, result: { gap: 16 } });

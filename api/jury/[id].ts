@@ -14,9 +14,11 @@ interface JuryRow {
   storage_path: string;
   title: string;
   day_code: string;
+  raw: { appeal?: boolean; panel?: number; note?: string } | null;
 }
 
-// GET  /api/jury/:id  → el caso que ve el juez (foto, título y código del día).
+// GET  /api/jury/:id  → el caso que ve el juez (foto, título, código del día y, si es una
+//                       apelación, las pruebas extra y la nota del usuario).
 // POST /api/jury/:id  → el voto del juez; Terac añade su submission a la URL de la página.
 // :id es jury_tasks.id. No se expone nada del stake ni del veredicto de la IA, para no sesgar.
 export default api(async (req, res) => {
@@ -24,7 +26,7 @@ export default api(async (req, res) => {
   const id = uuidParam(req.query.id);
 
   const { rows } = await query<JuryRow>(
-    `select jt.status, jt.terac_task_id, p.id as proof_id, p.storage_path, pc.title, pc.day_code
+    `select jt.status, jt.terac_task_id, jt.raw, p.id as proof_id, p.storage_path, pc.title, pc.day_code
        from pacta.jury_tasks jt
        join pacta.proofs p on p.id = jt.proof_id
        join pacta.pacts pc on pc.id = p.pact_id
@@ -40,7 +42,15 @@ export default api(async (req, res) => {
     const photoUrl = task.storage_path.startsWith('db:')
       ? `/api/proofs/${task.proof_id}/image`
       : await signedProofUrl(task.storage_path);
-    return res.status(200).json({ title: task.title, dayCode: task.day_code, photoUrl });
+    const evidence = await query<{ id: string }>('select id from pacta.appeal_evidence where jury_task_id = $1 order by created_at', [id]);
+    return res.status(200).json({
+      title: task.title,
+      dayCode: task.day_code,
+      photoUrl,
+      appeal: task.raw?.appeal === true,
+      note: task.raw?.note ?? null,
+      evidence: evidence.rows.map((row) => `/api/proofs/${row.id}/image`),
+    });
   }
 
   const { verdict, reason, teracSubmissionId, taskId } = (req.body ?? {}) as Record<string, unknown>;
@@ -71,7 +81,9 @@ export default api(async (req, res) => {
     [id, teracSubmissionId, JSON.stringify(vote)],
   );
   const votes = Object.values(saved.rows[0]?.votes ?? {}).map((v) => v.verdict);
-  if (votes.length >= JURY_QUORUM) await closeJuryTask(id, resolveJuryVerdict(votes));
+  // Un caso normal lo cierra un juez; una apelación, la mayoría de su panel.
+  const quorum = task.raw?.panel ?? JURY_QUORUM;
+  if (votes.length >= quorum) await closeJuryTask(id, resolveJuryVerdict(votes));
 
   return res.status(200).json({
     ok: true,

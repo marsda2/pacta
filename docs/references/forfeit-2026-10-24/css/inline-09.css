@@ -1,0 +1,601 @@
+
+        /* ---- Container layout: large label list left, phone right ---- */
+        .other-features-section .other-features-container {
+            grid-template-columns: 1.15fr 0.85fr !important;
+            gap: 64px !important;
+            align-items: center !important;
+            max-width: 1140px !important;
+            margin: 0 auto !important;
+            width: 100% !important;
+        }
+
+        /* Vertical stacked feature list (restored from L12 base) */
+        .other-features-section .feature-list {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            justify-content: center !important;
+            gap: 18px !important;
+            text-align: left !important;
+            position: relative !important;
+        }
+
+        .other-features-section .feature-list-item {
+            display: block !important;
+            width: 100% !important;
+            padding: 0 !important;
+            background: transparent !important;
+            border: none !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            cursor: pointer !important;
+            text-align: left !important;
+            transition: color 0.3s ease !important;
+        }
+
+        .other-features-section .feature-list-item:hover .feature-list-title {
+            color: #8a8a90 !important;
+        }
+
+        /* Feature title - inactive (light gray) */
+        .other-features-section .feature-list-title {
+            font-family: 'Figtree', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            font-size: 1.75rem !important;
+            font-weight: 600 !important;
+            line-height: 1.2 !important;
+            letter-spacing: -0.01em !important;
+            text-transform: none !important;
+            color: #d4d4d8 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            text-shadow: none !important;
+            filter: none !important;
+            opacity: 1 !important;
+            transition: color 0.3s ease !important;
+        }
+
+        /* Active title - L12 ink black */
+        .other-features-section .feature-list-item.is-active .feature-list-title {
+            color: #0b0b0c !important;
+        }
+
+        /* Hide the legacy fake scrollbar entirely in this section */
+        .other-features-section .fake-scrollbar-container,
+        .other-features-section .fake-scrollbar-thumb {
+            display: none !important;
+        }
+
+        /* ----- Responsive (feature label sizes) -----
+           These rules are inside the section-scoped block and use
+           !important, so they win over the earlier global
+           `.feature-list-title` rules. Keep the cuts here. Labels are
+           dropped to a subtitle scale on tablet/mobile so they stop
+           dwarfing the phone, and letter-spacing is tightened so the
+           uppercase titles fit one line. */
+        @media (max-width: 992px) {
+            .other-features-section .other-features-container {
+                grid-template-columns: 1fr !important;
+                gap: 40px !important;
+                max-width: 720px !important;
+            }
+            .other-features-section .feature-list {
+                align-items: center !important;
+                text-align: center !important;
+            }
+            .other-features-section .feature-list-item {
+                text-align: center !important;
+            }
+            .other-features-section .fake-scrollbar-container {
+                display: none !important;
+            }
+        }
+        @media (max-width: 768px) {
+            .other-features-section .other-features-container {
+                gap: 25px !important;
+                max-width: 90% !important;
+            }
+        }
+
+        /* ============================================================
+           SHARED PHONE CHASSIS - .ol-phone
+           Used by BOTH the hero (.right-content > .iphone-preview)
+           AND the other-features section. Same chassis, status bar,
+           dynamic island, "Message Overlord" composer. Only the inner
+           chat content differs.
+           ============================================================ */
+
+        /* Chassis: titanium gradient, hairline border, soft shadow */
+        .ol-phone {
+            background: linear-gradient(180deg, #f7f7f9 0%, #ececef 100%) !important;
+            background-image: linear-gradient(180deg, #f7f7f9 0%, #ececef 100%) !important;
+            border: 1px solid #e6e6e8 !important;
+            border-radius: 46px !important;
+            padding: 12px !important;
+            box-shadow: 0 28px 70px rgba(11,11,12,0.12), 0 6px 18px rgba(11,11,12,0.05) !important;
+            width: 320px !important;
+            max-width: 100% !important;
+            aspect-ratio: 686 / 1376 !important;
+            height: auto !important;
+            position: relative !important;
+            overflow: visible !important;
+            margin: 0 auto !important;
+            display: block !important;
+            font-family: 'Figtree', system-ui, -apple-system, sans-serif !important;
+            -webkit-font-smoothing: antialiased !important;
+        }
+        .ol-phone *, .ol-phone *::before, .ol-phone *::after { box-sizing: border-box !important; }
+
+        /* Inner screen - sits in the chassis content box so the chassis
+           padding (12px) shows as the visible gradient bezel. Matches the
+           hero pattern at .right-content > .iphone-preview > .iphone-screen. */
+        .ol-phone-screen {
+            background: #ffffff !important;
+            border-radius: 34px !important;
+            overflow: hidden !important;
+            position: relative !important;
+            width: 100% !important;
+            height: 100% !important;
+            display: flex !important;
+            flex-direction: column !important;
+            min-height: 0 !important;
+        }
+
+        /* iOS status bar with dynamic island */
+        .ol-phone-iosbar {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            padding: 14px 22px 6px !important;
+            flex-shrink: 0 !important;
+            position: relative !important;
+            background: transparent !important;
+        }
+        .ol-phone-iosbar-time {
+            font-size: 15px !important;
+            font-weight: 600 !important;
+            color: #0b0b0c !important;
+            letter-spacing: -0.01em !important;
+            line-height: 1 !important;
+            min-width: 56px !important;
+            font-family: 'Figtree', sans-serif !important;
+        }
+        .ol-phone-island {
+            width: 86px !important;
+            height: 26px !important;
+            background: #0b0b0c !important;
+            border-radius: 999px !important;
+        }
+        .ol-phone-iosbar-icons {
+            display: flex !important;
+            gap: 5px !important;
+            align-items: center !important;
+            min-width: 56px !important;
+            justify-content: flex-end !important;
+        }
+
+        /* Inner content area where chat lives */
+        .ol-phone-content {
+            flex: 1 !important;
+            min-height: 0 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            padding: 6px 6px 0 !important;
+            overflow: hidden !important;
+            position: relative !important;
+        }
+
+        /* Bottom "Message Overlord" composer pill */
+        .ol-phone-input {
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            margin: 10px 8px 8px !important;
+            padding: 5px 5px 5px 8px !important;
+            background: #ffffff !important;
+            border: 1px solid #e6e6e8 !important;
+            border-radius: 999px !important;
+            flex-shrink: 0 !important;
+            min-height: 44px !important;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03) !important;
+        }
+        .ol-phone-input-add {
+            width: 32px !important;
+            height: 32px !important;
+            border-radius: 50% !important;
+            background: #f4f4f5 !important;
+            color: #0b0b0c !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            font-size: 20px !important;
+            font-weight: 400 !important;
+            line-height: 1 !important;
+            flex-shrink: 0 !important;
+            padding-bottom: 2px !important;
+            font-family: 'Figtree', sans-serif !important;
+        }
+        .ol-phone-input-text {
+            flex: 1 !important;
+            font-size: 14px !important;
+            color: #8a8a90 !important;
+            font-family: 'Figtree', sans-serif !important;
+            font-weight: 400 !important;
+            padding: 0 2px !important;
+            letter-spacing: -0.005em !important;
+        }
+        .ol-phone-input-mic {
+            width: 32px !important;
+            height: 32px !important;
+            border-radius: 50% !important;
+            background-color: #0b0b0c !important;
+            border: none !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            flex-shrink: 0 !important;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><rect x='9' y='2' width='6' height='13' rx='3'/><path d='M5 11a7 7 0 0 0 14 0M12 18v3'/></svg>") !important;
+            background-repeat: no-repeat !important;
+            background-position: center !important;
+            background-size: 16px 16px !important;
+        }
+
+        /* Home indicator at the very bottom */
+        .ol-phone-home-ind {
+            width: 120px !important;
+            height: 4px !important;
+            background: #0b0b0c !important;
+            border-radius: 4px !important;
+            margin: 6px auto 8px !important;
+            flex-shrink: 0 !important;
+        }
+
+        /* ============================================================
+           UNIFIED BUBBLE + ACTION WIDGET TOKENS
+           Single source of truth. Change a token here and every chat
+           bubble + action widget across every phone updates. Canonical
+           class names are .olc-bubble (chat) and .olc-action (action
+           widget). Legacy class names (.l12hp-cb-inner, .l12hp-aw,
+           .agent-message, .user-message, .pct-bub) are aliased below
+           so existing markup picks up the unified look without edits.
+           ============================================================ */
+        :root {
+            --olc-bubble-bg: #ffffff;
+            --olc-bubble-text: #0b0b0c;
+            --olc-bubble-text-soft: #5a5a5f;
+            --olc-bubble-border: 1px solid #e6e6e8;
+            --olc-bubble-radius: 14px;
+            --olc-bubble-shadow: 0 4px 12px rgba(11,11,12,0.05);
+            --olc-bubble-padding: 9px 13px;
+            --olc-bubble-font: 'Figtree', system-ui, -apple-system, sans-serif;
+            --olc-bubble-cell: #f4f4f5;
+        }
+
+        /* Chat bubble - canonical + legacy aliases. Tail-corner direction
+           is set via parent class context further down. */
+        .olc-bubble,
+        .iphone-screen .l12hp-cb-inner,
+        .iphone-screen .agent-message,
+        .iphone-screen .user-message,
+        .ol-phone .pct-bub,
+        .ol-phone .pct-act {
+            max-width: 80% !important;
+            background: var(--olc-bubble-bg) !important;
+            color: var(--olc-bubble-text) !important;
+            border: var(--olc-bubble-border) !important;
+            border-radius: var(--olc-bubble-radius) !important;
+            box-shadow: var(--olc-bubble-shadow) !important;
+            padding: var(--olc-bubble-padding) !important;
+            font-size: 13.5px !important;
+            line-height: 1.4 !important;
+            font-family: var(--olc-bubble-font) !important;
+            font-weight: 500 !important;
+            margin: 0 !important;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        /* Action widget - canonical + legacy alias (.l12hp-aw). Reusable
+           anywhere on the page. Build one via window.OverlordUI.buildAction
+           or hand-write the markup with these classes. */
+        .olc-action,
+        .l12hp-aw {
+            width: 100%;
+            background: var(--olc-bubble-bg);
+            border: var(--olc-bubble-border);
+            border-radius: var(--olc-bubble-radius);
+            box-shadow: var(--olc-bubble-shadow);
+            overflow: hidden;
+            font-family: var(--olc-bubble-font);
+        }
+        /* Inside legacy .iphone-screen previews, size to content (max 88%)
+           so the .message-wrapper.agent / .user can position left/right. */
+        .iphone-screen .olc-action { width: auto !important; max-width: 88% !important; }
+        .olc-action-top,
+        .l12hp-aw-top { padding: 9px 12px 9px; display: flex; gap: 9px; align-items: center; }
+        .olc-action-icon,
+        .l12hp-aw-icon { width: 22px; height: 22px; border-radius: 6px; background: var(--olc-bubble-cell); display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--olc-bubble-text); align-self: flex-start; margin-top: 1px; }
+        .olc-action-icon svg,
+        .l12hp-aw-icon svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .olc-action-text,
+        .l12hp-aw-text { display: flex; flex-direction: column; gap: 0; min-width: 0; flex: 1; }
+        .olc-action-title,
+        .l12hp-aw-title { font-size: 12.5px; font-weight: 700; color: var(--olc-bubble-text); line-height: 1.25; letter-spacing: -0.005em; }
+        .olc-action-body,
+        .l12hp-aw-body { font-size: 11.5px; color: var(--olc-bubble-text-soft); line-height: 1.3; margin-top: 1px; }
+
+        /* Track-everything bar graph widget. Uses the same shell tokens
+           as .olc-action so it feels like part of the same family. */
+        .olc-trackbar {
+            width: 100%;
+            background: var(--olc-bubble-bg);
+            border: var(--olc-bubble-border);
+            border-radius: var(--olc-bubble-radius);
+            box-shadow: var(--olc-bubble-shadow);
+            font-family: var(--olc-bubble-font);
+            padding: 11px 13px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+            box-sizing: border-box;
+        }
+        .olc-trackbar-head {
+            font-size: 9.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--olc-bubble-text-soft);
+            line-height: 1;
+        }
+        .olc-trackbar-rows { display: flex; flex-direction: column; gap: 7px; }
+        .olc-trackbar-row {
+            display: grid;
+            grid-template-columns: 62px 1fr 32px;
+            align-items: center;
+            gap: 8px;
+        }
+        .olc-trackbar-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--olc-bubble-text);
+            line-height: 1.15;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .olc-trackbar-track {
+            height: 6px;
+            background: var(--olc-bubble-cell);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .olc-trackbar-fill {
+            height: 100%;
+            background: var(--olc-bubble-text);
+            border-radius: 3px;
+        }
+        .olc-trackbar-val {
+            font-size: 10.5px;
+            font-weight: 600;
+            color: var(--olc-bubble-text-soft);
+            line-height: 1.15;
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* ============================================================
+           TIER 1 LEGACY ACTION-CARD ALIASES
+           Maps the older .integration-message and .call-action-box
+           structures (used in integrations, create-goals-via-chat, and
+           the features grid) to the canonical .olc-action look. No
+           HTML rewrites required - existing markup picks up the
+           unified border / radius / shadow / typography. These cards
+           don't have an inner .olc-action-top wrapper, so padding is
+           applied directly to the outer card.
+
+           Conflicting older !important rules (~line 4237, 6191, 6238,
+           6244) are overridden by virtue of being matched + appearing
+           later in the file. The legacy CSS is left in place because
+           other (non-card) selectors still reference the same rule
+           blocks; removing them risks regressions elsewhere.
+           ============================================================ */
+        .iphone-screen .integration-message,
+        .iphone-screen .call-action-box {
+            background: var(--olc-bubble-bg) !important;
+            color: var(--olc-bubble-text) !important;
+            border: var(--olc-bubble-border) !important;
+            border-radius: var(--olc-bubble-radius) !important;
+            box-shadow: var(--olc-bubble-shadow) !important;
+            padding: 9px 12px !important;
+            font-family: var(--olc-bubble-font) !important;
+            font-weight: 500 !important;
+            margin: 0 !important;
+            max-width: 88% !important;
+        }
+        .iphone-screen .integration-message .integration-title,
+        .iphone-screen .call-action-box .call-action-title {
+            font-size: 12.5px !important;
+            font-weight: 700 !important;
+            color: var(--olc-bubble-text) !important;
+            line-height: 1.25 !important;
+            letter-spacing: -0.005em !important;
+            margin: 0 !important;
+        }
+        .iphone-screen .integration-message .integration-content,
+        .iphone-screen .call-action-box .call-action-text {
+            font-size: 11.5px !important;
+            font-weight: 400 !important;
+            color: var(--olc-bubble-text-soft) !important;
+            line-height: 1.3 !important;
+            margin: 1px 0 0 !important;
+        }
+        /* Call-action-box has a header row with icon + title side-by-side */
+        .iphone-screen .call-action-box .call-action-header {
+            display: flex !important;
+            align-items: center !important;
+            gap: 9px !important;
+            margin: 0 !important;
+        }
+        .iphone-screen .call-action-box .call-action-icon {
+            width: 22px !important;
+            height: 22px !important;
+            border-radius: 6px !important;
+            background: var(--olc-bubble-cell) !important;
+            padding: 4px !important;
+            box-sizing: border-box !important;
+            display: block !important;
+            filter: none !important;
+        }
+        .iphone-screen .call-action-box .call-action-body {
+            margin: 4px 0 0 !important;
+            padding: 0 !important;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        /* Image bubble variant - kill padding/background so the photo fills
+           the bubble edge-to-edge. Must come after the unified rule above
+           to win the !important specificity battle. */
+        .iphone-screen .l12hp-cb-inner.l12hp-cb-inner-img,
+        .iphone-screen .l12hp-cb-me .l12hp-cb-inner.l12hp-cb-inner-img,
+        .iphone-screen .l12hp-cb-them .l12hp-cb-inner.l12hp-cb-inner-img {
+            padding: 0 !important;
+            background: transparent !important;
+            overflow: hidden !important;
+            line-height: 0 !important;
+            font-size: 0 !important;
+            width: 150px !important;
+            max-width: 150px !important;
+        }
+        .iphone-screen .l12hp-cb-inner.l12hp-cb-inner-img .l12hp-cb-img {
+            display: block !important;
+            width: 100% !important;
+            height: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        /* Legacy "action card" variant - applied to old markup with
+           .integration-title inside .agent-message and to .pct-act in
+           the production chat thread mock. Does NOT match the canonical
+           .olc-action widget (that one has its own inner structure
+           defined above; this rule would double its padding). */
+        .iphone-screen .agent-message:has(.integration-title),
+        .ol-phone .pct-act {
+            max-width: 88% !important;
+            padding: 11px 13px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 5px !important;
+        }
+
+        /* Tail-corner shaping - "them" (left side) bubbles get a
+           sharper bottom-left corner; "me" (right side) gets a sharper
+           bottom-right corner. Mirrors landing 17. */
+        .olc-bubble--them,
+        .iphone-screen .l12hp-cb-them .l12hp-cb-inner,
+        .iphone-screen .message-wrapper.agent .agent-message,
+        .ol-phone .pct-row.them .pct-bub,
+        .ol-phone .pct-row.them .pct-act {
+            border-bottom-left-radius: 4px !important;
+        }
+        .olc-bubble--me,
+        .iphone-screen .l12hp-cb-me .l12hp-cb-inner,
+        .iphone-screen .message-wrapper.user .user-message,
+        .ol-phone .pct-row.me .pct-bub,
+        .ol-phone .pct-row.me .pct-act {
+            border-bottom-right-radius: 4px !important;
+        }
+
+        /* Hide sender + time metadata everywhere - all three phones should
+           render just the bubbles, no "Overlord 8:01 AM" / "You 5:30 PM"
+           labels and no per-phone section title. Keeps the look consistent
+           with the hero phone. */
+        .iphone-screen .message-header,
+        .ol-phone .pct-time,
+        .ol-phone .prod-int-phone-title { display: none !important; }
+
+        /* Belt + braces: explicitly force the canonical border on every
+           chat bubble class across every phone. The earlier unified rule
+           should already do this, but some legacy rules elsewhere have
+           !important border: none that race with the cascade. */
+        .iphone-screen .l12hp-cb-inner,
+        .iphone-screen .agent-message,
+        .iphone-screen .user-message,
+        .ol-phone .pct-bub,
+        .iphone-screen .pct-bub,
+        .pct-bub {
+            border: var(--olc-bubble-border) !important;
+            background: var(--olc-bubble-bg) !important;
+            box-shadow: var(--olc-bubble-shadow) !important;
+        }
+
+        /* Suppress legacy chassis pseudo elements + legacy iphone-screen pseudo home indicator */
+        .ol-phone::before, .ol-phone::after { display: none !important; content: none !important; }
+        .ol-phone-screen::after { display: none !important; content: none !important; }
+        .ol-phone-screen::before { display: none !important; content: none !important; }
+
+        /* ----- Other-features-specific: drive .iphone-preview to match .ol-phone ----- */
+        .other-features-section .iphone-preview {
+            background: linear-gradient(180deg, #f7f7f9 0%, #ececef 100%) !important;
+            background-image: linear-gradient(180deg, #f7f7f9 0%, #ececef 100%) !important;
+            border: 1px solid #e6e6e8 !important;
+            border-radius: 46px !important;
+            padding: 12px !important;
+            box-shadow: 0 28px 70px rgba(11,11,12,0.12), 0 6px 18px rgba(11,11,12,0.05) !important;
+            width: 320px !important;
+            max-width: 100% !important;
+            aspect-ratio: 686 / 1376 !important;
+            height: auto !important;
+            position: relative !important;
+            overflow: visible !important;
+            margin: 0 auto !important;
+            display: block !important;
+        }
+        .other-features-section .iphone-preview::before,
+        .other-features-section .iphone-preview::after { display: none !important; content: none !important; }
+
+        /* Other-features chat thread inside the shared screen — anchor bubbles to bottom (iMessage-style) */
+        .other-features-section .ol-phone-content .message-container {
+            padding: 8px 10px 0 !important;
+            flex: 1 !important;
+            min-height: 0 !important;
+            overflow-y: auto !important;
+            -ms-overflow-style: none !important;
+            scrollbar-width: none !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: flex-end !important;
+            gap: 6px !important;
+        }
+        .other-features-section .ol-phone-content .message-container::-webkit-scrollbar { display: none !important; }
+        .other-features-section .ol-phone-content .message-container.hidden { display: none !important; }
+
+        /* Phone in this section was sized to share visual weight with the
+           desktop left-rail labels (3rem). Once labels collapse to subtitle
+           size, the phone needs to be much larger to read as the focal
+           point instead of a tiny preview floating below a stack of
+           headings. Sizes here are deliberately aggressive so the phone
+           takes ~85% of viewport on mobile and dominates the section. */
+        @media (max-width: 992px) {
+            .other-features-section .iphone-preview,
+            .other-features-section .ol-phone {
+                width: 320px !important;
+                margin: 0 auto !important;
+            }
+        }
+        @media (max-width: 768px) {
+            .other-features-section .iphone-preview,
+            .other-features-section .ol-phone {
+                width: 380px !important;
+                max-width: 85vw !important;
+            }
+        }
+        @media (max-width: 480px) {
+            .other-features-section .iphone-preview,
+            .other-features-section .ol-phone {
+                width: 300px !important;
+                max-width: 88vw !important;
+            }
+        }
+        

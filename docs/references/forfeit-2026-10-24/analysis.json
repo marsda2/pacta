@@ -1,0 +1,1156 @@
+{
+  "summary": {
+    "js_files": 28,
+    "js_bytes": 204172,
+    "css_files": 22,
+    "css_bytes": 389648,
+    "html_bytes": 766978,
+    "static_keyframe_names": 26,
+    "inline_scripts": 26,
+    "external_scripts_downloaded": 2,
+    "inline_styles": 18,
+    "external_styles_downloaded": 4,
+    "structured_data_blocks": 3
+  },
+  "javascript": [
+    {
+      "file": "js/inline-02.js",
+      "purpose": "Detecta la variante /signup mediante una clase HTML.",
+      "bytes": 324,
+      "lines": 10,
+      "functions": [],
+      "mechanisms": []
+    },
+    {
+      "file": "js/inline-03.js",
+      "purpose": "Precarga del onboarding; respeta ahorro de datos y conexiones 2G.",
+      "bytes": 1299,
+      "lines": 32,
+      "functions": [],
+      "mechanisms": [
+        "setTimeout",
+        "fetch("
+      ]
+    },
+    {
+      "file": "js/inline-04.js",
+      "purpose": "Inicializador de Meta Pixel condicionado a marketing y a /signup.",
+      "bytes": 782,
+      "lines": 18,
+      "functions": [],
+      "mechanisms": []
+    },
+    {
+      "file": "js/inline-05.js",
+      "purpose": "Inicializador de PostHog condicionado a consentimiento.",
+      "bytes": 3027,
+      "lines": 24,
+      "functions": [
+        "g"
+      ],
+      "mechanisms": []
+    },
+    {
+      "file": "js/inline-09.js",
+      "purpose": "Configuración de Google Analytics, sujeta a consentimiento.",
+      "bytes": 310,
+      "lines": 7,
+      "functions": [
+        "gtag"
+      ],
+      "mechanisms": []
+    },
+    {
+      "file": "js/inline-10.js",
+      "purpose": "OverlordUI: constructor compartido de burbujas/acciones y antiguo ciclo de chips del hero.",
+      "bytes": 14853,
+      "lines": 256,
+      "functions": [
+        "buildAction",
+        "renderThread",
+        "show",
+        "start"
+      ],
+      "mechanisms": [
+        "setInterval"
+      ]
+    },
+    {
+      "file": "js/inline-11.js",
+      "purpose": "NewForfeitWidget: formulario demostrativo, máquina de escribir, rodillos, mapa SVG y API mount/setPair/destroy.",
+      "bytes": 45270,
+      "lines": 733,
+      "functions": [
+        "injectStyles",
+        "esc",
+        "chipClass",
+        "slotHtml",
+        "gpsMapSvg",
+        "mapInnerHtml",
+        "consequenceChipsHtml",
+        "buildSkeleton",
+        "resolveContainer",
+        "mount",
+        "setDescRowInstant",
+        "getSlot",
+        "schedule",
+        "clearTimers",
+        "slotTargetsForPair",
+        "slotAllToNext",
+        "applyConsequenceChipColors",
+        "setAllSlotsInstant",
+        "typeIn",
+        "step",
+        "eraseAll",
+        "animateTo",
+        "startSlotsAndType",
+        "complete",
+        "instantTo",
+        "cycle"
+      ],
+      "mechanisms": [
+        "requestAnimationFrame",
+        "setTimeout"
+      ]
+    },
+    {
+      "file": "js/inline-12.js",
+      "purpose": "Eventos propios de adquisición, identificadores de sesión/dispositivo y parámetros UTM.",
+      "bytes": 4473,
+      "lines": 95,
+      "functions": [
+        "uuid",
+        "gid",
+        "utm"
+      ],
+      "mechanisms": [
+        "fetch(",
+        "localStorage",
+        "sessionStorage"
+      ]
+    },
+    {
+      "file": "js/inline-13.js",
+      "purpose": "Monta NewForfeitWidget en el hero con cycleMs=4200.",
+      "bytes": 467,
+      "lines": 10,
+      "functions": [
+        "go"
+      ],
+      "mechanisms": []
+    },
+    {
+      "file": "js/inline-14.js",
+      "purpose": "Seis métodos de verificación, timeline de tres pasos, progreso y sincronización del teléfono.",
+      "bytes": 17831,
+      "lines": 305,
+      "functions": [
+        "esc",
+        "buildStepsHtml",
+        "syncTabs",
+        "renderSteps",
+        "updateActiveStep",
+        "renderStepsWithFade",
+        "tick",
+        "startTimer",
+        "stopTimer",
+        "restartTimer",
+        "restartTimerWithFade",
+        "start"
+      ],
+      "mechanisms": [
+        "IntersectionObserver",
+        "setInterval",
+        "setTimeout"
+      ]
+    },
+    {
+      "file": "js/inline-15.js",
+      "purpose": "Rotación de mensajes de coaching cada 3200ms, pausada fuera del viewport.",
+      "bytes": 1162,
+      "lines": 23,
+      "functions": [
+        "show",
+        "tick",
+        "start",
+        "stop"
+      ],
+      "mechanisms": [
+        "IntersectionObserver",
+        "setInterval"
+      ]
+    },
+    {
+      "file": "js/inline-16.js",
+      "purpose": "Demostración del nivel de apelaciones: cinco posiciones, cambio cada 3200ms.",
+      "bytes": 2581,
+      "lines": 68,
+      "functions": [
+        "apply",
+        "setText",
+        "tick",
+        "start",
+        "stop"
+      ],
+      "mechanisms": [
+        "IntersectionObserver",
+        "requestAnimationFrame",
+        "setInterval",
+        "setTimeout"
+      ]
+    },
+    {
+      "file": "js/inline-17.js",
+      "purpose": "Simulador de bloqueo Mac con nueve escenarios y respuestas precargadas.",
+      "bytes": 6464,
+      "lines": 61,
+      "functions": [
+        "pad",
+        "esc",
+        "renderSide",
+        "renderStage",
+        "render"
+      ],
+      "mechanisms": []
+    },
+    {
+      "file": "js/inline-18.js",
+      "purpose": "Entradas escalonadas de tarjetas bento, repetidas al volver a entrar en pantalla.",
+      "bytes": 1132,
+      "lines": 24,
+      "functions": [],
+      "mechanisms": [
+        "IntersectionObserver"
+      ]
+    },
+    {
+      "file": "js/inline-19.js",
+      "purpose": "Acordeón de casos de uso; mantiene una fila abierta y actualiza aria-expanded.",
+      "bytes": 892,
+      "lines": 26,
+      "functions": [
+        "setOpen"
+      ],
+      "mechanisms": []
+    },
+    {
+      "file": "js/inline-21.js",
+      "purpose": "Antiguo ojo ASCII con ruido y renderizado progresivo; oculto por la capa visual actual.",
+      "bytes": 14718,
+      "lines": 318,
+      "functions": [
+        "glitchASCIIEye",
+        "getChar",
+        "toIndex",
+        "textToHTML",
+        "arrayToHTML",
+        "easeInOutCubic",
+        "progressiveRender",
+        "startConstantCycling"
+      ],
+      "mechanisms": [
+        "setInterval",
+        "fetch("
+      ]
+    },
+    {
+      "file": "js/inline-22.js",
+      "purpose": "Antiguos fondos ASCII en cuadrícula; no confundir con efectos visibles actuales.",
+      "bytes": 2449,
+      "lines": 57,
+      "functions": [
+        "generateGridASCII",
+        "animateGridBackground"
+      ],
+      "mechanisms": [
+        "setInterval",
+        "setTimeout"
+      ]
+    },
+    {
+      "file": "js/inline-23.js",
+      "purpose": "Antiguo fondo ASCII de lava; oculto por el rediseño.",
+      "bytes": 2116,
+      "lines": 53,
+      "functions": [
+        "generateLavaLampASCII",
+        "animateLavaLampASCII"
+      ],
+      "mechanisms": [
+        "setInterval",
+        "setTimeout"
+      ]
+    },
+    {
+      "file": "js/inline-24.js",
+      "purpose": "Antiguas burbujas de lava movidas con requestAnimationFrame; contenedor oculto.",
+      "bytes": 3314,
+      "lines": 69,
+      "functions": [],
+      "mechanisms": [
+        "requestAnimationFrame"
+      ]
+    },
+    {
+      "file": "js/inline-25.js",
+      "purpose": "Controlador general: pestañas, carrusel antiguo, FAQ, scroll de Overlord, modales y formulario de correo.",
+      "bytes": 29345,
+      "lines": 574,
+      "functions": [
+        "updateCarousel",
+        "openEmailModal",
+        "closeEmailModal"
+      ],
+      "mechanisms": [
+        "ResizeObserver",
+        "fetch("
+      ]
+    },
+    {
+      "file": "js/inline-27.js",
+      "purpose": "Revelado de secciones al hacer scroll, indicador live y consulta de estadísticas con consentimiento.",
+      "bytes": 6517,
+      "lines": 107,
+      "functions": [],
+      "mechanisms": [
+        "IntersectionObserver",
+        "setInterval",
+        "setTimeout",
+        "fetch("
+      ]
+    },
+    {
+      "file": "js/inline-28.js",
+      "purpose": "Variante /signup: enlaces al onboarding y ejemplos específicos de conversión.",
+      "bytes": 15619,
+      "lines": 251,
+      "functions": [
+        "buildSignupUrl"
+      ],
+      "mechanisms": [
+        "setInterval",
+        "setTimeout"
+      ]
+    },
+    {
+      "file": "js/inline-29.js",
+      "purpose": "Contadores de estadísticas con rodillos y frenado escalonado por dígito.",
+      "bytes": 3178,
+      "lines": 84,
+      "functions": [
+        "setupStat",
+        "spin"
+      ],
+      "mechanisms": [
+        "IntersectionObserver",
+        "setTimeout",
+        "matchMedia",
+        "prefers-reduced-motion"
+      ]
+    },
+    {
+      "file": "js/inline-30.js",
+      "purpose": "Barra superior oscura cuando cruza el bloque de Overlord.",
+      "bytes": 930,
+      "lines": 20,
+      "functions": [
+        "check"
+      ],
+      "mechanisms": []
+    },
+    {
+      "file": "js/inline-31.js",
+      "purpose": "Transición oscura al aproximarse a Overlord; desactivada en pantallas <=992px y puntero táctil.",
+      "bytes": 1681,
+      "lines": 43,
+      "functions": [
+        "setPanel",
+        "update",
+        "schedule"
+      ],
+      "mechanisms": [
+        "requestAnimationFrame",
+        "matchMedia"
+      ]
+    },
+    {
+      "file": "js/inline-32.js",
+      "purpose": "Ajuste automático del scroll al inicio de Overlord en escritorio; respeta reduced motion.",
+      "bytes": 1499,
+      "lines": 41,
+      "functions": [
+        "maybeSnap"
+      ],
+      "mechanisms": [
+        "setTimeout",
+        "matchMedia",
+        "prefers-reduced-motion"
+      ]
+    },
+    {
+      "file": "js/navbar.js",
+      "purpose": "Carga navbar.html e inicializa modales de navegación heredados; el contenedor está oculto en esta landing.",
+      "bytes": 3940,
+      "lines": 116,
+      "functions": [
+        "initDownloadModal",
+        "initModal"
+      ],
+      "mechanisms": [
+        "fetch("
+      ]
+    },
+    {
+      "file": "js/privacy.js",
+      "purpose": "Preferencias de privacidad, bloqueo de analítica/marketing y gestión del diálogo de consentimiento.",
+      "bytes": 17999,
+      "lines": 319,
+      "functions": [
+        "valid",
+        "read",
+        "allowed",
+        "sanitize",
+        "sanitizeAnalytics",
+        "clearOptional",
+        "apply",
+        "save",
+        "open",
+        "mount"
+      ],
+      "mechanisms": [
+        "setInterval",
+        "matchMedia",
+        "prefers-reduced-motion",
+        "localStorage",
+        "sessionStorage"
+      ]
+    }
+  ],
+  "css": [
+    {
+      "file": "css/accessibility.css",
+      "bytes": 1669,
+      "lines": 33
+    },
+    {
+      "file": "css/chat-styles.css",
+      "bytes": 11151,
+      "lines": 478
+    },
+    {
+      "file": "css/inline-01.css",
+      "bytes": 913,
+      "lines": 20
+    },
+    {
+      "file": "css/inline-02.css",
+      "bytes": 190047,
+      "lines": 5782
+    },
+    {
+      "file": "css/inline-03.css",
+      "bytes": 3646,
+      "lines": 82
+    },
+    {
+      "file": "css/inline-04.css",
+      "bytes": 46031,
+      "lines": 817
+    },
+    {
+      "file": "css/inline-05.css",
+      "bytes": 8094,
+      "lines": 63
+    },
+    {
+      "file": "css/inline-06.css",
+      "bytes": 3627,
+      "lines": 169
+    },
+    {
+      "file": "css/inline-07.css",
+      "bytes": 6841,
+      "lines": 66
+    },
+    {
+      "file": "css/inline-08.css",
+      "bytes": 17229,
+      "lines": 169
+    },
+    {
+      "file": "css/inline-09.css",
+      "bytes": 26559,
+      "lines": 601
+    },
+    {
+      "file": "css/inline-10.css",
+      "bytes": 1598,
+      "lines": 40
+    },
+    {
+      "file": "css/inline-11.css",
+      "bytes": 14560,
+      "lines": 140
+    },
+    {
+      "file": "css/inline-12.css",
+      "bytes": 1321,
+      "lines": 33
+    },
+    {
+      "file": "css/inline-13.css",
+      "bytes": 5286,
+      "lines": 134
+    },
+    {
+      "file": "css/inline-14.css",
+      "bytes": 15121,
+      "lines": 363
+    },
+    {
+      "file": "css/inline-15.css",
+      "bytes": 403,
+      "lines": 10
+    },
+    {
+      "file": "css/inline-16.css",
+      "bytes": 2309,
+      "lines": 34
+    },
+    {
+      "file": "css/inline-17.css",
+      "bytes": 21023,
+      "lines": 413
+    },
+    {
+      "file": "css/inline-18.css",
+      "bytes": 3939,
+      "lines": 195
+    },
+    {
+      "file": "css/iphone-frame.css",
+      "bytes": 5956,
+      "lines": 206
+    },
+    {
+      "file": "css/landing-fonts.css",
+      "bytes": 2325,
+      "lines": 15
+    }
+  ],
+  "keyframes_in_stylesheets": [
+    {
+      "name": "crt-jitter",
+      "file": "css/inline-02.css",
+      "line": 379
+    },
+    {
+      "name": "crt-distort",
+      "file": "css/inline-02.css",
+      "line": 398
+    },
+    {
+      "name": "ascii-flicker",
+      "file": "css/inline-02.css",
+      "line": 414
+    },
+    {
+      "name": "scanline-shift",
+      "file": "css/inline-02.css",
+      "line": 434
+    },
+    {
+      "name": "ascii-rgb-split",
+      "file": "css/inline-02.css",
+      "line": 447
+    },
+    {
+      "name": "scanlines-move",
+      "file": "css/inline-02.css",
+      "line": 496
+    },
+    {
+      "name": "pipboy-flicker",
+      "file": "css/inline-02.css",
+      "line": 501
+    },
+    {
+      "name": "flicker",
+      "file": "css/inline-02.css",
+      "line": 537
+    },
+    {
+      "name": "glitch-strip-1",
+      "file": "css/inline-02.css",
+      "line": 545
+    },
+    {
+      "name": "glitch-strip-2",
+      "file": "css/inline-02.css",
+      "line": 556
+    },
+    {
+      "name": "glitch-strip-3",
+      "file": "css/inline-02.css",
+      "line": 567
+    },
+    {
+      "name": "glitch-strip-4",
+      "file": "css/inline-02.css",
+      "line": 578
+    },
+    {
+      "name": "glitch-subtle",
+      "file": "css/inline-02.css",
+      "line": 630
+    },
+    {
+      "name": "glitch-chromatic",
+      "file": "css/inline-02.css",
+      "line": 651
+    },
+    {
+      "name": "badgeFlash",
+      "file": "css/inline-02.css",
+      "line": 2659
+    },
+    {
+      "name": "arrowPop",
+      "file": "css/inline-02.css",
+      "line": 2664
+    },
+    {
+      "name": "toastDrop",
+      "file": "css/inline-02.css",
+      "line": 2704
+    },
+    {
+      "name": "toastFade",
+      "file": "css/inline-02.css",
+      "line": 2711
+    },
+    {
+      "name": "blink",
+      "file": "css/inline-02.css",
+      "line": 5765
+    },
+    {
+      "name": "heroPillPulse",
+      "file": "css/inline-04.css",
+      "line": 237
+    },
+    {
+      "name": "hero-chip-prog",
+      "file": "css/inline-04.css",
+      "line": 560
+    },
+    {
+      "name": "hero-chip-float",
+      "file": "css/inline-04.css",
+      "line": 577
+    },
+    {
+      "name": "hiw2StepIn",
+      "file": "css/inline-07.css",
+      "line": 25
+    },
+    {
+      "name": "hiw2-progfill",
+      "file": "css/inline-07.css",
+      "line": 44
+    },
+    {
+      "name": "flxv-float",
+      "file": "css/inline-11.css",
+      "line": 91
+    },
+    {
+      "name": "flxv-dot-pulse",
+      "file": "css/inline-11.css",
+      "line": 113
+    }
+  ],
+  "media_queries": [
+    {
+      "query": "@media (prefers-reduced-motion: reduce)",
+      "file": "css/accessibility.css",
+      "line": 26
+    },
+    {
+      "query": "@media (max-width: 640px)",
+      "file": "css/inline-02.css",
+      "line": 106
+    },
+    {
+      "query": "@media (max-width: 768px)",
+      "file": "css/inline-02.css",
+      "line": 883
+    },
+    {
+      "query": "@media (max-width: 1200px)",
+      "file": "css/inline-02.css",
+      "line": 1027
+    },
+    {
+      "query": "@media (max-width: 768px)",
+      "file": "css/inline-02.css",
+      "line": 1067
+    },
+    {
+      "query": "@media (min-width: 768px)",
+      "file": "css/inline-02.css",
+      "line": 1336
+    },
+    {
+      "query": "@media (max-width: 900px) and (min-width: 601px)",
+      "file": "css/inline-02.css",
+      "line": 1442
+    },
+    {
+      "query": "@media (max-width: 768px)",
+      "file": "css/inline-02.css",
+      "line": 1484
+    },
+    {
+      "query": "@media (max-width: 600px)",
+      "file": "css/inline-02.css",
+      "line": 1491
+    },
+    {
+      "query": "@media (max-width: 480px)",
+      "file": "css/inline-02.css",
+      "line": 1522
+    },
+    {
+      "query": "@media (max-width: 1200px)",
+      "file": "css/inline-02.css",
+      "line": 1667
+    },
+    {
+      "query": "@media (max-width: 600px)",
+      "file": "css/inline-02.css",
+      "line": 1673
+    },
+    {
+      "query": "@media (max-width: 992px)",
+      "file": "css/inline-02.css",
+      "line": 2000
+    },
+    {
+      "query": "@media (max-width: 992px)",
+      "file": "css/inline-02.css",
+      "line": 2002
+    },
+    {
+      "query": "@media (max-width: 480px)",
+      "file": "css/inline-02.css",
+      "line": 2066
+    },
+    {
+      "query": "@media (max-width: 992px)",
+      "file": "css/inline-02.css",
+      "line": 2333
+    },
+    {
+      "query": "@media (max-width: 768px)",
+      "file": "css/inline-02.css",
+      "line": 2394
+    },
+    {
+      "query": "@media (max-width: 480px)",
+      "file": "css/inline-02.css",
+      "line": 2416
+    },
+    {
+      "query": "@media (max-width: 768px)",
+      "file": "css/inline-02.css",
+      "line": 2718
+    },
+    {
+      "query": "@media (max-width: 992px)",
+      "file": "css/inline-02.css",
+      "line": 2732
+    },
+    {
+      "query": "@media (max-width: 768px)",
+      "file": "css/inline-02.css",
+      "line": 2793
+    },
+    {
+      "query": "@media (max-width: 480px)",
+      "file": "css/inline-02.css",
+      "line": 2832
+    },
+    {
+      "query": "@media (max-width: 768px)",
+      "file": "css/inline-02.css",
+      "line": 2998
+    },
+    {
+      "query": "@media (max-width: 480px)",
+      "file": "css/inline-02.css",
+      "line": 3022
+    },
+    {
+      "query": "@media (max-width: 768px)",
+      "file": "css/inline-02.css",
+      "line": 3153
+    },
+    {
+      "query": "@media (max-width: 480px)",
+      "file": "css/inline-02.css",
+      "line": 3174
+    },
+    {
+      "query": "@media (max-width: 768px)",
+      "file": "css/inline-02.css",
+      "line": 3451
+    },
+    {
+      "query": "@media (max-width: 480px)",
+      "file": "css/inline-02.css",
+      "line": 3478
+    },
+    {
+      "query": "@media (max-width: 768px)",
+      "file": "css/inline-02.css",
+      "line": 3606
+    },
+    {
+      "query": "@media (max-width: 480px)",
+      "file": "css/inline-02.css",
+      "line": 3654
+    },
+    {
+      "query": "@media (max-width: 768px)",
+      "file": "css/inline-02.css",
+      "line": 3792
+    },
+    {
+      "query": "@media (max-width: 480px)",
+      "file": "css/inline-02.css",
+      "line": 3802
+    },
+    {
+      "query": "@media (max-width: 992px)",
+      "file": "css/inline-02.css",
+      "line": 3948
+    },
+    {
+      "query": "@media (max-width: 768px)",
+      "file": "css/inline-02.css",
+      "line": 4003
+    },
+    {
+      "query": "@media (max-width: 480px)",
+      "file": "css/inline-02.css",
+      "line": 4024
+    },
+    {
+      "query": "@media (max-width: 768px)",
+      "file": "css/inline-02.css",
+      "line": 4062
+    },
+    {
+      "query": "@media (max-width: 480px)",
+      "file": "css/inline-02.css",
+      "line": 4096
+    },
+    {
+      "query": "@media (max-width: 992px)",
+      "file": "css/inline-02.css",
+      "line": 4818
+    },
+    {
+      "query": "@media (max-width: 768px)",
+      "file": "css/inline-02.css",
+      "line": 4847
+    },
+    {
+      "query": "@media (max-width: 480px)",
+      "file": "css/inline-02.css",
+      "line": 4860
+    },
+    {
+      "query": "@media (max-width: 992px)",
+      "file": "css/inline-02.css",
+      "line": 4885
+    },
+    {
+      "query": "@media (max-width: 992px)",
+      "file": "css/inline-02.css",
+      "line": 5234
+    },
+    {
+      "query": "@media (max-width: 768px)",
+      "file": "css/inline-02.css",
+      "line": 5297
+    },
+    {
+      "query": "@media (max-width: 480px)",
+      "file": "css/inline-02.css",
+      "line": 5324
+    },
+    {
+      "query": "@media (max-width: 600px)",
+      "file": "css/inline-02.css",
+      "line": 5574
+    },
+    {
+      "query": "@media (max-width: 480px)",
+      "file": "css/inline-02.css",
+      "line": 5604
+    },
+    {
+      "query": "@media (max-width: 768px)",
+      "file": "css/inline-02.css",
+      "line": 5771
+    },
+    {
+      "query": "@media (max-width: 480px)",
+      "file": "css/inline-04.css",
+      "line": 305
+    },
+    {
+      "query": "@media (max-width: 640px)",
+      "file": "css/inline-04.css",
+      "line": 348
+    },
+    {
+      "query": "@media (max-width: 980px)",
+      "file": "css/inline-04.css",
+      "line": 502
+    },
+    {
+      "query": "@media (max-width: 760px)",
+      "file": "css/inline-04.css",
+      "line": 507
+    },
+    {
+      "query": "@media (max-width: 600px)",
+      "file": "css/inline-04.css",
+      "line": 527
+    },
+    {
+      "query": "@media (max-width: 760px)",
+      "file": "css/inline-04.css",
+      "line": 568
+    },
+    {
+      "query": "@media (prefers-reduced-motion: reduce)",
+      "file": "css/inline-04.css",
+      "line": 594
+    },
+    {
+      "query": "@media (max-width: 980px)",
+      "file": "css/inline-06.css",
+      "line": 154
+    },
+    {
+      "query": "@media (max-width: 768px)",
+      "file": "css/inline-06.css",
+      "line": 158
+    },
+    {
+      "query": "@media (max-width: 640px)",
+      "file": "css/inline-06.css",
+      "line": 166
+    },
+    {
+      "query": "@media (prefers-reduced-motion: reduce)",
+      "file": "css/inline-07.css",
+      "line": 26
+    },
+    {
+      "query": "@media (prefers-reduced-motion: reduce)",
+      "file": "css/inline-07.css",
+      "line": 45
+    },
+    {
+      "query": "@media (max-width:900px)",
+      "file": "css/inline-07.css",
+      "line": 54
+    },
+    {
+      "query": "@media (max-width: 980px)",
+      "file": "css/inline-08.css",
+      "line": 162
+    },
+    {
+      "query": "@media (max-width: 992px)",
+      "file": "css/inline-09.css",
+      "line": 75
+    },
+    {
+      "query": "@media (max-width: 768px)",
+      "file": "css/inline-09.css",
+      "line": 92
+    },
+    {
+      "query": "@media (max-width: 992px)",
+      "file": "css/inline-09.css",
+      "line": 580
+    },
+    {
+      "query": "@media (max-width: 768px)",
+      "file": "css/inline-09.css",
+      "line": 587
+    },
+    {
+      "query": "@media (max-width: 480px)",
+      "file": "css/inline-09.css",
+      "line": 594
+    },
+    {
+      "query": "@media (max-width: 768px)",
+      "file": "css/inline-10.css",
+      "line": 2
+    },
+    {
+      "query": "@media (prefers-reduced-motion: reduce)",
+      "file": "css/inline-11.css",
+      "line": 70
+    },
+    {
+      "query": "@media (prefers-reduced-motion: reduce)",
+      "file": "css/inline-11.css",
+      "line": 126
+    },
+    {
+      "query": "@media (prefers-reduced-motion: reduce)",
+      "file": "css/inline-12.css",
+      "line": 32
+    },
+    {
+      "query": "@media (max-width: 900px)",
+      "file": "css/inline-13.css",
+      "line": 97
+    },
+    {
+      "query": "@media (prefers-reduced-motion: reduce)",
+      "file": "css/inline-13.css",
+      "line": 131
+    },
+    {
+      "query": "@media (max-width: 1188px)",
+      "file": "css/inline-14.css",
+      "line": 17
+    },
+    {
+      "query": "@media (max-width: 480px)",
+      "file": "css/inline-14.css",
+      "line": 239
+    },
+    {
+      "query": "@media (max-width: 900px)",
+      "file": "css/inline-14.css",
+      "line": 331
+    },
+    {
+      "query": "@media (max-width: 900px)",
+      "file": "css/inline-15.css",
+      "line": 7
+    },
+    {
+      "query": "@media (max-width: 768px)",
+      "file": "css/inline-16.css",
+      "line": 10
+    },
+    {
+      "query": "@media (max-width: 900px)",
+      "file": "css/inline-17.css",
+      "line": 369
+    },
+    {
+      "query": "@media (max-width: 768px)",
+      "file": "css/inline-18.css",
+      "line": 186
+    },
+    {
+      "query": "@media (max-width: 992px)",
+      "file": "css/iphone-frame.css",
+      "line": 117
+    },
+    {
+      "query": "@media (max-width: 768px)",
+      "file": "css/iphone-frame.css",
+      "line": 151
+    },
+    {
+      "query": "@media (max-width: 480px)",
+      "file": "css/iphone-frame.css",
+      "line": 180
+    }
+  ],
+  "asset_references_in_code": [
+    {
+      "source_file": "css/inline-02.css",
+      "value": "%23noise"
+    },
+    {
+      "source_file": "css/inline-02.css",
+      "value": "#bubbleMask"
+    },
+    {
+      "source_file": "css/inline-02.css",
+      "value": "#bubbleMask"
+    },
+    {
+      "source_file": "css/landing-fonts.css",
+      "value": "./fragmentmono-italic-400.ttf"
+    },
+    {
+      "source_file": "css/landing-fonts.css",
+      "value": "./fragmentmono-normal-400.ttf"
+    },
+    {
+      "source_file": "css/landing-fonts.css",
+      "value": "./instrumentserif-italic-400.ttf"
+    },
+    {
+      "source_file": "css/landing-fonts.css",
+      "value": "./instrumentserif-normal-400.ttf"
+    },
+    {
+      "source_file": "css/landing-fonts.css",
+      "value": "./orbitron-normal-400.ttf"
+    },
+    {
+      "source_file": "css/landing-fonts.css",
+      "value": "./orbitron-normal-700.ttf"
+    },
+    {
+      "source_file": "css/landing-fonts.css",
+      "value": "./orbitron-normal-900.ttf"
+    },
+    {
+      "source_file": "css/landing-fonts.css",
+      "value": "./rajdhani-normal-300.ttf"
+    },
+    {
+      "source_file": "css/landing-fonts.css",
+      "value": "./rajdhani-normal-400.ttf"
+    },
+    {
+      "source_file": "css/landing-fonts.css",
+      "value": "./rajdhani-normal-500.ttf"
+    },
+    {
+      "source_file": "css/landing-fonts.css",
+      "value": "./rajdhani-normal-600.ttf"
+    },
+    {
+      "source_file": "css/landing-fonts.css",
+      "value": "./rajdhani-normal-700.ttf"
+    },
+    {
+      "source_file": "css/landing-fonts.css",
+      "value": "./Figtree-VariableFont_wght.ttf"
+    },
+    {
+      "source_file": "css/landing-fonts.css",
+      "value": "./Figtree-Italic-VariableFont_wght.ttf"
+    }
+  ],
+  "note": "Los keyframes creados dinámicamente por JS, como nfw-roll, no están incluidos en el recuento de hojas CSS."
+}

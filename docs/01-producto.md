@@ -34,9 +34,9 @@ Si el usuario marca `overwhelmed`, no se le cobra en ese momento: el jurado de T
 
 ### Redemption Vault
 - Todo stake perdido pasa a `vault_locked_balance`.
-- **Rendimiento simulado**: 4.85% APY, calculado como `saldo × APY × días / 365` y mostrado en tiempo real en la UI con la etiqueta *"rendimiento simulado"*.
+- **Rendimiento simulado**: 4.85% APY calculado sobre el libro de movimientos (APY × ∫ saldo dt) y mostrado en la UI con la etiqueta *"rendimiento simulado"*.
 - **Regla de desbloqueo** (ajustable):
-  - Trust Score ≥ **70** **y** 3 pactos verificados seguidos desde el último fallo → se desbloquea un tramo de `min($20, saldo)` más su rendimiento.
+  - Trust Score ≥ **70** **y** 3 pactos verificados seguidos desde el último fallo o rescate → se desbloquea un tramo de `min($20, saldo)` (con el Pass, más su rendimiento).
   - Sin bloqueo de retiros activo (el de los 7 días por trampa).
 - El desbloqueo se ejecuta como un reembolso o una transferencia en Whop (ver 03-whop.md).
 
@@ -63,4 +63,10 @@ Pantallas secundarias: Nuevo pacto, Entregar prueba (cámara), Estado del jurado
 - KYC y cumplimiento financiero.
 - Botes competitivos entre usuarios (el que falla paga al que cumple). Los retos en grupo se hacen como **Pact Circles** cooperativos, sin dinero entre usuarios (ver [07-pact-circles.md](07-pact-circles.md)).
 
-**Revisión humana (ver docs/04 §7).** Un juez de Terac solo interviene cuando la IA duda *y* el stake es alto, o cuando el usuario apela. El High-Yield Pass incluye 2 apelaciones al mes.
+### Quién decide si cumpliste
+1. **La IA** mira la foto y el código del día. Si está segura (≥ 88 % de confianza, sin señales de trampa), aprueba y se reembolsa: gratis.
+2. Si **duda** y el stake es bajo, no se paga a un humano: puedes **repetir la foto** (una vez), pedir a un **testigo** o **apelar**. Si en 48 h nadie lo resuelve, el stake va al Vault (no se pierde).
+3. Si duda y el stake es alto, decide un **jurado humano de Terac** (a cargo de PACTA).
+4. **Apelar** (desde $15): un panel de 3 humanos revisa tu foto, hasta 2 fotos extra y una nota. Dejas en juego una **fianza de $7.50** del propio stake: si ganas, recuperas todo; si pierdes, el stake va al Vault menos la fianza. El High-Yield Pass incluye 2 apelaciones al mes, sin fianza.
+
+Detalle, precios de Terac y lotes: [04-agente-terac.md](04-agente-terac.md) §4.

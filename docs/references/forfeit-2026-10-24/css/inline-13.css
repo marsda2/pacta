@@ -1,0 +1,134 @@
+
+            .pun-section {
+                background: #ffffff;
+                color: #0b0b0c;
+                font-family: 'Figtree', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                padding: 96px 24px;
+                max-width: 1140px;
+                margin: 0 auto;
+                box-sizing: border-box;
+            }
+            .pun-head {
+                text-align: center;
+                margin: 0 auto 56px;
+                max-width: 720px;
+            }
+            .pun-title {
+                font-size: 44px;
+                font-weight: 800;
+                letter-spacing: -0.025em;
+                line-height: 1.04;
+                margin: 0 0 14px;
+                color: #0b0b0c;
+            }
+            .pun-sub {
+                font-size: 17px;
+                color: #5a5a5f;
+                line-height: 1.55;
+                margin: 14px 0 0;
+            }
+            .pun-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 18px;
+            }
+            /* Per-card accent tint, scoped via nth-child so markup stays clean. */
+            .pun-card { --pun-accent: #2f5bff; --pun-accent-bg: rgba(47,91,255,0.08); }
+            .pun-card:nth-child(1) { --pun-accent: #1c7a3a; --pun-accent-bg: rgba(28,122,58,0.10); }
+            .pun-card:nth-child(2) { --pun-accent: #2f5bff; --pun-accent-bg: rgba(47,91,255,0.10); }
+            .pun-card:nth-child(3) { --pun-accent: #7a3acc; --pun-accent-bg: rgba(122,58,204,0.10); }
+            .pun-card:nth-child(4) { --pun-accent: #d97706; --pun-accent-bg: rgba(217,119,6,0.10); }
+            .pun-card:nth-child(5) { --pun-accent: #c8102e; --pun-accent-bg: rgba(200,16,46,0.10); }
+            .pun-card:nth-child(6) { --pun-accent: #0d9488; --pun-accent-bg: rgba(13,148,136,0.12); }
+            .pun-card {
+                position: relative;
+                background: #ffffff;
+                border: 1px solid #ececef;
+                border-radius: 18px;
+                padding: 28px 26px 26px;
+                box-sizing: border-box;
+                transition: transform 250ms cubic-bezier(0.22, 0.61, 0.36, 1),
+                            box-shadow 250ms ease,
+                            border-color 200ms ease;
+                overflow: hidden;
+            }
+            /* Subtle accent bar on the top edge, only visible on hover. */
+            .pun-card::before {
+                content: "";
+                position: absolute;
+                left: 0; right: 0; top: 0;
+                height: 2px;
+                background: var(--pun-accent);
+                opacity: 0;
+                transition: opacity 250ms ease;
+            }
+            /* Hover lift removed - cards aren't clickable, so the affordance was misleading. */
+            .pun-icon {
+                width: 46px;
+                height: 46px;
+                border-radius: 13px;
+                background: var(--pun-accent-bg);
+                color: var(--pun-accent);
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                margin-bottom: 22px;
+                transition: transform 250ms cubic-bezier(0.22, 1.2, 0.36, 1);
+            }
+            .pun-icon svg {
+                width: 22px;
+                height: 22px;
+                display: block;
+            }
+            .pun-card-title {
+                font-size: 19px;
+                font-weight: 700;
+                letter-spacing: -0.015em;
+                color: #0b0b0c;
+                margin: 0 0 8px;
+                line-height: 1.25;
+            }
+            .pun-card-body {
+                font-size: 14.5px;
+                line-height: 1.55;
+                color: #5a5a5f;
+                margin: 0;
+            }
+            @media (max-width: 900px) {
+                .pun-section { padding: 72px 20px; }
+                .pun-title { font-size: 32px; }
+                .pun-grid { grid-template-columns: 1fr; gap: 14px; }
+                .pun-head { margin-bottom: 40px; }
+                /* Mobile: icon left, title + body stacked on the right. */
+                .pun-card {
+                    display: grid;
+                    grid-template-columns: auto 1fr;
+                    column-gap: 16px;
+                    row-gap: 4px;
+                    padding: 18px 20px;
+                }
+                .pun-icon {
+                    grid-row: 1 / span 2;
+                    align-self: start;
+                    margin-bottom: 0;
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 11px;
+                }
+                .pun-icon svg { width: 20px; height: 20px; }
+                .pun-card-title {
+                    grid-column: 2;
+                    grid-row: 1;
+                    margin: 0;
+                    font-size: 16.5px;
+                }
+                .pun-card-body {
+                    grid-column: 2;
+                    grid-row: 2;
+                    font-size: 13.5px;
+                }
+            }
+            @media (prefers-reduced-motion: reduce) {
+                .pun-card, .pun-icon, .pun-card::before { transition: none; }
+            }
+        

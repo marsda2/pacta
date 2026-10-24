@@ -1,0 +1,140 @@
+
+            .flx .flx-bullets { list-style:none; margin:16px 0 0; padding:0; display:flex; flex-direction:column; gap:10px; }
+            .flx .flx-bullets li { position:relative; padding-left:20px; font-size:15px; line-height:1.5; color:#5a5a5f; }
+            .flx .flx-bullets li::before { content:''; position:absolute; left:2px; top:8px; width:6px; height:6px; border-radius:50%; background:#0b0b0c; }
+            .flx .flx-bullets b { font-weight:700; color:#0b0b0c; }
+            .flxv-card { width:300px; max-width:100%; background:#ffffff; border:1px solid #ececef; border-radius:20px; padding:20px; box-shadow:0 16px 40px rgba(11,11,12,0.08); }
+            .flxv-cap { font-size:11px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:#9a9aa0; margin-bottom:14px; }
+            .flxv-appeal-head { display:flex; align-items:center; gap:9px; font-size:15px; font-weight:700; color:#0b0b0c; margin-bottom:14px; }
+            .flxv-appeal-ic { width:30px; height:30px; border-radius:9px; background:#f3f5fb; color:#2f6bff; display:flex; align-items:center; justify-content:center; flex:none; }
+            .flxv-appeal-ic svg { width:17px; height:17px; }
+            .flxv-appeal-reason { background:#f4f4f6; border-radius:13px; padding:13px 15px; font-size:14.5px; line-height:1.45; color:#3a3a40; margin-bottom:14px; }
+            .flxv-appeal-result { display:flex; align-items:center; gap:11px; }
+            .flxv-appeal-check { width:34px; height:34px; border-radius:50%; background:#e7f7ec; color:#1c8c3d; display:flex; align-items:center; justify-content:center; flex:none; }
+            .flxv-appeal-check svg { width:18px; height:18px; }
+            .flxv-appeal-rtext { display:flex; flex-direction:column; line-height:1.25; }
+            .flxv-appeal-rtext b { font-size:15px; font-weight:700; color:#0b0b0c; }
+            .flxv-appeal-rtext span { font-size:13px; color:#8a8a90; }
+            .flxv-days { display:grid; grid-template-columns:repeat(7,1fr); gap:7px; }
+            .flxv-day { aspect-ratio:1; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:#8a8a90; border:1.5px solid #ececef; }
+            .flxv-day.on { background:#0b0b0c; color:#ffffff; border-color:#0b0b0c; }
+            /* Overlord row visual */
+            .flxv-ov-bubble { background:#f3f5fb; color:#0b0b0c; padding:13px 15px; border-radius:14px; font-size:14px; line-height:1.4; margin-bottom:14px; font-weight:500; }
+            .flxv-ov-modes { display:flex; gap:7px; }
+            .flxv-ov-mode { flex:1; text-align:center; padding:9px 10px; border:1.5px solid #ececef; border-radius:10px; font-size:12.5px; font-weight:600; color:#5a5a5f; background:#ffffff; transition: background .35s ease, color .35s ease, border-color .35s ease; }
+            .flxv-ov-mode.on { background:#0b0b0c; color:#ffffff; border-color:#0b0b0c; }
+            .flxv-row .flxv-ov-bubble,
+            .flxv-row .flxv-ov-mode { opacity:0; transform:translateY(8px); transition: opacity .5s ease, transform .5s ease; }
+            .flxv-row.animate-visible .flxv-ov-bubble { opacity:1; transform:none; transition-delay:.20s; }
+            .flxv-row.animate-visible .flxv-ov-mode:nth-of-type(1) { opacity:1; transform:none; transition-delay:.50s; }
+            .flxv-row.animate-visible .flxv-ov-mode:nth-of-type(2) { opacity:1; transform:none; transition-delay:.70s; }
+            .flxv-row.animate-visible .flxv-ov-mode:nth-of-type(3) { opacity:1; transform:none; transition-delay:.90s; }
+            /* Human-verification row visual */
+            .flxv-hv-steps { display:flex; flex-direction:column; gap:10px; margin-bottom:14px; }
+            .flxv-hv-step { display:flex; align-items:center; gap:11px; padding:10px 12px; border-radius:11px; background:#f6f7f9; font-size:13.5px; font-weight:500; color:#0b0b0c; opacity:0; transform:translateY(8px); transition: opacity .5s ease, transform .5s cubic-bezier(.2,.7,.2,1); }
+            .flxv-hv-tick { width:18px; height:18px; border-radius:50%; background:#0b0b0c; color:#fff; display:flex; align-items:center; justify-content:center; flex:none; }
+            .flxv-hv-tick svg { width:11px; height:11px; }
+            .flxv-row.animate-visible .flxv-hv-step:nth-of-type(1) { opacity:1; transform:none; transition-delay:.20s; }
+            .flxv-row.animate-visible .flxv-hv-step:nth-of-type(2) { opacity:1; transform:none; transition-delay:.55s; }
+            .flxv-row.animate-visible .flxv-hv-step:nth-of-type(3) { opacity:1; transform:none; transition-delay:.90s; }
+            .flxv-hv-result { display:flex; align-items:center; gap:12px; padding:13px 14px; border-radius:13px; background:#eaf6ec; opacity:0; transform:translateY(8px); transition: opacity .5s ease, transform .5s cubic-bezier(.2,.7,.2,1); }
+            .flxv-row.animate-visible .flxv-hv-result { opacity:1; transform:none; transition-delay:1.20s; }
+            .flxv-hv-check { width:28px; height:28px; border-radius:50%; background:#1d9b3d; color:#fff; display:flex; align-items:center; justify-content:center; flex:none; }
+            .flxv-hv-check svg { width:15px; height:15px; }
+            .flxv-hv-rtext { display:flex; flex-direction:column; gap:1px; line-height:1.25; }
+            .flxv-hv-rtext b { font-size:14px; font-weight:700; color:#0b0b0c; }
+            .flxv-hv-rtext span { font-size:12px; color:#5a5a5f; }
+            .flxv-freq { margin-top:16px; font-size:14px; font-weight:600; color:#3a3a40; display:flex; align-items:center; gap:7px; }
+            .flxv-freq .flxv-dot { width:7px; height:7px; border-radius:50%; background:#2f6bff; }
+            .flxv-modes { display:flex; flex-direction:column; gap:9px; }
+            .flxv-mode { display:flex; align-items:center; justify-content:space-between; padding:13px 15px; border-radius:13px; border:1.5px solid #ececef; font-size:15px; font-weight:600; color:#3a3a40; transition: background .35s ease, color .35s ease, border-color .35s ease, transform .35s ease; }
+            .flxv-mode.on { background:#0b0b0c; border-color:#0b0b0c; color:#ffffff; }
+            .flxv-mode-check { width:20px; height:20px; border-radius:50%; background:rgba(255,255,255,0.18); display:flex; align-items:center; justify-content:center; }
+            .flxv-mode-check svg { width:13px; height:13px; }
+
+            /* ---------- Appeal policy slider (light card, matches other flxv cards) ---------- */
+            .flx .apsl-card { width:340px; max-width:100%; background:#ffffff; color:#0b0b0c; border:1px solid #ececef; border-radius:20px; padding:22px; box-shadow:0 16px 40px rgba(11,11,12,0.08); position:relative; }
+            .flx .apsl-cap { font-size:11px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:#9a9aa0; margin-bottom:14px; }
+            .flx .apsl-quote { display:flex; align-items:center; justify-content:center; text-align:center; background:#f4f4f6; border:1px solid #ececef; border-radius:14px; padding:22px 18px; font-size:18px; font-weight:700; letter-spacing:-0.015em; line-height:1.3; color:#0b0b0c; margin-bottom:22px; min-height:88px; transition: opacity .22s ease, transform .32s ease; }
+            .flx .apsl-card.is-swap .apsl-quote { opacity:0; transform: translateY(4px); }
+
+            .flx .apsl-slider-outer { padding: 0 9px; }
+            .flx .apsl-slider { position:relative; height:22px; }
+            .flx .apsl-track { position:absolute; left:0; right:0; top:50%; height:2px; background:#ececef; border-radius:999px; transform:translateY(-50%); }
+            .flx .apsl-fill { position:absolute; left:0; top:50%; height:2px; background:#0b0b0c; border-radius:999px; transform:translateY(-50%); width:0; transition: width .55s cubic-bezier(.2,.7,.2,1); }
+            .flx .apsl-dot { position:absolute; top:50%; width:9px; height:9px; margin:-4.5px 0 0 -4.5px; border-radius:50%; background:#ffffff; border:1.5px solid #d4d4d8; transition: background .3s ease, border-color .3s ease; box-sizing:border-box; }
+            .flx .apsl-dot.is-passed { background:#0b0b0c; border-color:#0b0b0c; }
+            .flx .apsl-thumb { position:absolute; top:50%; width:18px; height:18px; margin:-9px 0 0 -9px; left:0; border-radius:50%; background:#0b0b0c; box-shadow:0 4px 12px rgba(11,11,12,0.28), 0 0 0 4px rgba(11,11,12,0.06); transition: left .55s cubic-bezier(.2,.7,.2,1); will-change: left; }
+            .flx .apsl-stops { display:flex; justify-content:space-between; margin-top:12px; padding:0 9px; font-size:11.5px; font-weight:600; color:#8a8a90; }
+
+            @media (prefers-reduced-motion: reduce) {
+              .flx .apsl-quote, .flx .apsl-fill, .flx .apsl-thumb { transition:none !important; }
+            }
+            .flxv-instr { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px; }
+            .flxv-instr li { position:relative; padding:11px 13px 11px 32px; border-radius:11px; background:#f6f7f9; font-size:13.5px; line-height:1.4; color:#0b0b0c; font-weight:500; opacity:0; transform:translateY(8px); transition: opacity .5s ease, transform .5s cubic-bezier(.2,.7,.2,1); }
+            .flxv-instr li::before { content:''; position:absolute; left:13px; top:50%; transform:translateY(-50%); width:6px; height:6px; border-radius:50%; background:#2f6bff; }
+            .flxv-row.animate-visible .flxv-instr li { opacity:1; transform:none; }
+            .flxv-row.animate-visible .flxv-instr li:nth-child(1) { transition-delay:.20s; }
+            .flxv-row.animate-visible .flxv-instr li:nth-child(2) { transition-delay:.50s; }
+            .flxv-row.animate-visible .flxv-instr li:nth-child(3) { transition-delay:.80s; }
+            .flxv-row.animate-visible .flxv-instr li:nth-child(4) { transition-delay:1.10s; }
+
+            /* ---------- Scroll-in entrance for each row ---------- */
+            .sw-vrow.flxv-row { opacity:0; transform:translateY(28px); transition: opacity .7s ease, transform .7s cubic-bezier(.2,.7,.2,1); }
+            .sw-vrow.flxv-row.animate-visible { opacity:1; transform:none; }
+
+            /* ---------- Ambient float + hover lift on the visual card ---------- */
+            .flxv-card { transition: transform .5s cubic-bezier(.2,.7,.2,1), box-shadow .5s ease; animation: flxv-float 6s ease-in-out infinite; will-change: transform; }
+            .sw-vrow.rev .flxv-card { animation-delay: -2s; }
+            .sw-vlist .sw-vrow:nth-child(3) .flxv-card { animation-delay: -4s; }
+            .flxv-card:hover { transform: translateY(-4px); box-shadow:0 22px 50px rgba(11,11,12,0.12); }
+            @keyframes flxv-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+
+            /* ---------- Card 1: Appeal sequence ---------- */
+            .flxv-row .flxv-appeal-head,
+            .flxv-row .flxv-appeal-reason,
+            .flxv-row .flxv-appeal-result { opacity:0; transform:translateY(8px); transition: opacity .5s ease, transform .5s ease; }
+            .flxv-row.animate-visible .flxv-appeal-head { opacity:1; transform:none; transition-delay:.15s; }
+            .flxv-row.animate-visible .flxv-appeal-reason { opacity:1; transform:none; transition-delay:.45s; }
+            .flxv-row.animate-visible .flxv-appeal-result { opacity:1; transform:none; transition-delay:.85s; }
+            .flxv-row .flxv-appeal-check { transform: scale(.5); opacity:0; transition: transform .55s cubic-bezier(.2,1.6,.4,1), opacity .35s ease; }
+            .flxv-row.animate-visible .flxv-appeal-check { transform: scale(1); opacity:1; transition-delay: 1.0s; }
+
+            /* ---------- Card 2: Schedule sequence ---------- */
+            .flxv-row .flxv-day { transition: background .35s ease, color .35s ease, border-color .35s ease, transform .35s ease; }
+            .flxv-row:not(.animate-visible) .flxv-day.on { background:#ffffff; color:#8a8a90; border-color:#ececef; }
+            .flxv-row.animate-visible .flxv-day.on { background:#0b0b0c; color:#ffffff; border-color:#0b0b0c; transform: scale(1.04); }
+            .flxv-row.animate-visible .flxv-day:nth-child(1).on { transition-delay:.30s; }
+            .flxv-row.animate-visible .flxv-day:nth-child(3).on { transition-delay:.50s; }
+            .flxv-row.animate-visible .flxv-day:nth-child(5).on { transition-delay:.70s; }
+            .flxv-row .flxv-freq { opacity:0; transform:translateY(6px); transition: opacity .45s ease, transform .45s ease; transition-delay:.95s; }
+            .flxv-row.animate-visible .flxv-freq { opacity:1; transform:none; }
+            .flxv-row.animate-visible .flxv-freq .flxv-dot { animation: flxv-dot-pulse 1.8s ease-in-out infinite; }
+            @keyframes flxv-dot-pulse { 0%,100% { transform: scale(1); opacity:1; } 50% { transform: scale(1.35); opacity:.7; } }
+
+            /* ---------- Card 3: Leniency sequence ---------- */
+            .flxv-row .flxv-mode { opacity:0; transform:translateY(8px); }
+            .flxv-row:not(.animate-visible) .flxv-mode.on { background:#ffffff; border-color:#ececef; color:#3a3a40; }
+            .flxv-row.animate-visible .flxv-mode { opacity:1; transform:none; }
+            .flxv-row.animate-visible .flxv-mode:nth-of-type(1) { transition-delay:.20s; }
+            .flxv-row.animate-visible .flxv-mode:nth-of-type(2) { transition-delay:.40s; }
+            .flxv-row.animate-visible .flxv-mode:nth-of-type(3) { transition-delay:.60s; }
+            .flxv-row.animate-visible .flxv-mode.on { background:#0b0b0c; border-color:#0b0b0c; color:#ffffff; transition-delay:.85s; transform: translateY(0) scale(1.015); }
+            .flxv-row .flxv-mode-check { transform: scale(.5) rotate(-90deg); opacity:0; transition: transform .5s cubic-bezier(.2,1.6,.4,1), opacity .35s ease; }
+            .flxv-row.animate-visible .flxv-mode-check { transform: scale(1) rotate(0); opacity:1; transition-delay: 1.05s; }
+
+            @media (prefers-reduced-motion: reduce) {
+              .sw-vrow.flxv-row,
+              .flxv-row .flxv-appeal-head,
+              .flxv-row .flxv-appeal-reason,
+              .flxv-row .flxv-appeal-result,
+              .flxv-row .flxv-appeal-check,
+              .flxv-row .flxv-day,
+              .flxv-row .flxv-freq,
+              .flxv-row .flxv-mode,
+              .flxv-row .flxv-mode-check,
+              .flxv-row .flxv-instr li { opacity:1 !important; transform:none !important; transition:none !important; }
+              .flxv-card { animation:none !important; }
+              .flxv-row.animate-visible .flxv-freq .flxv-dot { animation:none !important; }
+            }
+          

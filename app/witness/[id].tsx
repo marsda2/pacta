@@ -1,79 +1,62 @@
+import { useQuery } from '@tanstack/react-query';
 import { Image } from 'expo-image';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { PactaLogo } from '@/components/brand/PactaLogo';
-import { Button, Card, ErrorBanner, Icon, LoadingBlock, Screen, Text } from '@/components/ui';
+import { Banner, Button, Card, ErrorBanner, LoadingBlock, Screen, Text } from '@/components/ui';
+import { apiBase, apiFetch } from '@/lib/api/client';
 import { routes } from '@/lib/routes';
-import { formatDeadline } from '@/lib/shared/time';
-import { usePacts } from '@/lib/store/pacts';
 import { colors, radii } from '@/lib/theme';
 
-// Flujo 05 · Witness review. Pantalla de invitado: no requiere cuenta.
+interface Review { title: string; dayCode: string; photoUrl?: string; closed: boolean }
+
+// A signed, expiring invitation grants access only to this proof, without an account.
 export default function WitnessReview() {
   const router = useRouter();
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const { getPact, resolvePact, loading } = usePacts();
+  const { id, token } = useLocalSearchParams<{ id: string; token?: string }>();
   const [busy, setBusy] = useState(false);
+  const [sent, setSent] = useState(false);
   const [error, setError] = useState<unknown>(null);
-  const pact = getPact(id);
-
+  const review = useQuery({
+    queryKey: ['witness', id, token],
+    queryFn: () => apiFetch<Review>(`/api/pacts/${id}/witness?token=${encodeURIComponent(token || '')}`),
+    enabled: !!token && !!id,
+    retry: false,
+  });
   const decide = async (kept: boolean) => {
-    if (!pact) return;
     setBusy(true);
     setError(null);
     try {
-      await resolvePact(pact.id, kept, 'witness');
-      router.replace(routes.result(pact.id));
-    } catch (e) {
-      setError(e);
-      setBusy(false);
-    }
+      await apiFetch(`/api/pacts/${id}/witness-vote`, { method: 'POST', body: { token, kept } });
+      setSent(true);
+    } catch (e) { setError(e); }
+    finally { setBusy(false); }
   };
 
   return (
     <Screen>
-      <View style={styles.brand}>
-        <PactaLogo size={30} />
-        <Text variant="eyebrow" color="muted">Guest review</Text>
-      </View>
-
-      {loading && !pact ? <LoadingBlock /> : null}
-      <Card style={styles.card}>
-        <Text variant="title">Did Alex keep this pact?</Text>
-        <Text variant="body" color="muted">{pact?.title ?? 'Unknown pact'}</Text>
-
-        <View style={styles.row}>
-          <View style={styles.photo}>
-            {pact?.proofUri ? (
-              <Image source={{ uri: pact.proofUri }} style={StyleSheet.absoluteFill} contentFit="cover" />
-            ) : (
-              <LinearGradient colors={[colors.mint, colors.aqua]} style={[StyleSheet.absoluteFill, styles.photoEmpty]}>
-                <Icon name="camera" size={28} />
-              </LinearGradient>
-            )}
-            <View style={styles.stamp}>
-              <Icon name="timer" size={12} color={colors.white} />
-              <Text variant="caption" color="white">{pact?.proofAt ? formatDeadline(pact.proofAt) : 'Just now'}</Text>
-            </View>
+      <View style={styles.brand}><PactaLogo size={30} /><Text variant="eyebrow" color="muted">Guest review</Text></View>
+      {!token ? <ErrorBanner error={new Error('witness_link_required')} /> : null}
+      {review.isLoading ? <LoadingBlock label="Opening the witness invitation…" /> : null}
+      {review.error ? <ErrorBanner error={review.error} /> : null}
+      {sent ? <Banner tone="success" icon="check" title="Review saved" subtitle="Thank you for being their witness. You can close this page." /> : review.data?.closed ? <Banner title="This review is closed" subtitle="The pact has already moved on. Your invitation can’t change its result." /> : review.data ? (
+        <Card style={styles.card}>
+          <Text variant="title">Did they keep this pact?</Text>
+          <Text variant="bodyStrong">{review.data.title}</Text>
+          <Text variant="body" color="muted">Look for the habit and this handwritten daily code: {review.data.dayCode}</Text>
+          {review.data.photoUrl ? <View style={styles.photo}><Image source={{ uri: `${apiBase()}${review.data.photoUrl}` }} style={StyleSheet.absoluteFill} contentFit="contain" /></View> : <Text variant="body" color="muted">No photo is attached. Only approve if you personally witnessed the task.</Text>}
+          <Text variant="small" color="muted">Your decision affects this pact’s stake and Trust Score. Review the evidence before deciding.</Text>
+          <View style={styles.decide}>
+            <Button label="Approve" leadingIcon="check" fullWidth={false} disabled={busy} onPress={() => decide(true)} style={styles.flex} />
+            <Button label="Reject" variant="outline" leadingIcon="close" fullWidth={false} disabled={busy} onPress={() => decide(false)} style={styles.flex} />
           </View>
-          <View style={styles.side}>
-            <Text variant="body" color="muted">Review the proof before deciding.</Text>
-            <View style={styles.decide}>
-              <Button label="Approve" leadingIcon="check" fullWidth={false} disabled={busy || !pact} onPress={() => decide(true)} style={styles.flex} />
-              <Button label="Reject" variant="outline" leadingIcon="close" fullWidth={false} disabled={busy || !pact} onPress={() => decide(false)} style={styles.flex} />
-            </View>
-          </View>
-        </View>
-
-        {error ? <ErrorBanner error={error} /> : null}
-        <View style={styles.foot}>
-          <Text variant="caption" color="muted">No account needed.</Text>
-          <Button label="View pact details" variant="link" icon="arrowRight" fullWidth={false} onPress={() => pact && router.push(routes.pact(pact.id))} />
-        </View>
-      </Card>
+          {error ? <ErrorBanner error={error} /> : null}
+          <Text variant="caption" color="muted">No account needed. This invitation only opens this proof.</Text>
+        </Card>
+      ) : null}
+      <Button label="Discover PACTA" variant="link" onPress={() => router.push(routes.onboarding)} />
     </Screen>
   );
 }
@@ -82,22 +65,6 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   brand: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   card: { gap: 14 },
-  row: { flexDirection: 'row', gap: 14, flexWrap: 'wrap' },
-  photo: { width: 150, height: 130, overflow: 'hidden', borderRadius: radii.md, backgroundColor: colors.subtle },
-  photoEmpty: { alignItems: 'center', justifyContent: 'center' },
-  stamp: {
-    position: 'absolute',
-    left: 8,
-    bottom: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: radii.pill,
-    backgroundColor: 'rgba(10,28,24,0.7)',
-  },
-  side: { flex: 1, minWidth: 180, gap: 10 },
+  photo: { height: 300, overflow: 'hidden', borderRadius: radii.md, backgroundColor: colors.subtle },
   decide: { flexDirection: 'row', gap: 10 },
-  foot: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderTopWidth: 1, borderTopColor: colors.subtle, paddingTop: 8 },
 });

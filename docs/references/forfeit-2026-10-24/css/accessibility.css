@@ -1,0 +1,33 @@
+/* Public-site accessibility corrections. Preserve layout and brand styling. */
+:focus-visible { outline: 3px solid #0072c6 !important; outline-offset: 4px; }
+p a, li a { text-decoration: underline; }
+.hero-chip { opacity: 1 !important; }
+.hero-chip-bignum .unit, .hero-chip-mac-h span,
+.hero-chip-pushups .hero-chip-eyebrow.light,
+.hero-chip-pushups .hero-chip-bignum.white .x,
+.hero-chip-wakeup .hero-chip-bignum .unit { color: #595960 !important; }
+.l12hp-tab:not(.active), .prod-bento-num, .prod-mac-notif-time,
+.sw-head-eyebrow, .sw-vrow-num, .sw-aw-meta, .a04-ios-btn-ghost,
+.sw-aw-mem-recall > div, .uc-section-eyebrow, .uc-group-head,
+.uc-col-head { color: #595960 !important; }
+.olp-pitch .sw-vrow-num,
+.olp-pitch .sw-aw-meta { color: #b8b8bc !important; }
+html body .other-features-section .feature-list-title { color: #76767a !important; }
+html body .uc-section-eyebrow { color: #595960 !important; -webkit-text-fill-color: #595960 !important; }
+.search-trigger-text { color: #595960 !important; }
+body:not(.light-mode) .search-trigger-text { color: #a0a0a0 !important; }
+.l12hp-tab { min-height: 32px !important; }
+#prod-tone-mid { color: #b4b4b4 !important; }
+body.light-mode footer > p { color: #666 !important; }
+.limit-indicator.exceeded { color: #b42318 !important; }
+.alert { color: #8a4300 !important; }
+.task-time, .task-description { color: #666 !important; }
+.error-text { color: #b42318 !important; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

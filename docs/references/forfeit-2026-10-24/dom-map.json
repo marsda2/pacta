@@ -1,0 +1,329 @@
+{
+  "headings": [
+    {
+      "tag": "h2",
+      "id": null,
+      "class": null,
+      "html_line": 8104,
+      "text": "Join Our Email List"
+    },
+    {
+      "tag": "h3",
+      "id": null,
+      "class": null,
+      "html_line": 8121,
+      "text": "About Overlord"
+    },
+    {
+      "tag": "h3",
+      "id": null,
+      "class": "download-modal-title",
+      "html_line": 8148,
+      "text": "Download Overlord."
+    },
+    {
+      "tag": "h1",
+      "id": null,
+      "class": "hero-h1",
+      "html_line": 8221,
+      "text": "Complete your habits, or lose money"
+    },
+    {
+      "tag": "h3",
+      "id": null,
+      "class": null,
+      "html_line": 8833,
+      "text": "Strict Screen Time"
+    },
+    {
+      "tag": "h3",
+      "id": null,
+      "class": null,
+      "html_line": 8838,
+      "text": "Wake-up Call"
+    },
+    {
+      "tag": "h3",
+      "id": null,
+      "class": null,
+      "html_line": 8843,
+      "text": "Workout Consistency"
+    },
+    {
+      "tag": "h3",
+      "id": null,
+      "class": null,
+      "html_line": 8848,
+      "text": "Bedtime Enforcement"
+    },
+    {
+      "tag": "h2",
+      "id": null,
+      "class": "tg-h2",
+      "html_line": 9054,
+      "text": "Don't take our word for it"
+    },
+    {
+      "tag": "h2",
+      "id": null,
+      "class": "hiw2-title",
+      "html_line": 9179,
+      "text": "How does it work?"
+    },
+    {
+      "tag": "h2",
+      "id": null,
+      "class": "sw-head-h2",
+      "html_line": 10470,
+      "text": "As flexible as you need."
+    },
+    {
+      "tag": "h3",
+      "id": null,
+      "class": "sw-vrow-h",
+      "html_line": 10478,
+      "text": "Appeal if something comes up."
+    },
+    {
+      "tag": "h3",
+      "id": null,
+      "class": "sw-vrow-h",
+      "html_line": 10499,
+      "text": "Fits to your schedule."
+    },
+    {
+      "tag": "h3",
+      "id": null,
+      "class": "sw-vrow-h",
+      "html_line": 10527,
+      "text": "Set how easy appeals are."
+    },
+    {
+      "tag": "h3",
+      "id": null,
+      "class": "sw-vrow-h",
+      "html_line": 10557,
+      "text": "A real human reviews every piece of evidence."
+    },
+    {
+      "tag": "h3",
+      "id": null,
+      "class": "sw-vrow-h",
+      "html_line": 10617,
+      "text": "Overlord, your AI coach."
+    },
+    {
+      "tag": "h2",
+      "id": null,
+      "class": "pun-title",
+      "html_line": 10866,
+      "text": "What punishments can you set?"
+    },
+    {
+      "tag": "h3",
+      "id": null,
+      "class": "pun-card-title",
+      "html_line": 10874,
+      "text": "Forfeit money"
+    },
+    {
+      "tag": "h3",
+      "id": null,
+      "class": "pun-card-title",
+      "html_line": 10881,
+      "text": "Text a contact"
+    },
+    {
+      "tag": "h3",
+      "id": null,
+      "class": "pun-card-title",
+      "html_line": 10888,
+      "text": "Call a contact"
+    },
+    {
+      "tag": "h3",
+      "id": null,
+      "class": "pun-card-title",
+      "html_line": 10895,
+      "text": "Block apps"
+    },
+    {
+      "tag": "h3",
+      "id": null,
+      "class": "pun-card-title",
+      "html_line": 10902,
+      "text": "Lock your Mac"
+    },
+    {
+      "tag": "h3",
+      "id": null,
+      "class": "pun-card-title",
+      "html_line": 10909,
+      "text": "Email a contact"
+    },
+    {
+      "tag": "h2",
+      "id": null,
+      "class": "other-features-title",
+      "html_line": 10930,
+      "text": "Introducing Overlord"
+    },
+    {
+      "tag": "h3",
+      "id": null,
+      "class": "feature-list-title",
+      "html_line": 10932,
+      "text": "Fasting Time Depends on Weight"
+    },
+    {
+      "tag": "h3",
+      "id": null,
+      "class": "feature-list-title",
+      "html_line": 10935,
+      "text": "No Bars on Weeknights"
+    },
+    {
+      "tag": "h3",
+      "id": null,
+      "class": "feature-list-title",
+      "html_line": 10938,
+      "text": "Make Bed to Unblock Reddit"
+    },
+    {
+      "tag": "h3",
+      "id": null,
+      "class": "feature-list-title",
+      "html_line": 10941,
+      "text": "Block TikTok During Lecture"
+    },
+    {
+      "tag": "h3",
+      "id": null,
+      "class": "feature-list-title",
+      "html_line": 10944,
+      "text": "No DoorDash"
+    },
+    {
+      "tag": "h3",
+      "id": null,
+      "class": "feature-list-title",
+      "html_line": 10947,
+      "text": "Overlord Decides Bedtime"
+    },
+    {
+      "tag": "h3",
+      "id": null,
+      "class": "feature-list-title",
+      "html_line": 10950,
+      "text": "Deep Work Earns Screen Time"
+    },
+    {
+      "tag": "h3",
+      "id": null,
+      "class": "feature-list-title",
+      "html_line": 10953,
+      "text": "10hrs of Claude Code Daily"
+    },
+    {
+      "tag": "h2",
+      "id": null,
+      "class": "olp-pitch-title",
+      "html_line": 11771,
+      "text": "Overlord knows all this about you."
+    },
+    {
+      "tag": "h2",
+      "id": null,
+      "class": "sw-head-h2",
+      "html_line": 11886,
+      "text": "How does Overlord keep you on track?"
+    },
+    {
+      "tag": "h3",
+      "id": null,
+      "class": "sw-vrow-h",
+      "html_line": 11895,
+      "text": "It calls you."
+    },
+    {
+      "tag": "h3",
+      "id": null,
+      "class": "sw-vrow-h",
+      "html_line": 11922,
+      "text": "It texts your friends."
+    },
+    {
+      "tag": "h3",
+      "id": null,
+      "class": "sw-vrow-h",
+      "html_line": 11941,
+      "text": "It charges you."
+    },
+    {
+      "tag": "h3",
+      "id": null,
+      "class": "sw-vrow-h",
+      "html_line": 11968,
+      "text": "It blocks apps and websites."
+    },
+    {
+      "tag": "h3",
+      "id": null,
+      "class": "sw-vrow-h",
+      "html_line": 12002,
+      "text": "It blocks your phone."
+    },
+    {
+      "tag": "h3",
+      "id": null,
+      "class": "sw-vrow-h",
+      "html_line": 12033,
+      "text": "It checks your location."
+    },
+    {
+      "tag": "h3",
+      "id": null,
+      "class": "sw-vrow-h",
+      "html_line": 12073,
+      "text": "It demands evidence."
+    },
+    {
+      "tag": "h3",
+      "id": null,
+      "class": "sw-vrow-h",
+      "html_line": 12100,
+      "text": "It remembers everything."
+    },
+    {
+      "tag": "h2",
+      "id": null,
+      "class": "macblock-h2",
+      "html_line": 12537,
+      "text": "Overlord runs on your Mac and keeps you on task."
+    },
+    {
+      "tag": "h2",
+      "id": null,
+      "class": "uc-section-title",
+      "html_line": 13027,
+      "text": "A forfeit for every kind of habit."
+    },
+    {
+      "tag": "h2",
+      "id": null,
+      "class": "faq-title",
+      "html_line": 13510,
+      "text": "Frequently Asked Questions"
+    },
+    {
+      "tag": "h2",
+      "id": null,
+      "class": "fcta-iter05-title",
+      "html_line": 13650,
+      "text": "Complete your habits, or lose money"
+    }
+  ],
+  "inline_event_handlers": [],
+  "inline_svg_count": 96,
+  "inline_style_attribute_count": 75
+}
