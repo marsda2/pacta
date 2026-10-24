@@ -1,0 +1,79 @@
+# 05 · Infraestructura: GitHub, Vercel, Supabase
+
+## ¿Hace falta Vercel?
+**Sí, salvo que `whop apps deploy` soporte nuestro stack** (ver 03-whop.md §2). Necesitamos:
+- Una URL HTTPS pública y estable para los **webhooks de Whop** y los **callbacks de Terac**.
+- Una URL para el **iframe de Whop** y para que los jueces abran la demo desde cualquier navegador.
+- Funciones serverless para guardar las claves secretas fuera del cliente.
+
+Expo Go en el móvil sirve para la cámara en vivo; la web en Vercel sirve para todo lo demás.
+
+## 1. GitHub
+
+```bash
+git init
+gh repo create pacta --private --source . --remote origin
+git push -u origin main
+```
+
+- Ramas: `main` (lo que se demuestra) y ramas cortas `feat/<cosa>` con un PR cada una → preview de Vercel por PR.
+- Commitear `.env.example`, **nunca** `.env*`. `.gitignore`: `node_modules`, `.expo`, `dist`, `.env*`, `.vercel`.
+- Si se trabaja en equipo: cada persona en su carpeta (ver los roles en 06) para evitar conflictos.
+
+## 2. Vercel
+
+1. Importar el repo de GitHub en Vercel (o `vercel link` desde la CLI).
+2. Configuración de build:
+   - Build command: `npx expo export -p web`
+   - Output directory: `dist`
+   - Las funciones en `api/` se detectan solas (runtime Node).
+3. `vercel.json`: rewrites para el SPA (todas las rutas que no sean `/api/*` → `index.html`) y `maxDuration` más alto para `/api/proofs` y `/api/admin/calibrate` (visión y evaluación tardan unos segundos).
+4. Variables de entorno en Production y Preview (sección 4).
+5. Dominio: `pacta.vercel.app` (o el que quede libre). **Fijarlo pronto**: Whop y Terac apuntan a él.
+
+Se puede usar la integración MCP de Vercel de esta sesión para revisar despliegues y logs durante el día.
+
+## 3. Supabase
+
+1. Crear el proyecto "pacta" (región cercana; US East si el hackathon es en EE. UU.).
+2. Ejecutar las migraciones de `supabase/migrations` con el esquema de 02-arquitectura.md.
+3. Storage: bucket privado `proofs`; subida mediante URL firmada que genera `/api/proofs`.
+4. RLS activado: lectura solo de las filas propias; las escrituras solo desde el servidor (service role).
+5. Auth: la identidad viene de Whop (token del iframe). Fuera de Whop (en Expo Go) hay dos opciones: un enlace mágico de Supabase o un modo demo con un usuario fijo. **Para el hackathon: modo demo con un usuario sembrado + Whop en la web.**
+
+## 4. Variables de entorno (`.env.example`)
+
+```
+# Cliente (públicas, se incluyen en el bundle)
+EXPO_PUBLIC_API_URL=https://pacta.vercel.app
+EXPO_PUBLIC_SUPABASE_URL=
+EXPO_PUBLIC_SUPABASE_ANON_KEY=
+
+# Servidor (solo en Vercel)
+SUPABASE_SERVICE_ROLE_KEY=
+WHOP_API_KEY=
+WHOP_APP_ID=
+WHOP_COMPANY_ID=
+WHOP_WEBHOOK_SECRET=
+WHOP_STAKE_PRODUCT_ID=
+WHOP_PASS_PLAN_ID=
+ANTHROPIC_API_KEY=
+TERAC_MCP_URL=
+TERAC_API_KEY=
+TERAC_WEBHOOK_SECRET=
+DEMO_USER_ID=
+```
+
+## 5. Desarrollo local
+- `npx expo start` → abrir en Expo Go (cámara) y en el navegador.
+- API local: `vercel dev` sirve `api/*` en localhost. Para los webhooks en local, usa la URL de una preview de Vercel en lugar de un túnel (menos piezas que se puedan romper).
+
+## 6. Checklist de conexión (marca cada punto al hacerlo)
+- [ ] Repo en GitHub conectado a Vercel; la primera build pasa
+- [ ] Dominio fijo de Vercel
+- [ ] Proyecto de Supabase + migraciones + bucket
+- [ ] App de Whop creada, API key, URL del iframe → Vercel
+- [ ] Webhook de Whop registrado y probado con un pago pequeño (y un reembolso, para ver si devuelve la comisión)
+- [ ] Credenciales de Terac + una tarea de prueba creada y leída
+- [ ] Clave de Anthropic + una llamada de visión de prueba
+- [ ] Todas las variables en Vercel (Production y Preview)

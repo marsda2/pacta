@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Consejo: Pact Circles</title>
+<style>
+  :root { --bg:#fff; --fg:#1d1d1f; --muted:#5f6368; --line:#e3e3e6; --card:#fafafa; --ok:#1e7f4f; --no:#b3261e; --mid:#a86400; --accent:#3557d4; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#141416; --fg:#ececf0; --muted:#a0a0a8; --line:#2c2c31; --card:#1b1b1f; --ok:#5fcf93; --no:#ff8a80; --mid:#f0b45a; --accent:#8ea4ff; } }
+  body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+  main { max-width:860px; margin:0 auto; padding:32px 16px 64px; }
+  h1 { font-size:1.6rem; margin:0 0 4px; } h2 { font-size:1.15rem; margin:28px 0 8px; }
+  .q { color:var(--muted); border-left:3px solid var(--line); padding-left:12px; margin:12px 0 24px; }
+  .verdict { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:8px 20px 16px; }
+  .rec { border-left:4px solid var(--accent); padding-left:12px; }
+  table { width:100%; border-collapse:collapse; font-size:.92rem; }
+  th, td { border-bottom:1px solid var(--line); padding:8px 6px; text-align:left; vertical-align:top; }
+  .ok { color:var(--ok); font-weight:600; } .no { color:var(--no); font-weight:600; } .mid { color:var(--mid); font-weight:600; }
+  details { border:1px solid var(--line); border-radius:10px; padding:10px 14px; margin:8px 0; background:var(--card); }
+  summary { cursor:pointer; font-weight:600; }
+  .wrap { overflow-x:auto; }
+  footer { color:var(--muted); font-size:.85rem; margin-top:40px; }
+</style>
+</head>
+<body>
+<main>
+<h1>Consejo LLM: retos en grupo para PACTA</h1>
+<p class="q">¿Deberían añadirse a PACTA retos en grupo con bote común (foco con ganador o reparto por percentil; gym 4 días/semana donde los que fallan pagan a los que cumplen)? ¿Qué cabe en un hackathon de 8 h y cómo debería quedar en el plan?</p>
+
+<section class="verdict">
+<h2>Veredicto del presidente</h2>
+<p class="rec"><strong>Sí a los retos en grupo, pero cooperativos: "Pact Circles", sin dinero entre usuarios.</strong> Cada miembro apuesta y recupera lo suyo; si falla, va a su propio Vault. El grupo comparte el reto, el ranking y un bonus cooperativo de Trust si todos cumplen. Los amigos son testigos que votan antes de Terac; Terac decide los desacuerdos y las sospechas de trampa. El foco se verifica con una foto del móvil guardado en una caja con el código del día.</p>
+
+<h2>Dónde coincide el consejo</h2>
+<ul>
+<li>Nada de mover dinero entre usuarios: rompe "si fallas no pierdes", implica juego y money transmission, y genera colusión e incentivos perversos.</li>
+<li>Nada de Screen Time / UsageStats nativos en 8 h.</li>
+<li>El reto de gym encaja tal cual en el pipeline foto + IA + Terac.</li>
+<li>Lo valioso es la presión social y los testigos, no el bote.</li>
+<li>Grupos solo después de que el flujo individual funcione de extremo a extremo.</li>
+</ul>
+
+<h2>Dónde choca</h2>
+<ul>
+<li><strong>Peso en la demo:</strong> el Expansionista quiere "PACTA Squads for Whop Creators" en el pitch; el Outsider, nada que añada conceptos. Resolución: una sola diapositiva de visión y, como mucho, una pantalla opcional.</li>
+<li><strong>Verificar el foco:</strong> la captura de Tiempo de uso se falsea en 30 s; la foto del móvil en una caja es la prueba principal.</li>
+</ul>
+
+<h2>Puntos ciegos detectados en la revisión</h2>
+<ul>
+<li>Los votos de amigos son etiquetas débiles: no deben mezclarse con Terac en la métrica del antes/después. La tasa de acuerdo amigos vs Terac es una métrica nueva.</li>
+<li>Las comisiones de Whop en los reembolsos de stakes de $1 pueden hacer que el reembolso no sea íntegro.</li>
+<li>El núcleo (custodia + APY simulado) ya tiene exposición legal, haya grupos o no.</li>
+<li>Privacidad de las fotos que ve el círculo (terceros en el gym, casas).</li>
+<li>Una demo con varias cuentas pagando en directo es frágil: usar usuarios sembrados.</li>
+</ul>
+
+<h2>Lo primero que hay que hacer</h2>
+<p>Escribir en el plan la regla "ningún flujo de dinero entre usuarios" y el diseño de Pact Circles, y no tocar nada de grupos el día del evento hasta que el flujo checkout → foto → auditoría → reembolso/Vault funcione.</p>
+</section>
+
+<h2>Posiciones de los asesores</h2>
+<div class="wrap">
+<table>
+<tr><th>Asesor</th><th>¿Bote con dinero entre usuarios?</th><th>¿Construir algo hoy?</th><th>Idea clave</th></tr>
+<tr><td>Contrarian</td><td class="no">No</td><td class="no">Nada</td><td>Rompe la promesa del Vault; juego y colusión</td></tr>
+<tr><td>Primeros Principios</td><td class="no">No</td><td class="mid">Pantalla Círculo mínima</td><td>El grupo como jurado; foco = móvil en una caja</td></tr>
+<tr><td>Expansionista</td><td class="mid">Cooperativo (Vault de grupo)</td><td class="ok">Focus Squad sembrado</td><td>Distribución vía creadores de Whop</td></tr>
+<tr><td>Outsider</td><td class="no">No</td><td class="no">Nada en la demo</td><td>Demasiados conceptos; test de una frase</td></tr>
+<tr><td>Ejecutor</td><td class="no">No</td><td class="mid">≤90 min, opcional tras las 16:00</td><td>Reutilizar el pipeline; leaderboard</td></tr>
+</table>
+</div>
+<p>Revisión por pares (5/5): la más fuerte fue <strong>Primeros Principios</strong>; el mayor punto ciego, <strong>Expansionista</strong>; el Ejecutor fue la mejor en ejecución.</p>
+
+<h2>Respuestas completas</h2>
+<details><summary>Contrarian</summary><p>El bote convierte PACTA en otro producto: si el que falla paga al que cumple, el dinero sí se pierde, lo que lo convierte en un concurso con premio entre usuarios (leyes estatales de juego, money transmission, revisión de Whop) con dinero real delante de los jueces. El 40% no gana nada: un ranking de uso no tiene fotos dudosas para Terac. Medir el uso es imposible hoy y la captura se falsea en 30 s; hay colusión entre amigos; en suma cero quieres que tus amigos fallen. Propuesta: no construir hoy; "Pacto de grupo" sin redistribución, con amigos como jurado extra; roadmap con una nota legal explícita.</p></details>
+<details><summary>Primeros Principios</summary><p>Hoy hay que demostrar que Terac mejora al agente. Cada idea se mide así: ¿genera más veredictos humanos etiquetados? El bote no. Lo que quieres del grupo es presión social y testigos: el dinero nunca se mueve entre usuarios, el grupo es el jurado (los amigos votan y Terac resuelve los desacuerdos), y el foco se verifica con el móvil en una caja con el código al inicio y al final. Gym tal cual. En 8 h, como mucho una pantalla Círculo. Docs: "Pact Circles (post-hackathon)" con la regla "ningún flujo de dinero entre usuarios"; en el pitch, "los amigos también son jueces humanos".</p></details>
+<details><summary>Expansionista</summary><p>El grupo da distribución: cada reto trae a 5–20 personas. "PACTA Squads for Whop Creators": los creadores lanzan retos para sus miembros y comparten la comisión. Verificación universal por captura (Tiempo de uso, Health, Strava, Duolingo) con Terac si hay sospecha. Modo cooperativo: Vault de grupo que se desbloquea con el Trust medio. Trust Score social visible en Whop. En 8 h: Focus Squad sembrado con 4 usuarios demo.</p></details>
+<details><summary>Outsider</summary><p>Ya hay unos diez conceptos para un juez con 3 minutos. Los botes con percentiles le pierden. Contradice "si fallas no pierdes". El amigo invitado tiene demasiadas dudas (¿mis $20?, ¿percentil?, ¿quién decide?). Test de una frase. Si hay algo social, Squad Vault cooperativo. Nada en el README ni en la demo; un párrafo en el roadmap.</p></details>
+<details><summary>Ejecutor</summary><p>Ni Screen Time ni payouts P2P hoy. Cabe en ≤90 min tras el flujo individual: tabla groups, el gym reutiliza el pipeline, el "bote" sin mover dinero (cada uno su Vault, bonus de Trust al que cumple), leaderboard en 20 min. Bloque opcional solo si el flujo individual funciona antes de las 16:00. Primera acción: terminar checkout → foto → auditoría.</p></details>
+<details><summary>Puntos destacados de la revisión por pares</summary><ul>
+<li>5/5: E (Primeros Principios) es la más fuerte; A (Expansionista) tiene el mayor punto ciego (ignora el riesgo legal, la colusión y que las capturas son falsificables).</li>
+<li>Votos de amigos = etiquetas débiles; Terac como verdad de referencia; medir la tasa de acuerdo.</li>
+<li>Comisiones, retrasos y contracargos de Whop en los reembolsos.</li>
+<li>El Vault individual ya es custodia con APY simulado: riesgo aunque no haya grupos.</li>
+<li>Privacidad de las fotos; una demo de grupo con dinero real en directo es frágil.</li>
+</ul></details>
+
+<footer>Consejo LLM · 2026-10-24 · Tema: retos en grupo (Pact Circles) para PACTA Autonomous Vault · Transcripción completa en council-transcript-20261024.md</footer>
+</main>
+</body>
+</html>
