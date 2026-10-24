@@ -26,3 +26,10 @@ export const WITHDRAWAL_LOCK_DAYS_AFTER_CHEAT = 7;
 // Stake por pacto (en céntimos). La demo usa $1–$5.
 export const STAKE_MIN_CENTS = 100;
 export const STAKE_MAX_CENTS = 2000;
+export const STAKE_STEP_CENTS = 500;
+export const STAKE_PRESETS_CENTS = [500, 1000, 2000] as const;
+
+export function formatUsd(cents: number): string {
+  const dollars = cents / 100;
+  return Number.isInteger(dollars) ? `$${dollars}` : `$${dollars.toFixed(2)}`;
+}
