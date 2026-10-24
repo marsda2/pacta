@@ -22,7 +22,6 @@ import {
   RefreshCw,
   RotateCw,
   Settings,
-  Sparkle,
   Target,
   Timer,
   Upload,
@@ -35,11 +34,11 @@ import {
   type LucideIcon,
 } from 'lucide-react-native';
 import { Image, type ImageSourcePropType } from 'react-native';
+import Svg, { Path } from 'react-native-svg';
 
 import appBlockIcon from '@/assets/brand/icons/app_block.png';
 import calendarIcon from '@/assets/brand/icons/calendar.png';
 import cameraIcon from '@/assets/brand/icons/camera.png';
-import copilotIcon from '@/assets/brand/icons/copilot.png';
 import focusIcon from '@/assets/brand/icons/focus.png';
 import helpIcon from '@/assets/brand/icons/help.png';
 import locationIcon from '@/assets/brand/icons/location.png';
@@ -55,6 +54,7 @@ import verifiedIcon from '@/assets/brand/icons/verified.png';
 import walletIcon from '@/assets/brand/icons/wallet.png';
 import witnessIcon from '@/assets/brand/icons/witness.png';
 
+import { ARM_RIGHT, BODY } from '@/components/companion/Pax';
 import { colors } from '@/lib/theme';
 
 // Biblioteca de iconos de PACTA (ver ICON LIBRARY del UI Kit).
@@ -68,7 +68,6 @@ const icons = {
   witnesses: Users,
   upload: Upload,
   verified: BadgeCheck,
-  copilot: Sparkle,
   calendar: Calendar,
   wallet: Wallet,
   notifications: Bell,
@@ -105,7 +104,6 @@ const brandIcons: Partial<Record<keyof typeof icons, ImageSourcePropType>> = {
   witness: witnessIcon,
   upload: uploadIcon,
   verified: verifiedIcon,
-  copilot: copilotIcon,
   calendar: calendarIcon,
   wallet: walletIcon,
   notifications: notificationsIcon,
@@ -117,8 +115,9 @@ const brandIcons: Partial<Record<keyof typeof icons, ImageSourcePropType>> = {
   pacts: pactIcon,
 };
 
-export type IconName = keyof typeof icons;
-export const iconNames = Object.keys(icons) as IconName[];
+// Copilot no es un icono de Lucide ni un PNG: es Pax (ver PaxGlyph).
+export type IconName = keyof typeof icons | 'copilot';
+export const iconNames = [...Object.keys(icons), 'copilot'] as IconName[];
 
 export interface IconProps {
   name: IconName;
@@ -127,7 +126,21 @@ export interface IconProps {
   strokeWidth?: number;
 }
 
+// Copilot: el propio Pax en silueta monocroma (cuerpo con cara recortada y brazo saludando).
+const PAX_ICON_VIEWBOX = '28 14 186 226';
+
+function PaxGlyph({ size, color }: { size: number; color: string }) {
+  return (
+    <Svg width={size} height={size} viewBox={PAX_ICON_VIEWBOX}>
+      <Path d={BODY} fill={color} fillRule="evenodd" />
+      <Path d={ARM_RIGHT} stroke={color} strokeWidth={13} strokeLinecap="round" fill="none" />
+    </Svg>
+  );
+}
+
 export function Icon({ name, size = 20, color = colors.forest, strokeWidth = 2 }: IconProps) {
+  if (name === 'copilot') return <PaxGlyph size={size} color={color} />;
+
   const brand = brandIcons[name];
   if (brand) return <Image source={brand} style={{ width: size, height: size, tintColor: color }} />;
 
