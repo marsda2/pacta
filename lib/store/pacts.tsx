@@ -1,61 +1,10 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
 
-import type { Pact, ProofMethod } from '@/lib/shared/types';
-
-// Store en memoria para el prototipo. Se sustituirá por /api/pacts (Supabase + Whop)
-// cuando el flujo de dinero esté conectado (ver ROADMAP.md, fase 4).
-const MIN = 60 * 1000;
-const HOUR = 60 * MIN;
-
-function seed(now = Date.now()): Pact[] {
-  return [
-    {
-      id: 'finish-proposal',
-      title: 'Finish the proposal',
-      stakeCents: 2000,
-      dueAt: now + 45 * MIN,
-      status: 'progress',
-      methods: ['photo', 'location', 'witness'],
-      focusTotalSec: 45 * 60,
-      focusRemainingSec: 45 * 60,
-      stepIndex: 1,
-    },
-    {
-      id: 'gym-session',
-      title: 'Go to the gym',
-      stakeCents: 1000,
-      dueAt: now + 20 * HOUR,
-      status: 'scheduled',
-      methods: ['photo', 'location'],
-      focusTotalSec: 60 * 60,
-      focusRemainingSec: 60 * 60,
-      stepIndex: 0,
-    },
-    {
-      id: 'write-500',
-      title: 'Write 500 words',
-      stakeCents: 500,
-      dueAt: now - 20 * HOUR,
-      status: 'verified',
-      methods: ['photo'],
-      focusTotalSec: 30 * 60,
-      focusRemainingSec: 0,
-      stepIndex: 2,
-      completedAt: now - 21 * HOUR,
-    },
-    {
-      id: 'clear-inbox',
-      title: 'Clear the inbox',
-      stakeCents: 1000,
-      dueAt: now - 44 * HOUR,
-      status: 'missed',
-      methods: ['photo', 'witness'],
-      focusTotalSec: 30 * 60,
-      focusRemainingSec: 30 * 60,
-      stepIndex: 1,
-    },
-  ];
-}
+import { apiBase, apiFetch } from '@/lib/api/client';
+import { prepareProofImage } from '@/lib/api/image';
+import { TRUST_START_SCORE } from '@/lib/shared/rules';
+import type { Pact, PactDto, PactsResponse, ProofMethod, UserSummary } from '@/lib/shared/types';
 
 export interface NewPactInput {
   title: string;
@@ -66,54 +15,93 @@ export interface NewPactInput {
 
 interface PactsContextValue {
   pacts: Pact[];
+  summary: UserSummary;
+  loading: boolean;
+  error: Error | null;
+  refetch: () => void;
   getPact: (id: string) => Pact | undefined;
-  createPact: (input: NewPactInput) => Pact;
+  createPact: (input: NewPactInput) => Promise<Pact>;
+  // La sesión de foco es local al dispositivo: no se guarda en el servidor.
   setFocusRemaining: (id: string, seconds: number) => void;
-  submitProof: (id: string, proofUri?: string) => void;
-  resolvePact: (id: string, kept: boolean) => void;
+  // `imageUri` sin valor = captura de demostración (sin foto).
+  submitProof: (id: string, imageUri?: string) => Promise<void>;
+  resolvePact: (id: string, kept: boolean, source?: 'witness' | 'demo') => Promise<void>;
 }
 
+const EMPTY_SUMMARY: UserSummary = { trustScore: TRUST_START_SCORE, vaultCents: 0, verifiedStreak: 0 };
 const PactsContext = createContext<PactsContextValue | null>(null);
 
 export function PactsProvider({ children }: { children: ReactNode }) {
-  const [pacts, setPacts] = useState<Pact[]>(() => seed());
+  const client = useQueryClient();
+  const [focus, setFocus] = useState<Record<string, number>>({});
 
-  const update = useCallback((id: string, patch: (pact: Pact) => Pact) => {
-    setPacts((list) => list.map((pact) => (pact.id === id ? patch(pact) : pact)));
-  }, []);
+  const query = useQuery({
+    queryKey: ['pacts'],
+    queryFn: () => apiFetch<PactsResponse>('/api/pacts'),
+    refetchInterval: 30_000,
+  });
+
+  const toPact = useCallback(
+    (dto: PactDto): Pact => {
+      const started = dto.id in focus && dto.status === 'progress';
+      return {
+        ...dto,
+        focusRemainingSec: focus[dto.id] ?? dto.focusTotalSec,
+        stepIndex: started ? Math.max(dto.stepIndex, 1) : dto.stepIndex,
+        proofUri: dto.proofImagePath ? `${apiBase()}${dto.proofImagePath}` : undefined,
+      };
+    },
+    [focus],
+  );
+
+  const apply = useCallback(
+    (data: { pact: PactDto; summary?: UserSummary }) => {
+      client.setQueryData<PactsResponse>(['pacts'], (old) => {
+        const list = old?.pacts ?? [];
+        const exists = list.some((p) => p.id === data.pact.id);
+        return {
+          pacts: exists ? list.map((p) => (p.id === data.pact.id ? data.pact : p)) : [data.pact, ...list],
+          summary: data.summary ?? old?.summary ?? EMPTY_SUMMARY,
+        };
+      });
+      client.invalidateQueries({ queryKey: ['pacts'] });
+    },
+    [client],
+  );
+
+  const create = useMutation({
+    mutationFn: (input: NewPactInput) => apiFetch<{ pact: PactDto }>('/api/pacts', { method: 'POST', body: input }),
+    onSuccess: apply,
+  });
+  const proof = useMutation({
+    mutationFn: async ({ id, imageUri }: { id: string; imageUri?: string }) => {
+      const imageBase64 = imageUri ? await prepareProofImage(imageUri) : undefined;
+      return apiFetch<{ pact: PactDto; summary: UserSummary }>(`/api/pacts/${id}/proof`, { method: 'POST', body: { imageBase64 } });
+    },
+    onSuccess: apply,
+  });
+  const resolve = useMutation({
+    mutationFn: ({ id, kept, source }: { id: string; kept: boolean; source: 'witness' | 'demo' }) =>
+      apiFetch<{ pact: PactDto; summary: UserSummary }>(`/api/pacts/${id}/resolve`, { method: 'POST', body: { kept, source } }),
+    onSuccess: apply,
+  });
+
+  const pacts = useMemo(() => (query.data?.pacts ?? []).map(toPact), [query.data, toPact]);
 
   const value = useMemo<PactsContextValue>(
     () => ({
       pacts,
+      summary: query.data?.summary ?? EMPTY_SUMMARY,
+      loading: query.isPending,
+      error: query.error,
+      refetch: () => void query.refetch(),
       getPact: (id) => pacts.find((pact) => pact.id === id),
-      createPact: (input) => {
-        const now = Date.now();
-        const focusSec = Math.max(5 * 60, Math.min(45 * 60, Math.floor((input.dueAt - now) / 1000)));
-        const pact: Pact = {
-          id: Math.random().toString(36).slice(2, 8),
-          title: input.title.trim() || 'Untitled pact',
-          stakeCents: input.stakeCents,
-          dueAt: input.dueAt,
-          methods: input.methods,
-          status: 'progress',
-          focusTotalSec: focusSec,
-          focusRemainingSec: focusSec,
-          stepIndex: 0,
-        };
-        setPacts((list) => [pact, ...list]);
-        return pact;
-      },
-      setFocusRemaining: (id, seconds) =>
-        update(id, (pact) => ({ ...pact, focusRemainingSec: Math.max(0, seconds), stepIndex: Math.max(pact.stepIndex, 1) })),
-      submitProof: (id, proofUri) => update(id, (pact) => ({ ...pact, proofUri, status: 'pending', stepIndex: 2 })),
-      resolvePact: (id, kept) =>
-        update(id, (pact) => ({
-          ...pact,
-          status: kept ? 'verified' : 'missed',
-          completedAt: kept ? Date.now() : undefined,
-        })),
+      createPact: async (input) => toPact((await create.mutateAsync(input)).pact),
+      setFocusRemaining: (id, seconds) => setFocus((prev) => ({ ...prev, [id]: Math.max(0, seconds) })),
+      submitProof: async (id, imageUri) => void (await proof.mutateAsync({ id, imageUri })),
+      resolvePact: async (id, kept, source = 'demo') => void (await resolve.mutateAsync({ id, kept, source })),
     }),
-    [pacts, update],
+    [pacts, query, toPact, create, proof, resolve],
   );
 
   return <PactsContext.Provider value={value}>{children}</PactsContext.Provider>;

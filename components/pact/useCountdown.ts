@@ -5,7 +5,9 @@ export function useCountdown(initialSeconds: number, onTick?: (remaining: number
   const [remaining, setRemaining] = useState(initialSeconds);
   const [running, setRunning] = useState(false);
   const tick = useRef(onTick);
-  tick.current = onTick;
+  useEffect(() => {
+    tick.current = onTick;
+  });
 
   useEffect(() => {
     if (!running) return;

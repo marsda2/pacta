@@ -11,11 +11,11 @@
 | 0 | Entorno e infraestructura | ✅ |
 | 1 | Sistema de diseño y companion Pax | ✅ (falta comparar con el kit final) |
 | 2 | Pantallas y flujos con datos de prueba | 🟡 |
-| 3 | API y datos reales (Supabase) | ⬜ |
+| 3 | API y datos reales (Supabase) | ✅ (falta desplegar) |
 | 4 | Pagos con Whop | ⬜ |
 | 5 | Agente auditor + jurado Terac + antes/después | ⬜ |
 | 6 | Copilot con IA y Pax reactivo | ⬜ |
-| 7 | Vault y Trust Score reales | ⬜ |
+| 7 | Vault y Trust Score reales | 🟡 |
 | 8 | Embeber en Whop, datos de demo y pulido | ⬜ |
 | 9 | Demo y entrega | ⬜ |
 | Extra | Pact Circles (opcional, solo si el flujo central es estable) | ⬜ |
@@ -48,7 +48,7 @@ Tokens, iconos y componentes portados del *UI Component Library* y de *Windows &
 
 ## Fase 2 · Pantallas y flujos 🟡
 
-Los seis flujos de *Windows & Flows* funcionan con un store en memoria (`lib/store/pacts.tsx`).
+Los seis flujos de *Windows & Flows* están construidos. Empezaron con un store en memoria y desde la fase 3 usan la API (`lib/store/pacts.tsx`).
 
 - ✅ 01 Crear pacto → `app/pact/new.tsx`
 - ✅ 02 Pacto activo (cuenta atrás, pasos, "I'm stuck") → `app/pact/[id]/index.tsx`
@@ -62,13 +62,21 @@ Los seis flujos de *Windows & Flows* funcionan con un store en memoria (`lib/sto
 - ✅ Enlaces directos en Vercel verificados en https://pacta-theta.vercel.app (`/kit`, `/pacts`, `/pact/new`, `/pact/<id>`, `/pact/<id>/proof`, `/witness/<id>`, `/api/health`). La web se exporta como SPA (`web.output: "single"`): con pre-renderizado, Vercel servía el HTML de la home en los enlaces directos y React lanzaba el error de hidratación #418.
 - ⬜ Estados vacíos y de error más pulidos; accesibilidad (lector de pantalla, foco).
 
-## Fase 3 · API y datos reales ⬜
+## Fase 3 · API y datos reales ✅
 
-- ⬜ Cliente Postgres en `lib/server/db.ts` (`pg` + `DATABASE_URL`, esquema `pacta`).
-- ⬜ `POST /api/pacts`, `GET /api/pacts`, `POST /api/proofs` (URL firmada al bucket `proofs`).
-- ⬜ Sustituir el store en memoria por React Query + estas rutas.
-- ⬜ Identidad: usuario de demo sembrado (`DEMO_USER_ID`) y, después, token de Whop.
-- ⬜ Proyección de la máquina de estados del servidor (DRAFT, ACTIVE, AI_REVIEW…) a los cinco estados de la UI.
+La app ya lee y escribe en Supabase (esquema `pacta`) a través de `/api/*`.
+
+- ✅ Cliente Postgres `lib/server/db.ts` (`pg` + `DATABASE_URL`) con `query` y `withTransaction`.
+- ✅ `lib/server/pact-engine.ts`: crear pacto, subir prueba y veredicto en transacciones con bloqueo de fila; vencimiento perezoso de pactos sin prueba.
+- ✅ Rutas: `GET/POST /api/pacts`, `GET /api/pacts/:id`, `POST /api/pacts/:id/proof`, `POST /api/pacts/:id/resolve`, `GET /api/proofs/:id/image`. Validación de entrada (título, stake, fecha límite, tipo real de imagen por sus primeros bytes, 1,5 MB máx.).
+- ✅ Proyección de la máquina de estados del servidor a los cinco estados de la UI (`toDto`).
+- ✅ Store en el cliente con React Query (`lib/store/pacts.tsx`): estados de carga y error, mutaciones, foto reducida a 1024 px antes de subirla. La sesión de foco sigue siendo local al dispositivo.
+- ✅ Identidad: usuario de demo (`whop_user_id = 'demo-user'`). El token de Whop llega en la fase 8.
+- ✅ Migración `pacta_pacts_methods_images`: `pacts.proof_methods` y tabla `proof_images`.
+- ✅ Servidor de desarrollo de la API: `npm run dev:api` (puerto 3000, lee `.env.local`). Datos de demo: `npm run seed`.
+- ✅ Verificado: 24 comprobaciones de la API contra la base real (altas, validaciones, 409 en transiciones inválidas, imagen servida, CORS, Trust y Vault) y el flujo completo en el navegador: el pacto creado desde la UI quedó `REFUNDED` en Postgres con su `trust_event`. Typecheck y lint limpios.
+- 🟡 Fotos en Postgres (`proof_images`) en vez del bucket `proofs`: falta `SUPABASE_SERVICE_ROLE_KEY` para firmar URLs de Storage. `proofs.storage_path` vale `db:<proof_id>`; el jurado (`api/jury/[id].ts`) usa `signedProofUrl` y hay que adaptarlo a esa ruta o mover las fotos a Storage cuando exista la clave.
+- ⬜ Desplegar y probar la API en Vercel (los cambios de esta fase aún no están en `main`).
 
 ## Fase 4 · Pagos con Whop ⬜
 
@@ -91,14 +99,15 @@ Los seis flujos de *Windows & Flows* funcionan con un store en memoria (`lib/sto
 
 ## Fase 7 · Vault y Trust Score reales ⬜
 
-- ⬜ `pact-engine.transition` escribe `trust_events` y `vault_ledger`.
+- ✅ El motor escribe `trust_events` y `vault_ledger` (fallo: −30 de Trust y stake al Vault; cumplido: +15 y racha). El Trust y el Vault de Home y Progress salen del servidor.
+- ⬜ Trampa confirmada: −50 y bloqueo de retiros 7 días; micro-tarea de clemencia (+5).
 - ⬜ Rendimiento simulado (4.85% APY) y desbloqueo por tramos ([docs/01](docs/01-producto.md)).
 - ⬜ Pantalla de Vault con historial y rescate.
 
 ## Fase 8 · Embeber en Whop y pulido ⬜
 
 - ⬜ URL del iframe + verificación del token de usuario de Whop.
-- ⬜ Datos de demo sembrados (Vault con saldo, historial de Trust).
+- 🟡 Datos de demo sembrados (`npm run seed`: un pacto cumplido, uno fallado con $10 en el Vault y uno activo). Falta el historial de Trust más largo para la demo.
 - ⬜ Pase de pulido: rendimiento, textos, estados de carga.
 
 ## Fase 9 · Demo y entrega ⬜
@@ -132,3 +141,4 @@ npm run build:web        # export estático a dist/
 | 2026-10-24 | Entorno, GitHub, Vercel y Supabase (esquema `pacta`, bucket, rol y `DATABASE_URL`) listos. |
 | 2026-10-24 | Sistema de diseño, Pax y los seis flujos con datos de prueba. Galería en `/kit`. Este roadmap. |
 | 2026-10-24 | Subido a `main` y desplegado. Web exportada como SPA para corregir el error de hidratación en enlaces directos. |
+| 2026-10-24 | Fase 3: API `/api/pacts`, motor de estados con Trust y Vault, store con React Query, seed de demo. Contraseña de `pacta_app` rotada. Sin desplegar todavía. |

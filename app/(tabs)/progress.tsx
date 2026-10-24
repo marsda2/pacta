@@ -2,16 +2,15 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { StyleSheet, View } from 'react-native';
 
 import { AppHeader } from '@/components/nav/AppHeader';
-import { Card, Screen, SectionLabel, StatusBadge, Text } from '@/components/ui';
-import { formatUsd, TRUST_MAX, TRUST_START_SCORE, VAULT_APY_SIMULATED, VAULT_UNLOCK_MIN_TRUST } from '@/lib/shared/rules';
+import { Card, ErrorBanner, Screen, SectionLabel, StatusBadge, Text } from '@/components/ui';
+import { formatUsd, TRUST_MAX, VAULT_APY_SIMULATED, VAULT_UNLOCK_MIN_TRUST } from '@/lib/shared/rules';
 import { usePacts } from '@/lib/store/pacts';
-import { trustScore, vaultCents } from '@/lib/store/selectors';
 import { colors, radii } from '@/lib/theme';
 
 export default function Progress() {
-  const { pacts } = usePacts();
-  const score = trustScore(pacts, TRUST_START_SCORE);
-  const vault = vaultCents(pacts);
+  const { pacts, summary, error, refetch } = usePacts();
+  const score = summary.trustScore;
+  const vault = summary.vaultCents;
   const kept = pacts.filter((p) => p.status === 'verified').length;
   const missed = pacts.filter((p) => p.status === 'missed').length;
   const finished = pacts.filter((p) => p.status === 'verified' || p.status === 'missed');
@@ -19,6 +18,7 @@ export default function Progress() {
   return (
     <Screen withTabBar>
       <AppHeader title="Progress" />
+      {error ? <ErrorBanner error={error} onRetry={refetch} /> : null}
 
       <Card style={styles.block}>
         <SectionLabel>Trust Score</SectionLabel>

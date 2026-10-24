@@ -1,12 +1,12 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { PaxSays } from '@/components/companion/Pax';
 import { FocusSessionCard } from '@/components/pact/FocusSessionCard';
 import { PactResultCard } from '@/components/pact/PactResultCard';
 import { useCountdown } from '@/components/pact/useCountdown';
-import { Banner, Button, Icon, Screen, ScreenTitle, StepTracker, Text } from '@/components/ui';
+import { Banner, Button, Icon, LoadingBlock, Screen, ScreenTitle, StepTracker, Text } from '@/components/ui';
 import { routes } from '@/lib/routes';
 import { formatDeadline } from '@/lib/shared/time';
 import { usePacts } from '@/lib/store/pacts';
@@ -17,17 +17,35 @@ const STEPS = ['Outline', 'Draft', 'Review'] as const;
 export default function ActivePact() {
   const router = useRouter();
   const { id, autostart } = useLocalSearchParams<{ id: string; autostart?: string }>();
-  const { getPact, setFocusRemaining } = usePacts();
+  const { getPact, setFocusRemaining, loading } = usePacts();
   const pact = getPact(id);
 
   const timer = useCountdown(pact?.focusRemainingSec ?? 0, (remaining) => {
     if (pact && remaining % 5 === 0) setFocusRemaining(pact.id, remaining);
   });
 
+  // El pacto puede llegar después del primer render (enlace directo): siembra la cuenta atrás una vez.
+  const seeded = useRef(false);
+  useEffect(() => {
+    if (pact && !seeded.current) {
+      seeded.current = true;
+      timer.reset(pact.focusRemainingSec);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pact]);
+
   useEffect(() => {
     if (autostart) timer.start();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autostart]);
+
+  if (!pact && loading) {
+    return (
+      <Screen>
+        <LoadingBlock />
+      </Screen>
+    );
+  }
 
   if (!pact) {
     return (

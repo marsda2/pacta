@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { LiveCapture, type Capture } from '@/components/pact/LiveCapture';
-import { Button, Icon, Screen, ScreenTitle, Text } from '@/components/ui';
+import { Button, ErrorBanner, Icon, Screen, ScreenTitle, Text } from '@/components/ui';
 import { routes } from '@/lib/routes';
 import { usePacts } from '@/lib/store/pacts';
 import { colors, radii } from '@/lib/theme';
@@ -14,12 +14,21 @@ export default function LiveProof() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { getPact, submitProof } = usePacts();
   const [capture, setCapture] = useState<Capture | null>(null);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<unknown>(null);
   const pact = getPact(id);
 
-  const submit = () => {
+  const submit = async () => {
     if (!pact) return;
-    submitProof(pact.id, capture?.uri);
-    router.replace(routes.result(pact.id));
+    setSending(true);
+    setError(null);
+    try {
+      await submitProof(pact.id, capture?.uri);
+      router.replace(routes.result(pact.id));
+    } catch (e) {
+      setError(e);
+      setSending(false);
+    }
   };
 
   return (
@@ -34,7 +43,8 @@ export default function LiveProof() {
       <LiveCapture capture={capture} onChange={setCapture} />
 
       <View style={styles.actions}>
-        <Button label="Use this photo" icon="arrowRight" disabled={!capture} onPress={submit} />
+        {error ? <ErrorBanner error={error} /> : null}
+        <Button label={sending ? 'Uploading…' : 'Use this photo'} icon="arrowRight" disabled={!capture || sending} onPress={submit} />
         <Text variant="caption" color="muted" style={styles.next}>Next: review and submit.</Text>
       </View>
     </Screen>

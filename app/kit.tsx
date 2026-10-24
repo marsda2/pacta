@@ -43,6 +43,7 @@ const samplePact: Pact = {
   stakeCents: 2000,
   dueAt: now + 45 * 60 * 1000,
   status: 'progress',
+  rawStatus: 'ACTIVE',
   methods: ['photo', 'location', 'witness'],
   focusTotalSec: 2700,
   focusRemainingSec: 2700,

@@ -6,5 +6,6 @@ export { Icon, iconNames, type IconName } from './Icon';
 export { Screen, ScreenTitle, SectionLabel, UploadDropzone } from './Layout';
 export { Segmented, type SegmentOption } from './Segmented';
 export { StakeChips, StakeStepper } from './StakeControls';
+export { ErrorBanner, errorMessage, LoadingBlock } from './State';
 export { StatusBadge } from './StatusBadge';
 export { Text } from './Text';

@@ -5,7 +5,7 @@ import { View } from 'react-native';
 import { PaxSays } from '@/components/companion/Pax';
 import { AppHeader } from '@/components/nav/AppHeader';
 import { PactCard } from '@/components/pact/PactCard';
-import { Button, Screen, Segmented, type SegmentOption } from '@/components/ui';
+import { Button, ErrorBanner, LoadingBlock, Screen, Segmented, type SegmentOption } from '@/components/ui';
 import { routes } from '@/lib/routes';
 import type { PactUiStatus } from '@/lib/shared/types';
 import { usePacts } from '@/lib/store/pacts';
@@ -32,7 +32,7 @@ const emptyCopy: Record<Tab, string> = {
 
 export default function Pacts() {
   const router = useRouter();
-  const { pacts } = usePacts();
+  const { pacts, loading, error, refetch } = usePacts();
   const [tab, setTab] = useState<Tab>('today');
   const list = pacts.filter((pact) => byTab[tab].includes(pact.status));
 
@@ -41,7 +41,9 @@ export default function Pacts() {
       <AppHeader title="My pacts" />
       <Segmented options={tabs} value={tab} onChange={setTab} />
 
-      {list.length === 0 ? <PaxSays message={emptyCopy[tab]} expression="idle" /> : null}
+      {error ? <ErrorBanner error={error} onRetry={refetch} /> : null}
+      {loading ? <LoadingBlock /> : null}
+      {!loading && !error && list.length === 0 ? <PaxSays message={emptyCopy[tab]} expression="idle" /> : null}
       {list.map((pact) => (
         <PactCard
           key={pact.id}

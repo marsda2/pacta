@@ -5,17 +5,16 @@ import { Pax } from '@/components/companion/Pax';
 import { CopilotCard } from '@/components/copilot/CopilotCard';
 import { AppHeader } from '@/components/nav/AppHeader';
 import { FocusSessionCard } from '@/components/pact/FocusSessionCard';
-import { Button, Card, GlassCard, Screen, SectionLabel, Text } from '@/components/ui';
+import { Button, Card, ErrorBanner, GlassCard, LoadingBlock, Screen, SectionLabel, Text } from '@/components/ui';
 import { routes } from '@/lib/routes';
-import { formatUsd, TRUST_START_SCORE, VAULT_APY_SIMULATED } from '@/lib/shared/rules';
+import { formatUsd, VAULT_APY_SIMULATED } from '@/lib/shared/rules';
 import { formatDeadline } from '@/lib/shared/time';
 import { usePacts } from '@/lib/store/pacts';
-import { trustScore, vaultCents } from '@/lib/store/selectors';
 import { colors } from '@/lib/theme';
 
 export default function Home() {
   const router = useRouter();
-  const { pacts } = usePacts();
+  const { pacts, summary, loading, error, refetch } = usePacts();
   const active = pacts.find((pact) => pact.status === 'progress' || pact.status === 'pending');
 
   return (
@@ -30,6 +29,9 @@ export default function Home() {
           <Button label="Create a pact" icon="arrowRight" onPress={() => router.push(routes.newPact)} style={styles.heroCta} />
         </View>
       </GlassCard>
+
+      {error ? <ErrorBanner error={error} onRetry={refetch} /> : null}
+      {loading ? <LoadingBlock /> : null}
 
       {active ? (
         <View style={styles.section}>
@@ -48,11 +50,11 @@ export default function Home() {
       <View style={styles.stats}>
         <Card style={styles.stat} padding={16}>
           <Text variant="caption" color="muted">Trust Score</Text>
-          <Text variant="title">{trustScore(pacts, TRUST_START_SCORE)}<Text variant="small" color="muted"> / 100</Text></Text>
+          <Text variant="title">{summary.trustScore}<Text variant="small" color="muted"> / 100</Text></Text>
         </Card>
         <Card style={styles.stat} padding={16}>
           <Text variant="caption" color="muted">Frozen Vault</Text>
-          <Text variant="title">{formatUsd(vaultCents(pacts))}</Text>
+          <Text variant="title">{formatUsd(summary.vaultCents)}</Text>
           <Text variant="caption" color="muted">{(VAULT_APY_SIMULATED * 100).toFixed(2)}% APY simulated</Text>
         </Card>
       </View>

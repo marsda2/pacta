@@ -1,9 +1,10 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { PaxSays } from '@/components/companion/Pax';
 import { PactResultCard } from '@/components/pact/PactResultCard';
-import { Button, Card, Screen, ScreenTitle, SectionLabel, Text } from '@/components/ui';
+import { Button, Card, ErrorBanner, LoadingBlock, Screen, ScreenTitle, SectionLabel, Text } from '@/components/ui';
 import { routes } from '@/lib/routes';
 import { usePacts } from '@/lib/store/pacts';
 
@@ -11,8 +12,30 @@ import { usePacts } from '@/lib/store/pacts';
 export default function PactResult() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { getPact, resolvePact } = usePacts();
+  const { getPact, resolvePact, loading } = usePacts();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<unknown>(null);
   const pact = getPact(id);
+
+  const decide = async (kept: boolean) => {
+    setBusy(true);
+    setError(null);
+    try {
+      await resolvePact(id, kept, 'demo');
+    } catch (e) {
+      setError(e);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (!pact && loading) {
+    return (
+      <Screen>
+        <LoadingBlock />
+      </Screen>
+    );
+  }
 
   if (!pact) {
     return (
@@ -37,8 +60,9 @@ export default function PactResult() {
               Verdicts will come from the AI auditor and the Terac jury (roadmap phase 5). For now, pick an outcome.
             </Text>
             <Button label="Ask a witness" icon="arrowRight" variant="mint" onPress={() => router.push(routes.witness(pact.id))} />
-            <Button label="Simulate: pact kept" variant="outline" onPress={() => resolvePact(pact.id, true)} />
-            <Button label="Simulate: deadline missed" variant="outline" onPress={() => resolvePact(pact.id, false)} />
+            {error ? <ErrorBanner error={error} /> : null}
+            <Button label="Simulate: pact kept" variant="outline" disabled={busy} onPress={() => decide(true)} />
+            <Button label="Simulate: deadline missed" variant="outline" disabled={busy} onPress={() => decide(false)} />
           </Card>
         </>
       ) : (

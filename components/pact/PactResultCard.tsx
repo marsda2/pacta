@@ -39,10 +39,12 @@ export function PactResultCard({ pact, onPlanNext, onViewDetails }: PactResultCa
       <View style={styles.flex}>
         <Text variant="title">Pact kept.</Text>
         <Text variant="body" color="muted">Proof verified. Your {formatUsd(pact.stakeCents)} stays yours.</Text>
-        <View style={styles.completed}>
-          <Icon name="calendar" size={16} color={colors.muted} />
-          <Text variant="small" color="muted">Completed at {formatClockTime(pact.completedAt ?? Date.now())}</Text>
-        </View>
+        {pact.completedAt ? (
+          <View style={styles.completed}>
+            <Icon name="calendar" size={16} color={colors.muted} />
+            <Text variant="small" color="muted">Completed at {formatClockTime(pact.completedAt)}</Text>
+          </View>
+        ) : null}
         {onPlanNext ? <Button label="Plan your next pact" icon="arrowRight" onPress={onPlanNext} style={styles.next} /> : null}
       </View>
     </GlassCard>

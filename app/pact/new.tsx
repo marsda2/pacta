@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { ProofMethodPicker } from '@/components/pact/ProofMethodPicker';
-import { Button, Card, Checkbox, Screen, ScreenTitle, SectionLabel, SelectField, StakeChips, Text, TextField } from '@/components/ui';
+import { Button, Card, Checkbox, ErrorBanner, Screen, ScreenTitle, SectionLabel, SelectField, StakeChips, Text, TextField } from '@/components/ui';
 import { routes } from '@/lib/routes';
 import { formatUsd, STAKE_PRESETS_CENTS } from '@/lib/shared/rules';
 import { buildDeadlineOptions, formatClockTime } from '@/lib/shared/time';
@@ -21,12 +21,21 @@ export default function NewPact() {
   const [stake, setStake] = useState<number>(STAKE_PRESETS_CENTS[1]);
   const [methods, setMethods] = useState<ProofMethod[]>(['photo']);
   const [agreed, setAgreed] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<unknown>(null);
 
-  const canConfirm = task.trim().length > 0 && agreed;
+  const canConfirm = task.trim().length > 0 && agreed && !saving;
 
-  const confirm = () => {
-    const pact = createPact({ title: task, stakeCents: stake, dueAt: deadline.dueAt, methods });
-    router.replace(routes.pact(pact.id));
+  const confirm = async () => {
+    setSaving(true);
+    setError(null);
+    try {
+      const pact = await createPact({ title: task.trim(), stakeCents: stake, dueAt: deadline.dueAt, methods });
+      router.replace(routes.pact(pact.id));
+    } catch (e) {
+      setError(e);
+      setSaving(false);
+    }
   };
 
   return (
@@ -59,7 +68,8 @@ export default function NewPact() {
           caption={`Proof must be approved by ${formatClockTime(deadline.dueAt)}. Your money isn’t lost.`}
         />
 
-        <Button label="Confirm pact" icon="arrowRight" disabled={!canConfirm} onPress={confirm} />
+        {error ? <ErrorBanner error={error} /> : null}
+        <Button label={saving ? 'Creating…' : 'Confirm pact'} icon="arrowRight" disabled={!canConfirm} onPress={confirm} />
         {!task.trim() ? <Text variant="caption" color="muted" style={styles.hint}>Name the task to continue.</Text> : null}
       </Card>
     </Screen>

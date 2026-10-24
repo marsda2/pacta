@@ -1,10 +1,11 @@
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { PactaLogo } from '@/components/brand/PactaLogo';
-import { Button, Card, Icon, Screen, Text } from '@/components/ui';
+import { Button, Card, ErrorBanner, Icon, LoadingBlock, Screen, Text } from '@/components/ui';
 import { routes } from '@/lib/routes';
 import { formatDeadline } from '@/lib/shared/time';
 import { usePacts } from '@/lib/store/pacts';
@@ -14,13 +15,22 @@ import { colors, radii } from '@/lib/theme';
 export default function WitnessReview() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { getPact, resolvePact } = usePacts();
+  const { getPact, resolvePact, loading } = usePacts();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<unknown>(null);
   const pact = getPact(id);
 
-  const decide = (kept: boolean) => {
+  const decide = async (kept: boolean) => {
     if (!pact) return;
-    resolvePact(pact.id, kept);
-    router.replace(routes.result(pact.id));
+    setBusy(true);
+    setError(null);
+    try {
+      await resolvePact(pact.id, kept, 'witness');
+      router.replace(routes.result(pact.id));
+    } catch (e) {
+      setError(e);
+      setBusy(false);
+    }
   };
 
   return (
@@ -30,6 +40,7 @@ export default function WitnessReview() {
         <Text variant="eyebrow" color="muted">Guest review</Text>
       </View>
 
+      {loading && !pact ? <LoadingBlock /> : null}
       <Card style={styles.card}>
         <Text variant="title">Did Alex keep this pact?</Text>
         <Text variant="body" color="muted">{pact?.title ?? 'Unknown pact'}</Text>
@@ -45,18 +56,19 @@ export default function WitnessReview() {
             )}
             <View style={styles.stamp}>
               <Icon name="timer" size={12} color={colors.white} />
-              <Text variant="caption" color="white">{formatDeadline(Date.now())}</Text>
+              <Text variant="caption" color="white">{pact?.proofAt ? formatDeadline(pact.proofAt) : 'Just now'}</Text>
             </View>
           </View>
           <View style={styles.side}>
             <Text variant="body" color="muted">Review the proof before deciding.</Text>
             <View style={styles.decide}>
-              <Button label="Approve" leadingIcon="check" fullWidth={false} onPress={() => decide(true)} style={styles.flex} />
-              <Button label="Reject" variant="outline" leadingIcon="close" fullWidth={false} onPress={() => decide(false)} style={styles.flex} />
+              <Button label="Approve" leadingIcon="check" fullWidth={false} disabled={busy || !pact} onPress={() => decide(true)} style={styles.flex} />
+              <Button label="Reject" variant="outline" leadingIcon="close" fullWidth={false} disabled={busy || !pact} onPress={() => decide(false)} style={styles.flex} />
             </View>
           </View>
         </View>
 
+        {error ? <ErrorBanner error={error} /> : null}
         <View style={styles.foot}>
           <Text variant="caption" color="muted">No account needed.</Text>
           <Button label="View pact details" variant="link" icon="arrowRight" fullWidth={false} onPress={() => pact && router.push(routes.pact(pact.id))} />
