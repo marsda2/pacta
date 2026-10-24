@@ -4,6 +4,8 @@
 
 La app está en producción en https://pacta-theta.vercel.app (Expo web + API en Vercel + Supabase). El avance real fase a fase está en el [ROADMAP](ROADMAP.md); el plan original, en [docs/](docs/).
 
+Estado del código local (2026-10-24): bienvenida con **Continue with Whop**, sesión OAuth con PKCE, perfil y cierre de sesión; saldo prepagado con stakes desde $1. **Pendiente de despliegue y login completo real**. La configuración OAuth de Whop sí está guardada. Referencia de comportamiento y límites: [COMO-FUNCIONA.md](COMO-FUNCIONA.md).
+
 > Nota: "Whoop" en este plan significa **Whop** (la plataforma anfitriona del hackathon, whop.com), no la pulsera WHOOP.
 
 ## Pitch de 1 frase
@@ -15,6 +17,7 @@ La app está en producción en https://pacta-theta.vercel.app (Expo web + API en
 | Tema | Decisión | Por qué |
 |---|---|---|
 | Pagos | **Solo Whop** (Checkout, Payments, Refunds, Webhooks). Sin la API de Stripe | Whop es anfitrión y sponsor; Stripe no lo es en esta edición. Whop ya usa Stripe por debajo |
+| Inicio de sesión | **Whop**: OAuth public + PKCE fuera de Whop, JWT verificado dentro del iframe | La misma cuenta conserva pactos, saldo y Vault; sin entrada automática al usuario demo |
 | Jurado humano | **Terac MCP** | Criterio del 40%: mejora medible gracias a humanos |
 | Frontend | **React Native + Expo** (expo-router, TypeScript); web y móvil desde un único código | Una URL web para jueces/iframe de Whop + Expo Go en el móvil para la cámara |
 | Backend | Funciones serverless en **Vercel** (`/api/*`) | URL HTTPS pública para los webhooks de Whop y los callbacks de Terac |

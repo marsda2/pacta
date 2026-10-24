@@ -33,7 +33,7 @@
 ```
 pacta/
 ├─ app/                         # expo-router (pantallas)
-│  ├─ _layout.tsx               # providers: Supabase session, React Query, tema
+│  ├─ _layout.tsx               # sesión Whop, rutas protegidas, caché React Query por cuenta
 │  ├─ index.tsx                 # Dashboard: 3 tarjetas (Stake, Vault, Trust)
 │  ├─ pact/new.tsx              # crear pacto → abre el checkout de Whop
 │  ├─ pact/[id]/index.tsx       # detalle + cuenta atrás + código del día
@@ -118,7 +118,15 @@ circle_votes   id, proof_id, voter_user_id, vote ('APPROVE'|'DOUBT'), created_at
 pacts          + circle_id (nullable)
 ```
 
-RLS: el cliente solo **lee** sus propias filas (`users`, `pacts`, `proofs`, `vault_ledger`, `trust_events`). Todas las escrituras pasan por `/api/*` con la service role.
+RLS está activado sin políticas de acceso de cliente: las lecturas y escrituras de PACTA pasan por `/api/*`, con el rol Postgres `pacta_app`. El servidor resuelve el `whop_user_id` verificado y filtra los datos por la cuenta de PACTA correspondiente.
+
+### Sesión y rutas (implementación local, 2026-10-24)
+
+`lib/auth/session.tsx` gestiona el login de Whop. `app/_layout.tsx` protege las pestañas, `pact/`, saldo, Vault, perfil y experiencia mediante `Stack.Protected`. Sin sesión la entrada es `/onboarding`; `/auth/callback` completa OAuth. El perfil se abre desde el avatar del encabezado.
+
+`lib/server/whop-oauth.ts` gestiona PKCE, canje, refresh y revocación; `identity.ts` verifica el Bearer con Whop o el JWT del iframe. Los dos métodos hacen upsert en la misma fila de `users` por `whop_user_id`. `/api/vault/session` y `auth-start|auth-exchange|auth-refresh|auth-logout` comparten la función del Vault, sin añadir funciones de Vercel. Sesión y datos privados responden con `Cache-Control: no-store`.
+
+Los tokens de dispositivo viven en SecureStore (nativo) o `sessionStorage` (web); las solicitudes añaden `Authorization`. Una renovación simultánea comparte el refresh para no reutilizar tokens rotados. Cada cuenta monta un QueryClient nuevo; al salir se descarta la caché anterior. No hay consultas de pactos/saldo/Vault sin sesión. Detalle y limitación de los testigos invitados: [COMO-FUNCIONA](../COMO-FUNCIONA.md).
 
 ## Máquina de estados del pacto
 

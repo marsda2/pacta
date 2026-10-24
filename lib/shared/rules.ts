@@ -17,20 +17,34 @@ export interface AgentAudit {
   reason: string;
 }
 
-// Regla de oro: la decide el código, no el prompt. Cualquier otro caso va al jurado.
-export function shouldAutoApprove(audit: AgentAudit, emotionalState: 'normal' | 'overwhelmed'): boolean {
-  return (
-    audit.verdict === 'APPROVE' &&
-    audit.confidence >= AI_AUTO_APPROVE_CONFIDENCE &&
-    audit.cheatSignals.every((signal) => signal === 'none') &&
-    emotionalState !== 'overwhelmed'
-  );
+// Cuánto se invierte en verificar, según lo que hay en juego (decidido 2026-10-24). Un juez de
+// Terac cuesta ~$6, así que solo se paga cuando el stake lo justifica:
+//   light    menos de $5 (y los pactos sin dinero): a la IA le basta una prueba creíble sin trampa
+//   standard de $5 al umbral humano: regla estricta; en la duda, reintento, testigo o apelación
+//   human    desde HUMAN_REVIEW_MIN_STAKE_CENTS: la duda de la IA la decide el jurado de Terac
+export type CheckLevel = 'light' | 'standard' | 'human';
+export const LIGHT_CHECK_BELOW_CENTS = 500;
+export const AI_LIGHT_APPROVE_CONFIDENCE = 0.6;
+
+export function checkLevel(stakeCents: number, humanMinCents = HUMAN_REVIEW_MIN_STAKE_CENTS): CheckLevel {
+  if (stakeCents < LIGHT_CHECK_BELOW_CENTS) return 'light';
+  return stakeCents >= humanMinCents ? 'human' : 'standard';
+}
+
+// Regla de oro: la decide el código, no el prompt. Cualquier otro caso va al jurado. Sin stake,
+// se aplica la regla estricta (la del set de evaluación).
+export function shouldAutoApprove(audit: AgentAudit, emotionalState: 'normal' | 'overwhelmed', stakeCents = LIGHT_CHECK_BELOW_CENTS): boolean {
+  if (emotionalState === 'overwhelmed' || !audit.cheatSignals.every((signal) => signal === 'none')) return false;
+  if (checkLevel(stakeCents) === 'light') {
+    return audit.verdict !== 'REJECT' && audit.taskMatch && audit.confidence >= AI_LIGHT_APPROVE_CONFIDENCE;
+  }
+  return audit.verdict === 'APPROVE' && audit.confidence >= AI_AUTO_APPROVE_CONFIDENCE;
 }
 
 // Cuándo interviene un humano (docs/04 §7). Un juez cuesta más que la comisión de un pacto
 // pequeño, así que la duda con stake bajo se resuelve sin Terac: segunda prueba, testigo o,
 // al caducar, el Vault (equivocarse sale barato porque el dinero no se pierde).
-// Hoy el stake máximo es $20; en producción súbelo a $30–40 con HUMAN_REVIEW_MIN_STAKE_CENTS.
+// Con el máximo en $50, la duda de los pactos de $20 a $50 va a Terac; súbelo con HUMAN_REVIEW_MIN_STAKE_CENTS.
 export const HUMAN_REVIEW_MIN_STAKE_CENTS = 2000;
 export const APPEALS_PER_MONTH_PASS = 2; // apelaciones incluidas en el High-Yield Pass
 export const MAX_PROOFS_PER_PACT = 2; // la prueba inicial y un reintento
@@ -76,11 +90,17 @@ export const VAULT_UNLOCK_VERIFIED_STREAK = 3;
 export const VAULT_UNLOCK_TRANCHE_CENTS = 2000;
 export const WITHDRAWAL_LOCK_DAYS_AFTER_CHEAT = 7;
 
-// Stake por pacto (en céntimos). Mínimo $5: Whop no devuelve su comisión al reembolsar (docs/03 §6).
+// Stake por pacto (en céntimos). Con tarjeta, mínimo $5: Whop no devuelve su comisión al
+// reembolsar (docs/03 §6). Con el saldo prepagado no hay comisión por pacto y basta $1.
 export const STAKE_MIN_CENTS = 500;
-export const STAKE_MAX_CENTS = 2000;
+export const CREDIT_STAKE_MIN_CENTS = 100;
+export const STAKE_MAX_CENTS = 5000;
 export const STAKE_STEP_CENTS = 500;
-export const STAKE_PRESETS_CENTS = [500, 1000, 2000] as const;
+export const STAKE_PRESETS_CENTS = [500, 1000, 2000, 5000] as const;
+export const CREDIT_STAKE_PRESETS_CENTS = [100, 200, 500, 1000, 2000] as const;
+
+// Recargas del saldo prepagado: una comisión de Whop por recarga en vez de una por pacto.
+export const TOPUP_PRESETS_CENTS = [1000, 2000, 5000] as const;
 
 export function formatUsd(cents: number): string {
   const dollars = cents / 100;

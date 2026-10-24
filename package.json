@@ -15,7 +15,9 @@
     "seed": "tsx --env-file=.env.local scripts/seed.ts",
     "eval": "tsx --env-file=.env.local scripts/eval.ts",
     "seed:eval": "tsx --env-file=.env.local scripts/seed-eval.ts",
-    "whop:webhook": "tsx --env-file=.env.local scripts/whop-webhook.ts"
+    "whop:webhook": "tsx --env-file=.env.local scripts/whop-webhook.ts",
+    "whop:auth": "tsx --env-file=.env.local scripts/whop-auth.ts",
+    "check:auth": "tsx --env-file=.env.local scripts/check-auth.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.3.0",
@@ -37,6 +39,7 @@
     "expo-linear-gradient": "~58.0.3",
     "expo-linking": "~58.0.14",
     "expo-router": "~58.0.26",
+    "expo-secure-store": "~58.0.2",
     "expo-splash-screen": "~58.0.11",
     "expo-status-bar": "~58.0.4",
     "expo-symbols": "~58.0.4",

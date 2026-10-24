@@ -13,12 +13,13 @@ import { VAULT_APY_SIMULATED } from '../shared/rules';
 import type { CheckoutLinkDto, RedeemResultDto, VaultDto } from '../shared/types';
 import { query, withTransaction, type Queryable } from './db';
 import { HttpError } from './http';
+import { creditVaultUnlock } from './wallet';
 import { createPassCheckout, refundStakePayment } from './whop';
 
 // Redemption Vault (docs/01 y docs/03 §7). El saldo es Σ lock − Σ unlock − Σ fee del ledger; el
 // rendimiento es simulado y se calcula al vuelo. Un rescate devuelve el dinero con un reembolso
-// parcial del pago original de cada stake fallado; los stakes sin pago (datos de demo) solo se
-// registran en el ledger.
+// parcial del pago original de cada stake fallado, o al saldo prepagado si se pagó con él; los
+// stakes sin pago (datos de demo) solo se registran en el ledger.
 
 const HISTORY_LIMIT = 30;
 
@@ -116,6 +117,7 @@ interface LockRow {
   pact_id: string | null;
   remaining: string;
   whop_payment_id: string | null;
+  paid_with_credit: boolean | null;
 }
 
 // Rescata un tramo: min($20, saldo), repartido entre los stakes fallados del más antiguo al más
@@ -128,7 +130,7 @@ export async function redeemTranche(userId: string): Promise<RedeemResultDto> {
     if (!vault.unlock.eligible) throw new HttpError(409, vault.unlock.lockedUntil ? 'withdrawals_locked' : 'vault_locked');
 
     const locks = await q<LockRow>(
-      `select l.pact_id, pc.whop_payment_id,
+      `select l.pact_id, pc.whop_payment_id, pc.paid_with_credit,
               l.amount_cents - coalesce((select sum(x.amount_cents) from pacta.vault_ledger x
                                           where x.user_id = l.user_id and x.pact_id = l.pact_id
                                             and x.type in ('unlock', 'fee')), 0) as remaining
@@ -160,6 +162,9 @@ export async function redeemTranche(userId: string): Promise<RedeemResultDto> {
           failure = error;
           break;
         }
+      } else if (lock.paid_with_credit && split.payoutCents > 0) {
+        await creditVaultUnlock(q, userId, lock.pact_id, split.payoutCents);
+        if (method === 'ledger') method = 'credit';
       }
       if (split.payoutCents > 0) {
         await q("insert into pacta.vault_ledger (user_id, type, amount_cents, pact_id, whop_ref) values ($1, 'unlock', $2, $3, $4)", [

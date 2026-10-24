@@ -31,9 +31,18 @@ const messages: Record<string, string> = {
   withdrawals_locked: 'Withdrawals are paused for 7 days after a confirmed cheat.',
   payout_failed: 'Whop couldn’t send the refund. Try again later.',
   already_pass: 'Your High-Yield Pass is already active.',
+  insufficient_balance: 'Not enough balance. Add funds or pay by card.',
+  bad_topup: 'Pick one of the top-up amounts.',
+  nothing_to_withdraw: 'There’s nothing to withdraw yet.',
+  bad_stake: 'That stake isn’t allowed for this payment method.',
   payments_not_configured: 'Payments aren’t set up yet.',
-  bad_user_token: 'Your Whop session expired. Reopen PACTA from Whop.',
-  whop_login_required: 'Open PACTA from Whop to continue.',
+  bad_user_token: 'Your session expired. Sign in with Whop again.',
+  whop_login_required: 'Sign in with Whop to continue.',
+  login_expired: 'This sign-in link expired. Please sign in with Whop again.',
+  login_cancelled: 'Sign-in cancelled. You can try again whenever you’re ready.',
+  auth_unavailable: 'Whop sign-in is temporarily unavailable. Please try again.',
+  auth_not_configured: 'Whop sign-in isn’t set up yet.',
+  bad_redirect: 'Sign-in isn’t available at this address yet.',
 };
 
 export function errorMessage(error: unknown): string {

@@ -16,7 +16,7 @@
 | 5 | Agente auditor + jurado Terac + antes/después | 🟡 |
 | 6 | Copilot con IA y Pax reactivo | ⬜ |
 | 7 | Vault y Trust Score reales | ✅ (falta la micro-tarea de clemencia) |
-| 8 | Embeber en Whop, datos de demo y pulido | 🟡 (código listo; falta crear la app en Whop) |
+| 8 | Embeber en Whop, datos de demo y pulido | 🟡 (app y OAuth configurados; sesión/perfil local, faltan despliegue y prueba real) |
 | 9 | Demo y entrega | 🟡 (guion y checklist en docs/09) |
 | Extra | Pact Circles (opcional, solo si el flujo central es estable) | ⬜ |
 
@@ -43,7 +43,7 @@ Tokens, iconos y componentes portados del *UI Component Library* y de *Windows &
 - ✅ **Pax**, el companion: SVG portado a `react-native-svg` con expresiones (`idle`, `happy`, `talking`, `worried`, `sleeping`), saludo, parpadeo y respeto a "reducir movimiento". `PaxSays` (con globo de texto).
 - ✅ Galería de componentes en la ruta `/kit`.
 - ✅ Pax se presenta en su pestaña como una conversación: "Hey, I’m Pax…" → puntos de "escribiendo" → "Tell me what’s in the way…" (`PaxSays` acepta un array de mensajes).
-- ✅ Web de escritorio = landing (`components/landing/DesktopLanding.tsx`, puerta en `app/_layout.tsx`): la app se usa desde el móvil (cámara en vivo, ubicación), así que en ventanas ≥ 900 px con puntero preciso se muestra una landing con QR hacia el móvil. `Preview the app here` abre la app en un marco de móvil. `/witness`, `/jury` y `/kit` siguen abiertas en escritorio.
+- ✅ Landing de escritorio con QR construida anteriormente. **Cambio local del 2026-10-24:** la entrada del escritorio ahora muestra la bienvenida con Whop y la app en marco de móvil; los componentes de la landing se conservan.
 - 🟡 Logo: `PactaMark` es una marca provisional; falta el SVG oficial.
 - ⬜ Tipografía final (el kit parece una sans geométrica; ahora se usa la del sistema).
 - ⬜ Modo oscuro completo (por ahora `userInterfaceStyle: light`; solo Focus es oscuro).
@@ -59,6 +59,7 @@ Los seis flujos de *Windows & Flows* están construidos. Empezaron con un store 
 - ✅ 05 Revisión de testigo (invitado, sin cuenta) → `app/witness/[id].tsx`
 - ✅ 06 Resultado (cumplido / fallado) → `app/pact/[id]/result.tsx`
 - ✅ Pestañas: Home, Pacts (Today/Upcoming/Completed), Copilot, Progress.
+- ✅ **Local, 2026-10-24:** bienvenida sin sesión con acceso por Whop desde el primer paso; avatar → perfil → cerrar sesión. Rutas de cuenta protegidas y caché descartada al cambiar de usuario. También en escritorio. Pendientes despliegue, revisión visual y login completo real.
 - ✅ Verificado en el navegador (ancho móvil): crear pacto → pacto activo → prueba (modo demo) → revisión → testigo → "Pact kept". Typecheck limpio y `expo export -p web` genera las 16 rutas.
 - 🟡 Revisión visual en móvil real (Expo Go) y en distintos anchos. La cámara real solo se ha probado hasta el estado "sin cámara" (modo demo).
 - ✅ Enlaces directos en Vercel verificados en https://pacta-theta.vercel.app (`/kit`, `/pacts`, `/pact/new`, `/pact/<id>`, `/pact/<id>/proof`, `/witness/<id>`, `/api/health`). La web se exporta como SPA (`web.output: "single"`): con pre-renderizado, Vercel servía el HTML de la home en los enlaces directos y React lanzaba el error de hidratación #418.
@@ -73,7 +74,7 @@ La app ya lee y escribe en Supabase (esquema `pacta`) a través de `/api/*`.
 - ✅ Rutas: `GET/POST /api/pacts`, `GET /api/pacts/:id`, `POST /api/pacts/:id/proof`, `POST /api/pacts/:id/resolve`, `GET /api/proofs/:id/image`. Validación de entrada (título, stake, fecha límite, tipo real de imagen por sus primeros bytes, 1,5 MB máx.).
 - ✅ Proyección de la máquina de estados del servidor a los cinco estados de la UI (`toDto`).
 - ✅ Store en el cliente con React Query (`lib/store/pacts.tsx`): estados de carga y error, mutaciones, foto reducida a 1024 px antes de subirla. La sesión de foco sigue siendo local al dispositivo.
-- ✅ Identidad: usuario de demo (`whop_user_id = 'demo-user'`). El token de Whop llega en la fase 8.
+- ✅ Identidad local actual: OAuth de Whop o JWT del iframe verificados; sin credenciales → 401. Demo solo con `ALLOW_DEMO_USER=true` en API local, nunca en Vercel/production. Detalle en [COMO-FUNCIONA](COMO-FUNCIONA.md).
 - ✅ Migración `pacta_pacts_methods_images`: `pacts.proof_methods` y tabla `proof_images`.
 - ✅ Servidor de desarrollo de la API: `npm run dev:api` (puerto 3000, lee `.env.local`). Datos de demo: `npm run seed`.
 - ✅ Verificado: 24 comprobaciones de la API contra la base real (altas, validaciones, 409 en transiciones inválidas, imagen servida, CORS, Trust y Vault) y el flujo completo en el navegador: el pacto creado desde la UI quedó `REFUNDED` en Postgres con su `trust_event`. Typecheck y lint limpios.
@@ -81,6 +82,8 @@ La app ya lee y escribe en Supabase (esquema `pacta`) a través de `/api/*`.
 - ✅ Desplegado en Vercel (`8e16177`) y verificado en producción: las 24 comprobaciones de la API pasan contra https://pacta-theta.vercel.app, Home y un enlace directo `/pact/<uuid>` cargan datos reales sin errores de consola.
 
 ## Fase 4 · Pagos con Whop 🟡
+
+- ✅ **Código local del saldo:** recargas $10/$20/$50, abono idempotente por webhook, pactos con Balance desde $1, devolución al saldo al cumplir y rescate del Vault hacia el origen correcto. Selector Balance / Card / No money, saldo en Home y `/wallet`. Pendiente desplegar y comprobar una recarga real.
 
 - ✅ Cuenta de negocio `pacta` en Whop (`biz_3luEKKKfUOfpk8`) creada con `whop quickstart`; CLI con sesión OAuth.
 - ✅ Verificado con el CLI y la doc: checkout con `--plan` y `metadata`, eventos del webhook, firma (`webhook-signature`, `unwrapWebhook` de `@whop/sdk`), reembolso con `whop payments refund`.
@@ -124,7 +127,12 @@ La app ya lee y escribe en Supabase (esquema `pacta`) a través de `/api/*`.
 
 ## Fase 8 · Embeber en Whop y pulido 🟡
 
-- ✅ Identidad de Whop (`lib/server/identity.ts`): verifica `x-whop-user-token` (ES256 con el JWKS de Whop, emisor `urn:whopcom:exp-proxy`, audiencia `WHOP_APP_ID`) porque `@whop/sdk` 2.x ya no trae `verifyUserToken`. Cada usuario de Whop tiene su fila en `users`; sin token, usuario de demo. Todas las rutas de pactos y del Vault la usan. Probado: token válido, caducado, de otro emisor, de otra app, firma alterada y un token falso contra el JWKS real de Whop (401).
+- ✅ **Configuración real Whop (2026-10-24):** OAuth public + PKCE con 6 callbacks guardados y releídos mediante `npm run whop:auth`. Sin client secret nuevo; autorización real responde 302 hacia el login de Whop.
+- ✅ **Código local:** OAuth fuera de Whop, perfil y salida, state/nonce, renovación de tokens, SecureStore nativo / sessionStorage web, protección de rutas y separación de caché por cuenta. 27 comprobaciones con OAuth simulado y Postgres real; cuentas QA borradas. Typecheck, lint y export web pasan.
+- ⬜ Desplegar bienvenida/sesión/perfil y completar login con consentimiento real; comprobar móvil. Arranque de Expo web rechazado por la revisión automática («blocked by policy»), por lo que no hay verificación visual de estos cambios en esta tarea.
+- ⬜ Sustituir la dependencia del demo en el testigo invitado por enlaces con autorización propia; la API ya no deja usar el usuario demo en producción.
+
+- ✅ Identidad de Whop (`lib/server/identity.ts`): verifica `x-whop-user-token` (ES256 con JWKS de Whop, emisor y audiencia) u OAuth Bearer. Cada usuario de Whop tiene su fila en `users`; sin credenciales, 401 (demo solo con opt-in local). Pactos y Vault usan esa identidad. La verificación del JWT tenía pruebas previas; la de OAuth tiene los 27 checks descritos arriba.
 - ✅ La web publicada llama a la API con rutas relativas, así el iframe de Whop adjunta el token.
 - ✅ Entrada `/experiences/[experienceId]`: al onboarding si el usuario no tiene pactos, a Home si los tiene. Dentro del iframe nunca sale la landing de escritorio (verificado con un iframe de 1200 px).
 - ✅ Pago dentro de Whop con `@whop/iframe` (`inAppPurchase`) para el stake y el Pass; fuera de Whop, la página del checkout.
@@ -142,7 +150,7 @@ La app ya lee y escribe en Supabase (esquema `pacta`) a través de `/api/*`.
 ## Ideas a futuro
 
 - ⬜ Tiempo de uso del móvil como prueba o señal (p. ej. pactos de "menos pantalla"). No funciona en Expo Go: iOS exige el entitlement de Family Controls (Screen Time API) y Android el permiso `PACKAGE_USAGE_STATS`, ambos con módulo nativo propio y un dev build. Valorar tras la demo.
-- ⬜ QR de la landing apuntando a `/onboarding` para el primer uso (hoy apunta a la raíz). Dentro de Whop ya se entra al onboarding si no hay pactos.
+- ✅ En el código local, la raíz sin sesión lleva al onboarding, también si se llega desde un QR; no hace falta cambiar el enlace del QR.
 
 ## Decisiones abiertas
 
@@ -167,6 +175,7 @@ npm run build:web        # export estático a dist/
 
 | Fecha | Cambio |
 |---|---|
+| 2026-10-24 | En `TestWhoop-main`: bienvenida con Whop, OAuth public + PKCE, perfil/salida y aislamiento por cuenta; conserva el saldo prepagado local. Configuración OAuth real guardada; código sin desplegar. 27 checks (Whop simulado, Postgres real), QA limpiada y compilación/tipos/lint verificados. Nuevo COMO-FUNCIONA y docs de identidad actualizados. |
 | 2026-10-24 | Entorno, GitHub, Vercel y Supabase (esquema `pacta`, bucket, rol y `DATABASE_URL`) listos. |
 | 2026-10-24 | Sistema de diseño, Pax y los seis flujos con datos de prueba. Galería en `/kit`. Este roadmap. |
 | 2026-10-24 | Subido a `main` y desplegado. Web exportada como SPA para corregir el error de hidratación en enlaces directos. |

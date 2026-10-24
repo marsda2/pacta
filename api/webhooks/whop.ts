@@ -4,6 +4,7 @@ import { unwrapWebhook, WebhookVerificationError } from '@whop/sdk/helpers';
 import { withTransaction } from '../../lib/server/db';
 import { activatePaidPact } from '../../lib/server/pact-engine';
 import { setPassMembership } from '../../lib/server/vault';
+import { creditTopup } from '../../lib/server/wallet';
 
 // Cuerpo sin parsear: la firma cubre los bytes exactos que envía Whop.
 async function rawBody(req: VercelRequest) {
@@ -21,10 +22,11 @@ interface WhopEvent {
   id: string;
   type: string;
   // Pago o membresía. La metadata del checkout se copia a ambos (lib/server/whop.ts).
-  data?: { id?: string; user_id?: string | null; metadata?: { kind?: unknown; pact_id?: unknown; user_id?: unknown } | null };
+  data?: { id?: string; user_id?: string | null; metadata?: { kind?: unknown; pact_id?: unknown; user_id?: unknown; amount_cents?: unknown } | null };
 }
 
-// payment.succeeded activa el pacto pagado o el Pass; membership.* sube o baja el nivel del Pass.
+// payment.succeeded activa el pacto pagado, el Pass o abona una recarga del saldo; membership.*
+// sube o baja el nivel del Pass.
 const HANDLED = ['payment.succeeded', 'membership.activated', 'membership.deactivated'];
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -60,10 +62,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const paymentId = event.data?.id;
   const userId = typeof metadata.user_id === 'string' && UUID.test(metadata.user_id) ? metadata.user_id : null;
   const isPass = metadata.kind === 'high_yield_pass';
+  const isTopup = metadata.kind === 'wallet_topup';
 
   // Un stake de pago único también crea una membresía en Whop: solo cuentan las del Pass.
   if (event.type !== 'payment.succeeded' && !isPass) return res.status(200).json({ ok: true, ignored: true });
-  if (event.type === 'payment.succeeded' && !isPass && (typeof pactId !== 'string' || !UUID.test(pactId) || typeof paymentId !== 'string')) {
+  if (isTopup && (!userId || typeof paymentId !== 'string')) {
+    console.warn('whop webhook: recarga sin metadata.user_id válido; payment:', paymentId);
+    return res.status(200).json({ ok: true, ignored: true });
+  }
+  if (event.type === 'payment.succeeded' && !isPass && !isTopup && (typeof pactId !== 'string' || !UUID.test(pactId) || typeof paymentId !== 'string')) {
     console.warn('whop webhook: payment.succeeded sin metadata.pact_id válido; payment:', paymentId);
     return res.status(200).json({ ok: true, ignored: true });
   }
@@ -75,6 +82,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       [eventId, body],
     );
     if (fresh.rowCount === 0) return 'duplicate';
+    if (isTopup) {
+      return (await creditTopup(q, userId as string, Number(metadata.amount_cents), paymentId as string)) ? 'topup' : 'topup_ignored';
+    }
     if (event.type === 'payment.succeeded' && !isPass) {
       return (await activatePaidPact(q, pactId as string, paymentId as string)) ? 'activated' : 'no_pending_pact';
     }

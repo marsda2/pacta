@@ -3,6 +3,7 @@ import { randomInt, randomUUID } from 'node:crypto';
 import {
   AI_REVIEW_FALLBACK_HOURS,
   APPEALS_PER_MONTH_PASS,
+  CREDIT_STAKE_MIN_CENTS,
   HUMAN_REVIEW_MIN_STAKE_CENTS,
   MAX_PROOFS_PER_PACT,
   needsHumanReview,
@@ -18,6 +19,7 @@ import {
 import type { CheckoutLinkDto, PactDto, PactReviewDto, PactUiStatus, ProofMethod, UserSummary } from '../shared/types';
 import { query, withTransaction, type Queryable } from './db';
 import { HttpError } from './http';
+import { holdStake, releaseStake } from './wallet';
 import { createStakeCheckout, refundStakePayment, stakeCheckoutLink } from './whop';
 import { auditProof } from './vision-agent';
 
@@ -150,11 +152,12 @@ interface LockedPact {
   status: string;
   deadline: Date;
   whop_payment_id: string | null;
+  paid_with_credit: boolean;
 }
 
 async function lockPact(q: Queryable, userId: string, pactId: string): Promise<LockedPact> {
   const { rows } = await q<LockedPact>(
-    'select id, user_id, stake_cents, status, deadline, whop_payment_id from pacta.pacts where id = $1 and user_id = $2 for update',
+    'select id, user_id, stake_cents, status, deadline, whop_payment_id, paid_with_credit from pacta.pacts where id = $1 and user_id = $2 for update',
     [pactId, userId],
   );
   if (!rows[0]) throw new HttpError(404, 'not_found');
@@ -173,9 +176,10 @@ async function vaultPact(q: Queryable, pact: LockedPact, reason: string, trustDe
 }
 
 // APPROVED → REFUNDED. Primero se devuelve el stake en Whop; si Whop falla, el pacto no cambia de estado.
-// Los pactos sin pago (datos de demo) no tienen whop_payment_id y solo se registran.
+// Pagado con el saldo prepagado, vuelve al saldo. Los pactos sin pago (datos de demo) solo se registran.
 async function refundPact(q: Queryable, pact: LockedPact, points: number, reason: string) {
   if (pact.whop_payment_id) await refundStakePayment(pact.whop_payment_id);
+  else if (pact.paid_with_credit && pact.stake_cents > 0) await releaseStake(q, pact.user_id, pact.id, pact.stake_cents);
   await q("update pacta.pacts set status = 'REFUNDED', resolved_at = now() where id = $1", [pact.id]);
   await addTrust(q, pact.user_id, points, reason, pact.id);
   await q('update pacta.users set verified_streak = verified_streak + 1 where id = $1', [pact.user_id]);
@@ -232,6 +236,8 @@ export interface NewPact {
   dueAt: unknown;
   methods: unknown;
   reputationOnly?: unknown;
+  // 'credit': se paga con el saldo prepagado (desde $1, sin Whop); si no, con tarjeta en Whop.
+  payWith?: unknown;
 }
 
 export async function createPact(userId: string, input: NewPact): Promise<PactDto> {
@@ -240,8 +246,10 @@ export async function createPact(userId: string, input: NewPact): Promise<PactDt
 
   // Pacto sin dinero (onboarding y demo): solo se arriesga reputación y no pasa por Whop.
   const reputationOnly = input.reputationOnly === true;
+  const withCredit = !reputationOnly && input.payWith === 'credit';
   const stake = reputationOnly ? 0 : input.stakeCents;
-  if (!reputationOnly && (!Number.isInteger(stake) || (stake as number) < STAKE_MIN_CENTS || (stake as number) > STAKE_MAX_CENTS)) {
+  const minStake = withCredit ? CREDIT_STAKE_MIN_CENTS : STAKE_MIN_CENTS;
+  if (!reputationOnly && (!Number.isInteger(stake) || (stake as number) < minStake || (stake as number) > STAKE_MAX_CENTS)) {
     throw new HttpError(400, 'bad_stake');
   }
 
@@ -261,6 +269,20 @@ export async function createPact(userId: string, input: NewPact): Promise<PactDt
       [freeId, userId, title, dueAt, dayCode, methods],
     );
     return getPact(userId, freeId);
+  }
+  if (withCredit) {
+    // Con el saldo no hay checkout: el stake se retiene y el pacto nace ACTIVE.
+    const creditId = randomUUID();
+    await withTransaction(async (q) => {
+      await q('select id from pacta.users where id = $1 for update', [userId]);
+      await q(
+        `insert into pacta.pacts (id, user_id, title, stake_cents, deadline, day_code, status, proof_methods, paid_with_credit)
+         values ($1, $2, $3, $4, to_timestamp($5 / 1000.0), $6, 'ACTIVE', $7, true)`,
+        [creditId, userId, title, stake, dueAt, dayCode, methods],
+      );
+      await holdStake(q, userId, creditId, stake as number);
+    });
+    return getPact(userId, creditId);
   }
   // El id se genera antes para que Whop lo reciba en metadata.pact_id. Si Whop falla, no se crea nada.
   // El pacto nace AWAITING_PAYMENT y pasa a ACTIVE cuando llega payment.succeeded (api/webhooks/whop.ts).
@@ -378,7 +400,7 @@ async function reviewProof(
         where id = $1`,
       [proofId, promptVersion, audit.verdict, audit.confidence, JSON.stringify(audit.cheatSignals), audit.reason],
     );
-    if (shouldAutoApprove(audit, emotional)) {
+    if (shouldAutoApprove(audit, emotional, pact.stake_cents)) {
       await refundPact(q, pact, TRUST_DELTA.aiApproved, 'ai_approved');
       return;
     }

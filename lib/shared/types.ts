@@ -105,6 +105,30 @@ export interface RedeemResultDto {
   payoutCents: number;
   feeCents: number;
   yieldCents: number;
-  // 'whop': reembolso real de los stakes fallados; 'ledger': stakes sin pago (datos de demo).
+  // 'whop': reembolso real de los stakes fallados; 'credit': vuelve al saldo prepagado;
+  // 'ledger': stakes sin pago (datos de demo).
+  method: 'whop' | 'credit' | 'ledger';
+}
+
+// Saldo prepagado tal y como lo devuelve /api/vault/wallet.
+export interface WalletEntryDto {
+  id: string;
+  type: 'topup' | 'hold' | 'release' | 'vault_unlock' | 'withdraw';
+  amountCents: number;
+  at: number;
+  pactTitle?: string;
+}
+
+export interface WalletDto {
+  balanceCents: number;
+  // Stakes retenidos en pactos que siguen abiertos.
+  heldCents: number;
+  entries: WalletEntryDto[];
+}
+
+export interface WithdrawResultDto {
+  wallet: WalletDto;
+  withdrawnCents: number;
+  // 'whop': reembolso a la tarjeta de las recargas; 'ledger': recargas sin pago (datos de demo).
   method: 'whop' | 'ledger';
 }

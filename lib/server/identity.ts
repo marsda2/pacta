@@ -5,13 +5,14 @@ import type { VercelRequest } from '@vercel/node';
 import { query } from './db';
 import { HttpError } from './http';
 import { demoUserId } from './pact-engine';
+import type { SessionUser } from '../shared/auth';
+import { whopUserInfo } from './whop-oauth';
 
 // Identidad dentro de Whop (docs/03 §2). Whop abre PACTA en un iframe y añade el JWT del usuario
 // en la cabecera x-whop-user-token de cada petición al mismo origen. @whop/sdk 2.x ya no trae
 // verifyUserToken, así que se verifica aquí igual que los SDK oficiales de Python y Ruby: ES256,
 // claves del JWKS de Whop, emisor urn:whopcom:exp-proxy y audiencia = WHOP_APP_ID.
-// Sin cabecera (la URL de Vercel abierta fuera de Whop) se usa el usuario de demo, salvo que
-// WHOP_REQUIRE_USER_TOKEN=true.
+// Fuera del iframe se verifica el Bearer obtenido mediante OAuth de Whop.
 
 const HEADER = 'x-whop-user-token';
 const JWKS_URL = 'https://api.whop.com/.well-known/jwks.json';
@@ -103,20 +104,30 @@ export async function verifyWhopUserToken(token: string): Promise<{ whopUserId: 
   return { whopUserId: claims.sub, appId: claims.aud };
 }
 
-// Usuario de PACTA de la petición: el de Whop si viene el token, el de demo si no.
-export async function requestUserId(req: VercelRequest): Promise<string> {
-  const raw = req.headers[HEADER];
-  const token = Array.isArray(raw) ? raw[0] : raw;
-  if (!token) {
-    if (process.env.WHOP_REQUIRE_USER_TOKEN === 'true') throw new HttpError(401, 'whop_login_required');
-    return demoUserId();
+export async function requestSession(req: VercelRequest): Promise<SessionUser> {
+  const authorization = req.headers.authorization;
+  let profile: { sub: string; name?: string; preferred_username?: string; email?: string; picture?: string };
+  if (authorization) {
+    if (!authorization.startsWith('Bearer ') || !authorization.slice(7)) throw new HttpError(401, 'bad_user_token');
+    profile = await whopUserInfo(authorization.slice(7));
+  } else {
+    const raw = req.headers[HEADER];
+    const token = Array.isArray(raw) ? raw[0] : raw;
+    if (!token) throw new HttpError(401, 'whop_login_required');
+    const { whopUserId } = await verifyWhopUserToken(token);
+    profile = { sub: whopUserId };
   }
-  const { whopUserId } = await verifyWhopUserToken(token);
-  const { rows } = await query<{ id: string }>(
-    `insert into pacta.users (whop_user_id) values ($1)
-     on conflict (whop_user_id) do update set whop_user_id = excluded.whop_user_id
-     returning id`,
-    [whopUserId],
+  const { rows } = await query<{ id: string; email: string | null }>(
+    `insert into pacta.users (whop_user_id, email) values ($1, $2)
+     on conflict (whop_user_id) do update set email = coalesce(excluded.email, pacta.users.email)
+     returning id, email`,
+    [profile.sub, profile.email || null],
   );
-  return rows[0].id;
+  return { id: rows[0].id, whopUserId: profile.sub, name: profile.name || profile.preferred_username || 'Whop member', email: rows[0].email || undefined, picture: profile.picture };
+}
+
+export async function requestUserId(req: VercelRequest): Promise<string> {
+  // Demo access is opt-in, local only, and never overrides an invalid credential.
+  if (!req.headers.authorization && !req.headers[HEADER] && process.env.ALLOW_DEMO_USER === 'true' && process.env.NODE_ENV !== 'production' && !process.env.VERCEL) return demoUserId();
+  return (await requestSession(req)).id;
 }

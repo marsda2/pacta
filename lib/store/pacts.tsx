@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
 
 import { apiBase, apiFetch } from '@/lib/api/client';
+import { useAuth } from '@/lib/auth/session';
 import { prepareProofImage } from '@/lib/api/image';
 import { TRUST_START_SCORE } from '@/lib/shared/rules';
 import type { Pact, PactDto, PactsResponse, ProofMethod, UserSummary } from '@/lib/shared/types';
@@ -13,6 +14,8 @@ export interface NewPactInput {
   methods: ProofMethod[];
   // Pacto sin dinero: se arriesga solo reputación (el servidor ignora stakeCents).
   reputationOnly?: boolean;
+  // 'credit': se paga con el saldo prepagado (desde $1); si no, con tarjeta en Whop.
+  payWith?: 'credit' | 'card';
 }
 
 interface PactsContextValue {
@@ -36,12 +39,14 @@ const EMPTY_SUMMARY: UserSummary = { trustScore: TRUST_START_SCORE, vaultCents: 
 const PactsContext = createContext<PactsContextValue | null>(null);
 
 export function PactsProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
   const client = useQueryClient();
   const [focus, setFocus] = useState<Record<string, number>>({});
 
   const query = useQuery({
     queryKey: ['pacts'],
     queryFn: () => apiFetch<PactsResponse>('/api/pacts'),
+    enabled: !!user,
     refetchInterval: 30_000,
   });
 
@@ -69,8 +74,10 @@ export function PactsProvider({ children }: { children: ReactNode }) {
         };
       });
       client.invalidateQueries({ queryKey: ['pacts'] });
-      // Un veredicto puede mover el stake al Vault o completar la racha que lo desbloquea.
+      // Un veredicto puede mover el stake al Vault o completar la racha que lo desbloquea, y un
+      // pacto pagado con el saldo lo retiene o lo devuelve.
       client.invalidateQueries({ queryKey: ['vault'] });
+      client.invalidateQueries({ queryKey: ['wallet'] });
     },
     [client],
   );
@@ -103,7 +110,7 @@ export function PactsProvider({ children }: { children: ReactNode }) {
     () => ({
       pacts,
       summary: query.data?.summary ?? EMPTY_SUMMARY,
-      loading: query.isPending,
+      loading: query.isLoading,
       error: query.error,
       refetch: () => void query.refetch(),
       getPact: (id) => pacts.find((pact) => pact.id === id),

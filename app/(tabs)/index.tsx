@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import { Pax } from '@/components/companion/Pax';
 import { CopilotCard } from '@/components/copilot/CopilotCard';
@@ -8,15 +8,18 @@ import { FocusSessionCard } from '@/components/pact/FocusSessionCard';
 import { Button, Card, ErrorBanner, GlassCard, LoadingBlock, Screen, SectionLabel, Text } from '@/components/ui';
 import { VaultCard } from '@/components/vault/VaultCard';
 import { routes } from '@/lib/routes';
+import { formatUsd } from '@/lib/shared/rules';
 import { formatDeadline } from '@/lib/shared/time';
 import { usePacts } from '@/lib/store/pacts';
 import { useVault } from '@/lib/store/vault';
+import { useWallet } from '@/lib/store/wallet';
 import { colors } from '@/lib/theme';
 
 export default function Home() {
   const router = useRouter();
   const { pacts, summary, loading, error, refetch } = usePacts();
   const { vault } = useVault();
+  const { wallet } = useWallet();
   const active = pacts.find((pact) => pact.status === 'progress' || pact.status === 'pending');
 
   return (
@@ -54,10 +57,13 @@ export default function Home() {
           <Text variant="caption" color="muted">Trust Score</Text>
           <Text variant="title">{summary.trustScore}<Text variant="small" color="muted"> / 100</Text></Text>
         </Card>
-        <Card style={styles.stat} padding={16}>
-          <Text variant="caption" color="muted">Verified streak</Text>
-          <Text variant="title">{summary.verifiedStreak}<Text variant="small" color="muted"> in a row</Text></Text>
-        </Card>
+        <Pressable accessibilityRole="button" accessibilityLabel="Open your balance" onPress={() => router.push(routes.wallet)} style={styles.statPress}>
+          <Card style={styles.stat} padding={16}>
+            <Text variant="caption" color="muted">Balance</Text>
+            <Text variant="title">{formatUsd(wallet?.balanceCents ?? 0)}</Text>
+            <Text variant="caption" color="muted">Add funds · stake from $1</Text>
+          </Card>
+        </Pressable>
       </View>
 
       <VaultCard vault={vault} fallbackCents={summary.vaultCents} onPress={() => router.push(routes.vault)} />
@@ -74,4 +80,5 @@ const styles = StyleSheet.create({
   section: { gap: 10 },
   stats: { flexDirection: 'row', gap: 12 },
   stat: { flex: 1, gap: 2, borderColor: colors.border },
+  statPress: { flex: 1 },
 });

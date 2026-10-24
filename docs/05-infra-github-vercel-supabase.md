@@ -39,7 +39,7 @@ Se puede usar la integración MCP de Vercel de esta sesión para revisar desplie
 2. Ejecutar las migraciones de `supabase/migrations` con el esquema de 02-arquitectura.md.
 3. Storage: bucket privado `proofs`; subida mediante URL firmada que genera `/api/proofs`.
 4. RLS activado: lectura solo de las filas propias; las escrituras solo desde el servidor (service role).
-5. Auth: la identidad viene de Whop (token del iframe). Fuera de Whop (en Expo Go) hay dos opciones: un enlace mágico de Supabase o un modo demo con un usuario fijo. **Para el hackathon: modo demo con un usuario sembrado + Whop en la web.**
+5. Auth: **Whop**, con JWT del iframe u OAuth public + PKCE fuera del iframe. Supabase se usa como base de datos, no como proveedor de login. El usuario demo solo es opt-in para pruebas locales de API; producción exige identidad. Ver [COMO-FUNCIONA](../COMO-FUNCIONA.md).
 
 ## 4. Variables de entorno (`.env.example`)
 
@@ -62,9 +62,19 @@ TERAC_MCP_URL=
 TERAC_API_KEY=
 TERAC_WEBHOOK_SECRET=
 DEMO_USER_ID=
+# Solo API local, ignorado en Vercel/production; no abre la UI sin login
+ALLOW_DEMO_USER=false
+# Callbacks adicionales de OAuth, separados por comas; registrar con npm run whop:auth
+WHOP_OAUTH_REDIRECT_URIS=
+# Opcional: para una app confidential distinta; PACTA usa public + PKCE sin client secret
+WHOP_CLIENT_SECRET=
 ```
 
 ## 5. Desarrollo local
+
+Login de Whop preparado con `npm run whop:auth` (API key existente, sin copiar secretos). Callbacks web permitidos: localhost/127.0.0.1 en 8081 y 8082; nativo: `pacta://auth/callback`. Para el flujo OAuth nativo se necesita una compilación de desarrollo con el scheme `pacta` y el plugin de SecureStore, en lugar del enlace `exp://` de Expo Go.
+
+`npm run dev:api` admite `PORT` (3000 por defecto). `EXPO_PUBLIC_API_URL` debe apuntar a esa API en desarrollo; la web publicada usa el mismo origen. La configuración OAuth real está guardada en Whop; **el código de sesión/bienvenida/perfil aún no se ha desplegado** en esta tarea. `npm run check:auth` verifica 27 casos sin cobros, con OAuth simulado y dos cuentas QA en Postgres borradas al terminar.
 - `npx expo start` → abrir en Expo Go (cámara) y en el navegador.
 - API local: `vercel dev` sirve `api/*` en localhost. Para los webhooks en local, usa la URL de una preview de Vercel en lugar de un túnel (menos piezas que se puedan romper).
 
