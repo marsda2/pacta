@@ -1,0 +1,11 @@
+24 octubre 2026
+
+Typecheck: npx tsc --noEmit
+Resultado: OK, exit 0.
+
+Lint: npx expo lint --ignore-pattern "docs/references/**"
+Se excluye el código de terceros extraído; se comprueba el código del proyecto.
+Resultado: exit 1. Dos errores react/no-unescaped-entities en app/jury/round1.tsx, línea 98, columnas 70 y 79.
+Ese archivo es ajeno a la extracción y no se ha modificado para este trabajo.
+
+Sintaxis JS extraído: node --check, 28/28 archivos OK.

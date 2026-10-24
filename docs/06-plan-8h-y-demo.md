@@ -1,5 +1,7 @@
 # 06 · Plan de ejecución, recortes, riesgos y demo
 
+> **Documento histórico.** Es el plan de las 8 horas del hackathon, escrito antes de construir. El avance real está en el [ROADMAP](../ROADMAP.md), cómo funciona hoy el sistema en [COMO-FUNCIONA.md](../COMO-FUNCIONA.md) y el guion y los pasos de la demo vigentes en `docs/09-demo-y-entrega.md` (en `main`). Cambios respecto a este plan: el agente de visión es **Gemini** (no Claude), el stake mínimo es **$5**, Terac se integra por **REST + una página de jueces nuestra** (no por una tarea con foto y opciones) y la revisión humana depende del stake (ver docs/04 §4).
+
 > Actualizado el 2026-10-24 a las 11:00. El bloque de código empezó a las 10:45 y se han ido ~30 min en planificar (incluido el consejo sobre retos en grupo). El cronograma está recalculado para empezar a las **11:15** y entregar a las **18:45**. Lo recortado sale del pulido, no del núcleo.
 
 ## Roles (si hay equipo; si vas solo, sigue el orden de las filas)

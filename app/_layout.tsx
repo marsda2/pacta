@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { DesktopLanding } from '@/components/landing/DesktopLanding';
+import { DesktopPreviewContext } from '@/components/landing/DesktopPreviewContext';
 import { isDesktopPath, useIsDesktopWeb } from '@/lib/device';
 import { PactsProvider } from '@/lib/store/pacts';
 import { colors } from '@/lib/theme';
@@ -35,24 +36,37 @@ export default function RootLayout() {
   };
 
   const showLanding = desktop && !preview && !isDesktopPath(pathname);
-  if (showLanding) return <DesktopLanding onPreview={startPreview} />;
+  if (showLanding) {
+    return (
+      <DesktopPreviewContext.Provider value={startPreview}>
+        <DesktopLanding onPreview={startPreview} />
+      </DesktopPreviewContext.Provider>
+    );
+  }
 
   const stack = <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }} />;
 
+  // The public landing doesn't need to load the user's pacts or call the API.
+  if (pathname === '/landing') {
+    return <DesktopPreviewContext.Provider value={startPreview}>{stack}</DesktopPreviewContext.Provider>;
+  }
+
   return (
-    <QueryClientProvider client={queryClient}>
-      <PactsProvider>
-        <StatusBar style="dark" />
-        {desktop && !isDesktopPath(pathname) ? (
-          // Vista previa en escritorio: la app dentro de un marco con ancho de móvil.
-          <View style={styles.backdrop}>
-            <View style={styles.frame}>{stack}</View>
-          </View>
-        ) : (
-          stack
-        )}
-      </PactsProvider>
-    </QueryClientProvider>
+    <DesktopPreviewContext.Provider value={startPreview}>
+      <QueryClientProvider client={queryClient}>
+        <PactsProvider>
+          <StatusBar style="dark" />
+          {desktop && !isDesktopPath(pathname) ? (
+            // Vista previa en escritorio: la app dentro de un marco con ancho de móvil.
+            <View style={styles.backdrop}>
+              <View style={styles.frame}>{stack}</View>
+            </View>
+          ) : (
+            stack
+          )}
+        </PactsProvider>
+      </QueryClientProvider>
+    </DesktopPreviewContext.Provider>
   );
 }
 

@@ -6,28 +6,17 @@ import { PaxSays } from '@/components/companion/Pax';
 import { PactResultCard } from '@/components/pact/PactResultCard';
 import { Button, Card, ErrorBanner, LoadingBlock, Screen, ScreenTitle, SectionLabel, Text } from '@/components/ui';
 import { routes } from '@/lib/routes';
+import { formatUsd } from '@/lib/shared/rules';
 import { usePacts } from '@/lib/store/pacts';
 
 // Flujo 06 · Pact result (y estado intermedio "reviewing" mientras no hay veredicto)
 export default function PactResult() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { getPact, resolvePact, appealPact, loading } = usePacts();
+  const { getPact, resolvePact, loading } = usePacts();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<unknown>(null);
   const pact = getPact(id);
-
-  const appeal = async () => {
-    setBusy(true);
-    setError(null);
-    try {
-      await appealPact(id);
-    } catch (e) {
-      setError(e);
-    } finally {
-      setBusy(false);
-    }
-  };
 
   const decide = async (kept: boolean) => {
     setBusy(true);
@@ -84,7 +73,13 @@ export default function PactResult() {
               </Text>
               {review.canRetry ? <Button label="Retake the photo" icon="camera" onPress={() => router.push(routes.proof(pact.id))} /> : null}
               <Button label="Ask a witness" icon="arrowRight" variant="mint" onPress={() => router.push(routes.witness(pact.id))} />
-              {review.canAppeal ? <Button label={busy ? 'Sending…' : 'Appeal to a human reviewer'} variant="outline" disabled={busy} onPress={appeal} /> : null}
+              {review.canAppeal ? (
+                <Button
+                  label={review.appealBondCents ? `Appeal to a human panel · ${formatUsd(review.appealBondCents)} at stake` : 'Appeal to a human panel'}
+                  variant="outline"
+                  onPress={() => router.push(routes.appeal(pact.id))}
+                />
+              ) : null}
               {error ? <ErrorBanner error={error} /> : null}
             </Card>
           ) : null}

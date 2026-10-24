@@ -12,5 +12,6 @@ export const routes = {
   pact: (id: string, query = '') => `/pact/${id}${query}` as Href,
   proof: (id: string) => `/pact/${id}/proof` as Href,
   result: (id: string) => `/pact/${id}/result` as Href,
+  appeal: (id: string) => `/pact/${id}/appeal` as Href,
   witness: (id: string) => `/witness/${id}` as Href,
 };

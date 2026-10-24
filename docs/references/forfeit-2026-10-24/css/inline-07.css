@@ -1,0 +1,66 @@
+
+                .hiw2 { background:#ffffff; padding:96px 24px; font-family:'Figtree', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color:#0b0b0c; -webkit-font-smoothing:antialiased; }
+                .hiw2 *, .hiw2 *::before, .hiw2 *::after { box-sizing:border-box; }
+                .hiw2-inner { max-width:1180px; margin:0 auto; }
+                .hiw2-eyebrow { text-align:center; font-size:12px; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:#8a8a90; margin-bottom:12px; }
+                .hiw2-title { text-align:center; font-size:44px; font-weight:800; letter-spacing:-0.025em; line-height:1.05; margin:0 0 14px; }
+                .hiw2-sub { text-align:center; font-size:16px; color:#5a5a5f; max-width:560px; margin:0 auto 40px; line-height:1.5; }
+                .hiw2-tabs { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; margin-bottom:56px; }
+                .hiw2-tab { appearance:none; border:1px solid #e6e6e8; cursor:pointer; font-family:inherit; font-size:14px; font-weight:600; letter-spacing:-0.005em; color:#5a5a5f; background:#ffffff; padding:10px 18px; border-radius:999px; transition:background .15s, color .15s, border-color .15s, box-shadow .15s; }
+                .hiw2-tab:hover { background:#f4f4f6; color:#0b0b0c; }
+                .hiw2-tab.active { background:#0b0b0c; color:#ffffff; border-color:#0b0b0c; box-shadow:0 4px 14px rgba(11,11,12,0.18); }
+                .hiw2-stage { position:relative; display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:center; }
+                .hiw2-arrow { position:absolute; top:50%; transform:translateY(-50%); width:44px; height:44px; border-radius:50%; border:1px solid #e6e6e8; background:#ffffff; cursor:pointer; color:#0b0b0c; display:flex; align-items:center; justify-content:center; transition:background .15s, box-shadow .15s; z-index:2; }
+                .hiw2-arrow:hover { background:#f4f4f6; box-shadow:0 6px 16px rgba(11,11,12,0.08); }
+                .hiw2-arrow svg { width:22px; height:22px; }
+                .hiw2-prev { left:-12px; }
+                .hiw2-next { right:-12px; }
+                /* Left: steps as numbered timeline */
+                .hiw2-steps { display:flex; flex-direction:column; gap:0; transition: opacity 200ms ease, transform 200ms ease; will-change: opacity, transform; }
+                .hiw2-steps.is-out { opacity: 0; transform: translateY(-6px); }
+                .hiw2-steps.is-staging .hiw2-step { opacity: 0; transform: translateY(8px); animation: hiw2StepIn 280ms cubic-bezier(0.22, 0.61, 0.36, 1) forwards; }
+                .hiw2-steps.is-staging .hiw2-step:nth-child(1) { animation-delay: 0ms; }
+                .hiw2-steps.is-staging .hiw2-step:nth-child(2) { animation-delay: 100ms; }
+                .hiw2-steps.is-staging .hiw2-step:nth-child(3) { animation-delay: 200ms; }
+                @keyframes hiw2StepIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+                @media (prefers-reduced-motion: reduce) {
+                    .hiw2-steps, .hiw2-steps.is-out, .hiw2-steps.is-staging .hiw2-step { transition: none; animation: none; opacity: 1; transform: none; }
+                }
+                .hiw2-step { position:relative; display:grid; grid-template-columns:48px 1fr; gap:18px; padding-bottom:28px; }
+                .hiw2-step:last-child { padding-bottom:0; }
+                .hiw2-step:not(:last-child)::before { content:""; position:absolute; left:23px; top:48px; bottom:4px; width:2px; background:#ececef; }
+                .hiw2-step.active:not(:last-child)::before { background:linear-gradient(180deg, #2f6bff 0%, #ececef 100%); }
+                .hiw2-num { width:48px; height:48px; border-radius:50%; background:#f4f4f6; color:#5a5a5f; font-size:18px; font-weight:700; display:flex; align-items:center; justify-content:center; transition: background .45s cubic-bezier(0.22, 0.61, 0.36, 1), color .45s cubic-bezier(0.22, 0.61, 0.36, 1), box-shadow .45s cubic-bezier(0.22, 0.61, 0.36, 1), transform .45s cubic-bezier(0.22, 1.2, 0.36, 1); flex:none; transform: scale(1); }
+                .hiw2-step.active .hiw2-num { background:#0b0b0c; color:#ffffff; box-shadow:0 4px 12px rgba(11,11,12,0.18); transform: scale(1.06); }
+                .hiw2-step-body { padding-top:8px; min-width:0; }
+                .hiw2-step-h { font-size:26px; font-weight:700; letter-spacing:-0.018em; line-height:1.2; margin:0; color:#0b0b0c; transition: color .45s ease; }
+                .hiw2-step.dim .hiw2-step-h { color:#9a9aa0; }
+                .hiw2-desc { margin-top:12px; color:#5a5a5f; font-size:17px; line-height:1.55; max-width:560px; }
+                .hiw2-note { margin-top:12px; color:#8a8a90; font-size:15px; line-height:1.55; max-width:560px; }
+                .hiw2-progress { margin-top:18px; height:4px; width:100%; max-width:260px; background:#ececef; border-radius:999px; overflow:hidden; opacity:0; transition: opacity .45s ease; }
+                .hiw2-step.active .hiw2-progress { opacity:1; }
+                .hiw2-progress-fill { display:block; height:100%; width:0; background:linear-gradient(90deg, #2f6bff 0%, #5a85ff 100%); border-radius:999px; transform-origin:left center; }
+                .hiw2-step.active .hiw2-progress-fill { animation: hiw2-progfill var(--hiw2-prog-dur, 4200ms) linear forwards; }
+                @keyframes hiw2-progfill { from { width:0; } to { width:100%; } }
+                @media (prefers-reduced-motion: reduce) {
+                    .hiw2-progress-fill { animation: none; width:100%; }
+                }
+                /* Right: phone. Renders via NewForfeitWidget (shared with
+                   the hero). The widget injects its own scoped .nfw styles;
+                   we just provide the chassis wrapper. */
+                .hiw2-phonewrap { display:flex; justify-content:center; align-items:center; }
+                .hiw2-phone { width:100%; max-width:340px; display:flex; justify-content:center; filter:drop-shadow(0 30px 60px rgba(11,11,12,0.18)) drop-shadow(0 8px 20px rgba(11,11,12,0.06)); }
+                .hiw2-phone .ol-phone { width:320px !important; max-width:100% !important; }
+                @media (max-width:900px) {
+                    .hiw2 { padding:72px 20px; }
+                    .hiw2-title { font-size:32px; }
+                    .hiw2-stage { grid-template-columns:1fr; gap:48px; }
+                    .hiw2-phonewrap { order:-1; }
+                    .hiw2-phone { max-width:280px; }
+                    .hiw2-arrow { display:none; }
+                    .hiw2-tabs { margin-bottom:40px; }
+                    .hiw2-step-h { font-size:21px; }
+                    .hiw2-desc { font-size:15.5px; }
+                    .hiw2-note { font-size:14px; }
+                }
+            

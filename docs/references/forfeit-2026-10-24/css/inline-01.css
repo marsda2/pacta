@@ -1,0 +1,20 @@
+
+      /* Default: signup-only elements stay hidden. */
+      .signup-only { display: none !important; }
+      /* /signup variant: hide chat-app oriented sections + duplicate top CTAs,
+         reveal the single Get Started CTA. */
+      html.is-signup-page #key-features,
+      html.is-signup-page .other-features-section,
+      html.is-signup-page #topbar-cta-chat,
+      html.is-signup-page #topbar-cta-download,
+      html.is-signup-page #hero-default-ctas {
+        display: none !important;
+      }
+      html.is-signup-page .signup-only { display: inline-flex !important; }
+      /* Match the blue progress ring's fill duration to the slowed-down
+         /signup chip cycle (5500ms in start() above) so it ticks down
+         smoothly instead of snapping in 1.5s then sitting idle for 4s. */
+      html.is-signup-page .hero-chip.active::before {
+        animation-duration: 5500ms !important;
+      }
+    

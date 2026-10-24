@@ -28,8 +28,8 @@ interface PactsContextValue {
   // `imageUri` sin valor = captura de demostración (sin foto).
   submitProof: (id: string, imageUri?: string) => Promise<void>;
   resolvePact: (id: string, kept: boolean, source?: 'witness' | 'demo') => Promise<void>;
-  // Pide un juez humano de Terac tras la duda de la IA.
-  appealPact: (id: string) => Promise<void>;
+  // Apelación con fianza: panel de jueces humanos de Terac, con hasta 2 fotos extra y una nota.
+  appealPact: (id: string, input?: { note?: string; imageUris?: string[] }) => Promise<void>;
 }
 
 const EMPTY_SUMMARY: UserSummary = { trustScore: TRUST_START_SCORE, vaultCents: 0, verifiedStreak: 0 };
@@ -91,7 +91,10 @@ export function PactsProvider({ children }: { children: ReactNode }) {
   });
 
   const appeal = useMutation({
-    mutationFn: (id: string) => apiFetch<{ pact: PactDto; summary: UserSummary }>(`/api/pacts/${id}/appeal`, { method: 'POST', body: {} }),
+    mutationFn: async ({ id, note, imageUris = [] }: { id: string; note?: string; imageUris?: string[] }) => {
+      const imagesBase64 = await Promise.all(imageUris.map((uri) => prepareProofImage(uri)));
+      return apiFetch<{ pact: PactDto; summary: UserSummary }>(`/api/pacts/${id}/appeal`, { method: 'POST', body: { note, imagesBase64 } });
+    },
     onSuccess: apply,
   });
 
@@ -109,7 +112,7 @@ export function PactsProvider({ children }: { children: ReactNode }) {
       setFocusRemaining: (id, seconds) => setFocus((prev) => ({ ...prev, [id]: Math.max(0, seconds) })),
       submitProof: async (id, imageUri) => void (await proof.mutateAsync({ id, imageUri })),
       resolvePact: async (id, kept, source = 'demo') => void (await resolve.mutateAsync({ id, kept, source })),
-      appealPact: async (id) => void (await appeal.mutateAsync(id)),
+      appealPact: async (id, input) => void (await appeal.mutateAsync({ id, ...input })),
     }),
     [pacts, query, toPact, create, proof, resolve, appeal],
   );

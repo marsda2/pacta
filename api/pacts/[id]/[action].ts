@@ -1,8 +1,8 @@
 import { allow, api, HttpError, uuidParam } from '../../../lib/server/http';
-import { appealPact, demoUserId, pactCheckoutUrl, resolvePact, submitProof, userSummary, type NewProof } from '../../../lib/server/pact-engine';
+import { appealPact, demoUserId, pactCheckoutUrl, resolvePact, submitProof, userSummary, type AppealInput, type NewProof } from '../../../lib/server/pact-engine';
 
 // POST /api/pacts/:id/proof    → sube la prueba y abre la revisión (también el reintento tras una duda).
-// POST /api/pacts/:id/appeal   → pide un juez humano de Terac tras la duda de la IA.
+// POST /api/pacts/:id/appeal   → apelación con fianza: panel de 3 jueces de Terac. {imagesBase64?: string[2], note?: string}
 // POST /api/pacts/:id/resolve  → veredicto manual {kept: boolean, source: 'witness' | 'demo'}.
 // POST /api/pacts/:id/checkout → enlace de pago de un pacto AWAITING_PAYMENT → { url }.
 export default api(async (req, res) => {
@@ -23,7 +23,7 @@ export default api(async (req, res) => {
       pact = await resolvePact(userId, pactId, body.kept, body.source === 'witness' ? 'witness' : 'demo');
       break;
     case 'appeal':
-      pact = await appealPact(userId, pactId);
+      pact = await appealPact(userId, pactId, body as AppealInput);
       break;
     default:
       throw new HttpError(404, 'not_found');

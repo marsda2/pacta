@@ -2,7 +2,11 @@ import { randomInt, randomUUID } from 'node:crypto';
 
 import {
   AI_REVIEW_FALLBACK_HOURS,
+  APPEAL_MAX_EXTRA_PHOTOS,
+  APPEAL_NOTE_MAX_CHARS,
+  APPEAL_PANEL_SIZE,
   APPEALS_PER_MONTH_PASS,
+  appealBondCents,
   HUMAN_REVIEW_MIN_STAKE_CENTS,
   MAX_PROOFS_PER_PACT,
   needsHumanReview,
@@ -19,6 +23,7 @@ import type { PactDto, PactReviewDto, PactUiStatus, ProofMethod, UserSummary } f
 import { query, withTransaction, type Queryable } from './db';
 import { HttpError } from './http';
 import { createStakeCheckout, refundStakePayment, stakeCheckoutUrl } from './whop';
+import { maybeLaunchBatch } from './appeal-study';
 import { auditProof } from './vision-agent';
 
 // Máquina de estados del pacto (docs/02). Todas las transiciones de dinero y de Trust viven
@@ -65,14 +70,23 @@ interface PactRow {
   proof_count: string;
   ai_reviewed: boolean | null;
   jury_open: boolean;
+  user_tier: string;
+  appeals_used: string;
 }
+
+// Apelaciones que el usuario del pacto ya abrió este mes (cuentan para el cupo del Pass).
+const APPEALS_USED_SQL = `(select count(*) from pacta.jury_tasks j
+          join pacta.proofs r on r.id = j.proof_id join pacta.pacts pc on pc.id = r.pact_id
+         where pc.user_id = p.user_id and j.raw ->> 'appeal' = 'true' and j.created_at >= date_trunc('month', now()))`;
 
 const PACT_SELECT = `
   select p.id, p.title, p.stake_cents, p.deadline, p.status, p.proof_methods, p.created_at, p.resolved_at,
          pr.id as proof_id, pr.storage_path, pr.created_at as proof_at,
          (select count(*) from pacta.proofs where pact_id = p.id) as proof_count,
          (select bool_or(ai_verdict is not null) from pacta.proofs where pact_id = p.id) as ai_reviewed,
-         exists (select 1 from pacta.jury_tasks j join pacta.proofs x on x.id = j.proof_id where x.pact_id = p.id) as jury_open
+         exists (select 1 from pacta.jury_tasks j join pacta.proofs x on x.id = j.proof_id where x.pact_id = p.id) as jury_open,
+         (select tier from pacta.users where id = p.user_id) as user_tier,
+         ${APPEALS_USED_SQL} as appeals_used
     from pacta.pacts p
     left join lateral (
       select id, storage_path, created_at from pacta.proofs where pact_id = p.id order by created_at desc limit 1
@@ -98,17 +112,22 @@ function toDto(row: PactRow): PactDto {
   };
 }
 
+const freeAppeals = () => process.env.FREE_APPEALS === 'true';
+const passCovers = (tier: string, usedThisMonth: number) => tier === 'high_yield' && usedThisMonth < APPEALS_PER_MONTH_PASS;
+
 // Mismas reglas que submitProof y appealPact, para que la app solo ofrezca lo que el servidor acepta.
 function reviewOf(row: PactRow): PactReviewDto | undefined {
   if (row.status !== 'AI_REVIEW' && row.status !== 'JURY_PENDING') return undefined;
   const aiReviewed = row.ai_reviewed === true;
   const open = row.status === 'AI_REVIEW' && aiReviewed && !row.jury_open;
   const expiresAt = row.proof_at ? row.proof_at.getTime() + AI_REVIEW_FALLBACK_HOURS * 3600_000 : 0;
+  const bond = appealBondCents(row.stake_cents, passCovers(row.user_tier, Number(row.appeals_used)), freeAppeals());
   return {
     aiReviewed,
     juryOpen: row.jury_open,
     canRetry: open && Number(row.proof_count) < MAX_PROOFS_PER_PACT && expiresAt > Date.now(),
-    canAppeal: open,
+    canAppeal: open && bond !== null,
+    appealBondCents: open && bond !== null ? bond : undefined,
     hoursLeft: open ? Math.max(0, Math.ceil((expiresAt - Date.now()) / 3600_000)) : undefined,
   };
 }
@@ -215,6 +234,7 @@ async function expireOverdue(userId: string) {
 
 export async function listPacts(userId: string): Promise<PactDto[]> {
   await expireOverdue(userId);
+  await maybeLaunchBatch(); // las apelaciones que llevan esperando ya pueden salir en un lote
   const { rows } = await query<PactRow>(`${PACT_SELECT} where p.user_id = $1 order by p.created_at desc`, [userId]);
   return rows.map(toDto);
 }
@@ -386,57 +406,95 @@ async function reviewProof(
     // en AI_REVIEW (segunda prueba, testigo o apelación) y caduca hacia el Vault.
     const minStake = Number(process.env.HUMAN_REVIEW_MIN_STAKE_CENTS) || HUMAN_REVIEW_MIN_STAKE_CENTS;
     if (!needsHumanReview(pact.stake_cents, false, minStake)) return;
-    await openJuryCase(q, pactId, proofId, false);
+    await openJuryCase(q, pactId, proofId, { appeal: false });
   });
 }
 
 // AI_REVIEW → JURY_PENDING con un caso para el jurado de Terac. Sin TERAC_JURY_OPPORTUNITY_ID
-// el caso espera y no acepta votos.
-async function openJuryCase(q: Queryable, pactId: string, proofId: string, appeal: boolean) {
+// el caso espera y no acepta votos. Devuelve el id del caso.
+async function openJuryCase(
+  q: Queryable,
+  pactId: string,
+  proofId: string,
+  extra: { appeal: boolean; panel?: number; bondCents?: number; note?: string } = { appeal: false },
+): Promise<string> {
   await q("update pacta.pacts set status = 'JURY_PENDING' where id = $1", [pactId]);
-  await q('insert into pacta.jury_tasks (proof_id, terac_task_id, raw) values ($1, $2, $3)', [
-    proofId,
-    process.env.TERAC_JURY_OPPORTUNITY_ID ?? null,
-    JSON.stringify({ appeal }),
-  ]);
+  const { rows } = await q<{ id: string }>(
+    'insert into pacta.jury_tasks (proof_id, terac_task_id, raw) values ($1, $2, $3) returning id',
+    // Las apelaciones no tienen estudio propio: esperan en la cola de lotes (appeal-study.ts).
+    [proofId, extra.appeal ? null : (process.env.TERAC_JURY_OPPORTUNITY_ID ?? null), JSON.stringify(extra)],
+  );
+  return rows[0].id;
 }
 
-// Apelación: el usuario pide un juez humano tras la duda o el rechazo de la IA. Incluida en el
-// High-Yield Pass (APPEALS_PER_MONTH_PASS al mes); en Free requerirá pago con Whop (fase 4), y
-// mientras tanto solo se admite con FREE_APPEALS=true (demo).
-export async function appealPact(userId: string, pactId: string): Promise<PactDto> {
+export interface AppealInput {
+  note?: unknown;
+  // Hasta APPEAL_MAX_EXTRA_PHOTOS fotos extra, en base64.
+  imagesBase64?: unknown;
+}
+
+// Apelación con fianza: el usuario que cree haber cumplido pide un panel de APPEAL_PANEL_SIZE
+// jueces humanos y puede añadir fotos y una nota. El Pass la cubre (APPEALS_PER_MONTH_PASS al
+// mes, sin fianza); en Free exige un stake ≥ APPEAL_MIN_STAKE_CENTS y deja en juego la fianza:
+// si pierde, se descuenta del stake que va al Vault (closeJuryTask).
+export async function appealPact(userId: string, pactId: string, input: AppealInput = {}): Promise<PactDto> {
+  const note = typeof input.note === 'string' ? input.note.trim().slice(0, APPEAL_NOTE_MAX_CHARS) : '';
+  const rawImages = Array.isArray(input.imagesBase64) ? input.imagesBase64 : [];
+  if (rawImages.length > APPEAL_MAX_EXTRA_PHOTOS) throw new HttpError(400, 'too_many_photos');
+  const images = rawImages.map((value) => {
+    const data = typeof value === 'string' ? Buffer.from(value, 'base64') : Buffer.alloc(0);
+    if (data.length === 0) throw new HttpError(400, 'bad_image');
+    if (data.length > MAX_IMAGE_BYTES) throw new HttpError(413, 'image_too_large');
+    const mime = sniffMime(data);
+    if (!mime) throw new HttpError(415, 'unsupported_image');
+    return { data, mime };
+  });
+
   await withTransaction(async (q) => {
     const pact = await lockPact(q, userId, pactId);
     if (pact.status !== 'AI_REVIEW') throw new HttpError(409, 'not_appealable');
 
-    const { rows } = await q<{ proof_id: string; assigned: boolean }>(
-      `select r.id as proof_id,
+    const { rows } = await q<{ proof_id: string; assigned: boolean; created_at: Date }>(
+      `select r.id as proof_id, r.created_at,
               exists (select 1 from pacta.jury_tasks j join pacta.proofs x on x.id = j.proof_id where x.pact_id = $1) as assigned
          from pacta.proofs r where r.pact_id = $1 and r.ai_verdict is not null
         order by r.created_at desc limit 1`,
       [pactId],
     );
     if (!rows[0] || rows[0].assigned) throw new HttpError(409, 'not_appealable');
+    // La ventana de apelación es la misma que la del reintento: AI_REVIEW_FALLBACK_HOURS.
+    if (rows[0].created_at.getTime() < Date.now() - AI_REVIEW_FALLBACK_HOURS * 3600_000) throw new HttpError(409, 'review_expired');
 
     const user = await q<{ tier: string; used: string }>(
-      `select u.tier,
-              (select count(*) from pacta.jury_tasks j
+      `select u.tier, (select count(*) from pacta.jury_tasks j
                  join pacta.proofs r on r.id = j.proof_id join pacta.pacts pc on pc.id = r.pact_id
                 where pc.user_id = u.id and j.raw ->> 'appeal' = 'true'
                   and j.created_at >= date_trunc('month', now())) as used
          from pacta.users u where u.id = $1`,
       [userId],
     );
-    const covered = user.rows[0].tier === 'high_yield' && Number(user.rows[0].used) < APPEALS_PER_MONTH_PASS;
-    if (!covered && process.env.FREE_APPEALS !== 'true') throw new HttpError(402, 'appeal_requires_pass');
+    const bond = appealBondCents(pact.stake_cents, passCovers(user.rows[0].tier, Number(user.rows[0].used)), freeAppeals());
+    if (bond === null) throw new HttpError(402, 'appeal_requires_pass');
 
-    await openJuryCase(q, pactId, rows[0].proof_id, true);
+    const id = await openJuryCase(q, pactId, rows[0].proof_id, { appeal: true, panel: APPEAL_PANEL_SIZE, bondCents: bond, note: note || undefined });
+    for (const image of images) {
+      await q('insert into pacta.appeal_evidence (jury_task_id, mime, data) values ($1, $2, $3)', [id, image.mime, image.data]);
+    }
+    return id;
   });
+
+  // El caso espera en la cola de apelaciones y se revisa en un lote (ver launchBatch); el
+  // lanzamiento automático está apagado por defecto porque cada lote gasta saldo de Terac.
+  await maybeLaunchBatch();
   return getPact(userId, pactId);
 }
 
 export async function proofImage(proofId: string): Promise<{ mime: string; data: Buffer } | undefined> {
-  const { rows } = await query<{ mime: string; data: Buffer }>('select mime, data from pacta.proof_images where proof_id = $1', [proofId]);
+  const { rows } = await query<{ mime: string; data: Buffer }>(
+    `select mime, data from pacta.proof_images where proof_id = $1
+     union all select mime, data from pacta.appeal_evidence where id = $1`,
+    [proofId],
+  );
   return rows[0];
 }
 
@@ -457,9 +515,9 @@ export async function resolvePact(userId: string, pactId: string, kept: boolean,
 // estaba cerrado no hace nada.
 export async function closeJuryTask(juryTaskId: string, verdict: JuryVote): Promise<void> {
   await withTransaction(async (q) => {
-    const closed = await q<{ proof_id: string }>(
+    const closed = await q<{ proof_id: string; raw: { appeal?: boolean; bondCents?: number } | null }>(
       `update pacta.jury_tasks set status = 'done', verdict = $2, resolved_at = now()
-        where id = $1 and status = 'pending' returning proof_id`,
+        where id = $1 and status = 'pending' returning proof_id, raw`,
       [juryTaskId, verdict],
     );
     if (!closed.rows[0]) return;
@@ -471,16 +529,24 @@ export async function closeJuryTask(juryTaskId: string, verdict: JuryVote): Prom
     const pact = await lockPact(q, rows[0].user_id, rows[0].id);
     if (!REVIEW_STATUSES.includes(pact.status)) return;
 
+    // Apelación perdida: el stake va al Vault y la fianza se descuenta (type 'fee') para pagar a Terac.
+    const bond = closed.rows[0].raw?.appeal ? (closed.rows[0].raw.bondCents ?? 0) : 0;
+    const chargeBond = async () => {
+      if (bond > 0) await q("insert into pacta.vault_ledger (user_id, type, amount_cents, pact_id) values ($1, 'fee', $2, $3)", [pact.user_id, bond, pact.id]);
+    };
+
     if (verdict === 'APPROVE') {
       await refundPact(q, pact, TRUST_DELTA.juryApproved, 'jury_approved');
     } else if (verdict === 'CHEAT') {
       await vaultPact(q, pact, 'cheat_confirmed', TRUST_DELTA.cheatConfirmed);
+      await chargeBond();
       await q('update pacta.users set withdrawals_locked_until = now() + make_interval(days => $2) where id = $1', [
         pact.user_id,
         WITHDRAWAL_LOCK_DAYS_AFTER_CHEAT,
       ]);
     } else {
       await vaultPact(q, pact, 'jury_rejected');
+      await chargeBond();
     }
   });
 }

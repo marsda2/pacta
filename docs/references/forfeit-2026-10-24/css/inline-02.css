@@ -1,0 +1,5782 @@
+
+        /* NEW: Hide the navbar container specifically on this page */
+        #navbar-container {
+            display: none;
+        }
+
+        /* Custom sticky top bar */
+        .ol-topbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: saturate(180%) blur(14px);
+            -webkit-backdrop-filter: saturate(180%) blur(14px);
+            border-bottom: 1px solid rgba(11, 11, 12, 0.06);
+            font-family: 'Figtree', system-ui, -apple-system, sans-serif;
+        }
+        .ol-topbar-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+        }
+        .ol-topbar-brand {
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: #0b0b0c;
+            text-decoration: none;
+            line-height: 1;
+        }
+        .ol-topbar-nav {
+            display: flex;
+            gap: 22px;
+        }
+        .ol-topbar-nav a {
+            font-size: 14px;
+            font-weight: 500;
+            color: #5a5a5f;
+            text-decoration: none;
+            transition: color 0.15s ease;
+        }
+        .ol-topbar-nav a:hover { color: #0b0b0c; }
+
+        /* Adaptive dark navbar — applied while scrolled over the dark
+           "Introducing Overlord" section. Toggled by JS. */
+        .ol-topbar.is-dark {
+            background: rgba(11, 11, 12, 0.88) !important;
+            border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+            transition: background 220ms ease, border-color 220ms ease;
+        }
+        .ol-topbar.is-dark .ol-topbar-brand,
+        .ol-topbar.is-dark .ol-topbar-brand * { color: #ffffff !important; }
+        .ol-topbar.is-dark .ol-topbar-nav a { color: rgba(255, 255, 255, 0.7) !important; }
+        .ol-topbar.is-dark .ol-topbar-nav a:hover { color: #ffffff !important; }
+        .ol-topbar.is-dark .ol-topbar-cta-outline {
+            background: transparent !important;
+            color: #ffffff !important;
+            border-color: rgba(255, 255, 255, 0.25) !important;
+        }
+        .ol-topbar.is-dark .ol-topbar-cta-outline:hover {
+            background: rgba(255, 255, 255, 0.08) !important;
+            border-color: rgba(255, 255, 255, 0.45) !important;
+        }
+        /* App Store / Play badges already render dark, leave them as-is. */
+        .ol-topbar-ctas {
+            display: inline-flex;
+            gap: 10px;
+        }
+        .ol-topbar-cta {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 9px 20px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+            border: 1px solid transparent;
+        }
+        .ol-topbar-cta-solid {
+            background: #0b0b0c;
+            color: #ffffff;
+            border-color: #0b0b0c;
+        }
+        .ol-topbar-cta-solid:hover {
+            background: #1f1f24;
+            border-color: #1f1f24;
+            transform: translateY(-1px);
+        }
+        .ol-topbar-cta-outline {
+            background: #ffffff;
+            color: #0b0b0c;
+            border-color: #e6e6e8;
+        }
+        .ol-topbar-cta-outline:hover {
+            border-color: #0b0b0c;
+            transform: translateY(-1px);
+        }
+        @media (max-width: 640px) {
+            .ol-topbar-inner { padding: 12px 18px; }
+            .ol-topbar-nav { display: none; }
+            .ol-topbar-cta { padding: 7px 14px; font-size: 13px; }
+            .ol-topbar .hero-store-badge { display: none !important; }
+            .ol-topbar-ctas { gap: 8px; }
+        }
+
+        body {
+            font-family: 'Figtree', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            /* Removed padding */
+            /* padding: 32px; */
+            background-color: #ffffff;
+            color: #0b0b0c;
+            /* Removed max-width and centering - will be handled by wrapper */
+            /* max-width: 1400px; */
+            /* margin: 0 auto; */
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Hero background section - full width.
+           Soft blue radial glow behind the hero, fading to white before the
+           viewport edges so the rest of the page stays clean. */
+        .hero-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-image: radial-gradient(ellipse 75% 55% at 50% 32%, rgba(47, 107, 255, 0.13) 0%, rgba(47, 107, 255, 0.05) 45%, rgba(255, 255, 255, 0) 80%);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* New Wrapper Styles */
+        .main-content-wrapper {
+            max-width: 1400px; /* Or adjust as needed */
+            margin: 0 auto; /* Center the wrapper */
+            /* Adjusted horizontal padding to be between 96px and 128px */
+            /* INCREASED top padding from 32px to 64px */
+            padding: 100px 112px 32px 112px;
+            /* Alternatively, use vertical padding only if sections handle their own: */
+            /* padding: 32px 0;  */
+            position: relative;
+            z-index: 2;
+            overflow-x: visible;
+        }
+
+        .page-container {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 32px;
+            /* align-items: center; */ /* Default 'stretch' is what we want for the grid items themselves */
+        }
+
+        .left-content {
+            padding-right: 0;
+            /* Flexbox for vertical centering of its own children on desktop */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+        }
+
+        /* CRT scanlines container - extends beyond text area */
+        .crt-text-container {
+            position: relative;
+            padding: 80px 60px;
+            margin: -80px -60px;
+        }
+
+        .crt-text-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.3) 0px,
+                rgba(0, 0, 0, 0.3) 2px,
+                transparent 2px,
+                transparent 4px
+            );
+            pointer-events: none;
+            z-index: 10;
+            animation: scanlines-move 6s linear infinite;
+            /* Fade edges into background */
+            mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+            -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+        }
+
+        .right-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+        }
+
+        /* Header alert */
+        .header-alert {
+            background-color: #ffffff;
+            padding: 6px 16px;
+            border-radius: 100px;
+            margin-bottom: 32px;
+            border: 1px solid rgba(0,0,0,0.1);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-alert input[type="checkbox"] {
+            margin: 0;
+            accent-color: #00b341;
+        }
+
+        /* Main title section */
+        .main-title {
+            font-size: 64px;
+            font-weight: 700;
+            margin: 20px 0 12px;
+            line-height: 1;
+            letter-spacing: -0.02em;
+            color: #00ff00;
+        }
+
+        .subtitle {
+            font-size: 28px;
+            margin-bottom: 20px;
+            font-weight: 400;
+            line-height: 1.2;
+            color: #ffd700;
+            font-style: italic;
+        }
+
+        .pricing-info, .guarantee {
+            font-size: 18px;
+            color: #0b0b0c;
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        /* ASCII Background Layer */
+        .ascii-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            font-family: 'Figtree', monospace;
+            font-size: 0.9rem;
+            line-height: 1.3;
+            color: #005533;
+            opacity: 0.12;
+            white-space: pre;
+            overflow: hidden;
+            pointer-events: none;
+            text-shadow:
+                0 0 2px #005533,
+                0 0 3px #00553380;
+        }
+
+        .eye-container {
+            position: relative;
+            display: block;
+            margin: 2rem auto 3rem auto;
+            filter: contrast(1.4) brightness(1.1) saturate(1.2);
+            width: fit-content;
+            -webkit-mask-image: radial-gradient(ellipse at center, black 40%, transparent 90%);
+            mask-image: radial-gradient(ellipse at center, black 40%, transparent 90%);
+        }
+
+        /* ASCII Eye Terminal Styling */
+        .ascii-eye {
+            font-family: 'Figtree', monospace;
+            font-size: 0.35rem;
+            line-height: 1.1;
+            color: #00ff41;
+            text-shadow:
+                0 0 2.5px #00ff41,
+                0 0 5px #00ff4180,
+                0 0 7.5px #00ff4140;
+            margin: 0;
+            padding: 0;
+            position: relative;
+            white-space: pre;
+            letter-spacing: 0;
+            animation: ascii-flicker 7s infinite;
+            display: inline-block;
+        }
+
+        /* Darker noise characters in background */
+        .ascii-eye .noise {
+            color: #006622;
+            text-shadow:
+                0 0 2px #006622,
+                0 0 4px #00662280;
+            opacity: 0.6;
+        }
+
+        /* Outline layers for gradual blending - darkened characters around eye edge */
+        .ascii-eye .outline-1 {
+            color: #00cc33;
+            text-shadow:
+                0 0 2px #00cc33,
+                0 0 4px #00cc3380;
+            opacity: 0.85;
+        }
+
+        .ascii-eye .outline-2 {
+            color: #009922;
+            text-shadow:
+                0 0 2px #009922,
+                0 0 3px #00992280;
+            opacity: 0.7;
+        }
+
+        .ascii-eye .outline-3 {
+            color: #007722;
+            text-shadow:
+                0 0 2px #007722,
+                0 0 3px #00772280;
+            opacity: 0.6;
+        }
+
+        /* Scanlines overlay on ASCII eye */
+        .ascii-eye::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.2) 0px,
+                rgba(0, 0, 0, 0.2) 2px,
+                transparent 2px,
+                transparent 4px
+            );
+            pointer-events: none;
+            z-index: 10;
+            animation: scanline-shift 4s infinite;
+        }
+
+        /* RGB ghosting on ASCII */
+        .ascii-eye::after {
+            content: "..',,;;::::cccc::::;;,,..\A..',;::cclloooooooollcc::;,..\A..',;:cclodxxkkkkkkxxdolcc:;,..\A..',;:clodxkKXNNNNNNXKkxdolc:;,..\A..',;:codxOKNWWMMMMWWNKOxdoc:;,..\A..',;:clodkKNWMWWNXNWWMWNKkdolc:;,..\A..',;:codxOXWMWX0kdddk0XWMWXOxdoc:;,..\A..',;:cloxKNWNKkl:''':lkKNWNKxolc:;,..\A..',;:codkKXKOo;':lxxl:';oOKXKkdoc:;,..\A..',;:cloxKNWNKkl:''':lkKNWNKxolc:;,..\A..',;:codxOXWMWX0kdddk0XWMWXOxdoc:;,..\A..',;:clodkKNWMWWNXNWWMWNKkdolc:;,..\A..',;:codxOKNWWMMMMWWNKOxdoc:;,..\A..',;:clodxkKXNNNNNNXKkxdolc:;,..\A..',;:cclodxxkkkkkkxxdolcc:;,..\A..',;::cclloooooooollcc::;,..";
+            position: absolute;
+            top: 1rem;
+            left: 0;
+            width: 100%;
+            font-family: 'Figtree', monospace;
+            font-size: 0.7rem;
+            line-height: 1.1;
+            color: #00ff41;
+            white-space: pre;
+            letter-spacing: 0;
+            opacity: 0;
+            animation: ascii-rgb-split 6s infinite;
+            pointer-events: none;
+            text-align: center;
+        }
+
+        /* Subtle horizontal jitter like loose cable */
+        @keyframes crt-jitter {
+            0%, 94%, 100% {
+                transform: translateX(0);
+            }
+            95% {
+                transform: translateX(2px);
+            }
+            96% {
+                transform: translateX(-1px);
+            }
+            97% {
+                transform: translateX(1px);
+            }
+            98% {
+                transform: translateX(0);
+            }
+        }
+
+        /* Vertical stretch distortion like bad vsync */
+        @keyframes crt-distort {
+            0%, 88%, 100% {
+                transform: scaleY(1) scaleX(1);
+            }
+            90% {
+                transform: scaleY(1.02) scaleX(0.99);
+            }
+            91% {
+                transform: scaleY(0.98) scaleX(1.01);
+            }
+            92% {
+                transform: scaleY(1.01) scaleX(0.995);
+            }
+        }
+
+        /* ASCII text flicker and glitch */
+        @keyframes ascii-flicker {
+            0%, 92%, 100% {
+                opacity: 1;
+                filter: brightness(1) contrast(1.1);
+            }
+            93% {
+                opacity: 0.8;
+                filter: brightness(1.3) contrast(1.4);
+            }
+            94% {
+                opacity: 0.95;
+                filter: brightness(0.9) contrast(1.05);
+            }
+            95% {
+                opacity: 1;
+                filter: brightness(1.15) contrast(1.2);
+            }
+        }
+
+        /* Scanline displacement */
+        @keyframes scanline-shift {
+            0%, 90%, 100% {
+                transform: translateY(0);
+            }
+            92% {
+                transform: translateY(1px);
+            }
+            94% {
+                transform: translateY(-1px);
+            }
+        }
+
+        /* RGB color separation glitch for ASCII */
+        @keyframes ascii-rgb-split {
+            0%, 85%, 100% {
+                opacity: 0;
+                transform: translate(0, 0);
+                filter: hue-rotate(0deg);
+            }
+            87% {
+                opacity: 0.4;
+                transform: translate(3px, -1px);
+                filter: hue-rotate(10deg);
+            }
+            88% {
+                opacity: 0;
+            }
+            90% {
+                opacity: 0.3;
+                transform: translate(-3px, 2px);
+                filter: hue-rotate(-10deg);
+            }
+            91% {
+                opacity: 0;
+            }
+            93% {
+                opacity: 0.35;
+                transform: translate(2px, 1px);
+            }
+            94% {
+                opacity: 0;
+            }
+        }
+
+        /* Fallout-style terminal text with CRT phosphor glow */
+        .title-overlord {
+            font-family: 'Figtree', monospace;
+            font-size: 5rem;
+            font-weight: 600;
+            color: #00ff41;
+            margin: 3rem 0 0 0;
+            line-height: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            position: relative;
+            text-shadow:
+                0 0 5px #00ff41,
+                0 0 10px #00ff4180,
+                0 0 15px #00ff4140;
+            filter: contrast(1.1);
+        }
+
+        @keyframes scanlines-move {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(4px); }
+        }
+
+        @keyframes pipboy-flicker {
+            0% { opacity: 0.6; }
+            10% { opacity: 1; }
+            20% { opacity: 0.7; }
+            30% { opacity: 1; }
+            40% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 1; }
+        }
+
+        .title-watching {
+            font-family: 'Figtree', monospace;
+            font-size: 5.5rem;
+            font-weight: 700;
+            color: #00ff41;
+            margin: 0 0 0.5rem 0;
+            line-height: 0.85;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            position: relative;
+            text-shadow:
+                0 0 8px #00ff41,
+                0 0 15px #00ff4180,
+                0 0 25px #00ff4140,
+                0 0 35px #00ff4120;
+            filter: contrast(1.15);
+            /* Add noise/grain texture */
+            background-image:
+                url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" stitchTiles="stitch"/></filter><rect width="200" height="200" filter="url(%23noise)" opacity="0.15"/></svg>');
+            background-size: 100px 100px;
+            -webkit-background-clip: text;
+            background-clip: text;
+        }
+
+
+        /* Subtle scan line flicker */
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.98; }
+            51% { opacity: 0.95; }
+            52% { opacity: 1; }
+        }
+
+        /* Horizontal scan line displacement - VHS tracking error style */
+        @keyframes glitch-strip-1 {
+            0%, 2%, 100% {
+                transform: translateX(0);
+                opacity: 0;
+            }
+            0.5%, 1.5% {
+                transform: translateX(5px);
+                opacity: 1;
+            }
+        }
+
+        @keyframes glitch-strip-2 {
+            0%, 2%, 100% {
+                transform: translateX(0);
+                opacity: 0;
+            }
+            0.5%, 1.5% {
+                transform: translateX(-4px);
+                opacity: 1;
+            }
+        }
+
+        @keyframes glitch-strip-3 {
+            0%, 2%, 100% {
+                transform: translateX(0);
+                opacity: 0;
+            }
+            0.5%, 1.5% {
+                transform: translateX(6px);
+                opacity: 1;
+            }
+        }
+
+        @keyframes glitch-strip-4 {
+            0%, 2%, 100% {
+                transform: translateX(0);
+                opacity: 0;
+            }
+            0.5%, 1.5% {
+                transform: translateX(-3px);
+                opacity: 1;
+            }
+        }
+
+        .title-overlord::before,
+        .title-overlord::after,
+        .title-watching::before,
+        .title-watching::after {
+            content: attr(data-text);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            font-family: inherit;
+            font-size: inherit;
+            font-weight: inherit;
+            color: inherit;
+            text-shadow: inherit;
+            letter-spacing: inherit;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .title-overlord::before {
+            clip-path: inset(20% 0 75% 0);
+            animation: glitch-strip-1 4.7s infinite;
+        }
+
+        .title-overlord::after {
+            clip-path: inset(60% 0 35% 0);
+            animation: glitch-strip-2 3.2s infinite;
+        }
+
+        .title-watching::before {
+            clip-path: inset(30% 0 65% 0);
+            animation: glitch-strip-3 5.1s infinite;
+        }
+
+        .title-watching::after {
+            clip-path: inset(70% 0 25% 0);
+            animation: glitch-strip-4 3.8s infinite;
+        }
+
+        /* More angular, less smooth glitch animations */
+        @keyframes glitch-subtle {
+            0%, 85%, 100% {
+                transform: translate(0) skew(0deg);
+            }
+            87% {
+                transform: translate(-4px, 2px) skew(-2deg);
+            }
+            89% {
+                transform: translate(4px, -2px) skew(2deg);
+            }
+            91% {
+                transform: translate(-2px, 3px) skew(-1deg);
+            }
+            93% {
+                transform: translate(3px, -3px) skew(1deg);
+            }
+            95% {
+                transform: translate(-3px, 0) skew(0deg);
+            }
+        }
+
+        @keyframes glitch-chromatic {
+            0%, 85%, 100% {
+                transform: translate(0) scale(1);
+                opacity: 0.7;
+                filter: blur(0px);
+            }
+            87% {
+                transform: translate(-5px, 3px) scale(1.02);
+                opacity: 0.9;
+                filter: blur(1px);
+            }
+            89% {
+                transform: translate(5px, -3px) scale(0.98);
+                opacity: 0.6;
+                filter: blur(0px);
+            }
+            91% {
+                transform: translate(-3px, 4px) scale(1.01);
+                opacity: 0.8;
+                filter: blur(1px);
+            }
+            93% {
+                transform: translate(4px, -4px) scale(0.99);
+                opacity: 0.7;
+                filter: blur(0px);
+            }
+        }
+
+        /* Remove specific notifyMacButton styling to let download-button class apply */
+
+        #notifyMacButton img {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            filter: brightness(0) !important;
+        }
+
+        .automated-text {
+            font-family: 'Figtree', monospace;
+            font-size: 1.2rem;
+            color: #00ff00;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .corner-brackets {
+            position: fixed;
+            font-family: 'AirbnbCereal', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 1.5rem;
+            color: #00ff00;
+            opacity: 0.5;
+            z-index: 1000;
+            font-weight: 300;
+        }
+
+        .corner-brackets.top-left {
+            top: 20px;
+            left: 20px;
+        }
+
+        .corner-brackets.top-right {
+            top: 20px;
+            right: 20px;
+        }
+
+        .corner-brackets.bottom-left {
+            bottom: 20px;
+            left: 20px;
+        }
+
+        .corner-brackets.bottom-right {
+            bottom: 20px;
+            right: 20px;
+        }
+
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, #202020 0%, #202020 75%, #101010 100%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Full-screen scanlines overlay */
+        .scanlines-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.3) 0px,
+                rgba(0, 0, 0, 0.3) 2px,
+                transparent 2px,
+                transparent 4px
+            );
+            pointer-events: none;
+            z-index: 2;
+            animation: scanlines-move 6s linear infinite;
+        }
+
+        /* Action buttons */
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin: 24px 0;
+        }
+
+        .primary-button {
+            background-color: #ffffff;
+            color: #0b0b0c;
+            padding: 10px 24px;
+            border-radius: 100px;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .secondary-button {
+            background-color: #ffffff;
+            color: #000;
+            padding: 10px 24px;
+            border-radius: 100px;
+            text-decoration: none;
+            border: 1px solid rgba(0,0,0,0.1);
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        /* Stats section */
+        .stats {
+            display: flex;
+            gap: 32px;
+            margin: 32px 0;
+            padding: 24px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            position: relative;
+        }
+
+        .stat-item:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            right: -16px;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 40px;
+            width: 1px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #00ff41;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #5a5a5f;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stat-badge {
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-badge::after {
+            display: none;
+        }
+
+        .badge-text {
+            font-size: 1.1rem;
+            color: #0b0b0c;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+
+        .yc-logo {
+            height: 32px;
+            width: auto;
+            opacity: 0.9;
+        }
+
+        /* Brand logos */
+        .brand-logos {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 24px;
+            margin: 32px 0;
+            opacity: 0.8;
+        }
+
+        .brand-logo {
+            height: 24px;
+            object-fit: contain;
+        }
+
+        /* Info cards - Carousel for all screen sizes */
+        .info-cards {
+            display: flex;
+            overflow-x: hidden;
+            overflow-y: visible;
+            scroll-behavior: smooth;
+            padding: 2px 0;
+            gap: 0;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 300px;
+            position: relative;
+        }
+
+        /* Mobile carousel adjustments */
+        @media (max-width: 768px) {
+            .info-cards {
+                max-width: 100%;
+                flex: 1;
+            }
+
+            .info-card {
+                max-width: none; /* Remove 300px limit on mobile, fill full container width */
+            }
+
+            .carousel-wrapper button {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
+
+            .right-content .carousel-wrapper {
+                gap: 8px;
+                padding: 0 10px;
+                margin-top: 12px;
+                max-width: 100%;
+                box-sizing: border-box;
+            }
+        }
+
+        /* Carousel wrapper for all screens - under the phone */
+        .right-content .carousel-wrapper {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        /* Ensure iPhone preview stays in place and takes up proper space */
+        .right-content > .iphone-preview {
+            /* Use base .iphone-preview width (300px) */
+        }
+
+        /* Carousel navigation buttons */
+        .carousel-wrapper button {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            color: #0b0b0c;
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            padding-bottom: 3px;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+
+        .carousel-wrapper button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .carousel-wrapper button:active,
+        .carousel-wrapper button:focus {
+            color: #0b0b0c;
+            outline: none;
+        }
+
+        .carousel-wrapper button:disabled {
+            opacity: 0.2;
+            cursor: not-allowed;
+        }
+
+        .info-card {
+            background: #fafafa;
+            border-radius: 20px;
+            padding: 16px;
+            border: 1px solid white;
+            color: #0b0b0c;
+            width: 100%;
+            max-width: 300px;
+            flex-shrink: 0;
+            box-sizing: border-box;
+            height: auto;
+            display: none;
+        }
+
+        .info-card.active {
+            display: block;
+        }
+
+        .card-icons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+
+        .card-icons img {
+            width: 100%;
+            border-radius: 6px;
+            aspect-ratio: 1;
+            object-fit: cover;
+        }
+
+        .info-card h3 {
+            font-size: 20px;
+            margin: 0 0 8px;
+            font-weight: 600;
+            color: #0b0b0c;
+        }
+
+        .info-card p {
+            margin: 0;
+            color: #5a5a5f;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        /* NEW: Style for active info-card */
+        .info-card.active {
+            border-color: #e6e6e8;
+            box-shadow: 0 3px 8px rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+            background: #222;
+        }
+
+        /* Example cards */
+        /* .example-card { ... } */
+        /* .instagram-style { ... } */
+        /* .instagram-header { ... } */
+        /* .profile-pic { ... } */
+        /* .ad-card, .product-card { ... } */
+        /* .ad-card { ... } */
+        /* .product-card { ... } */
+        /* .instagram-card { ... } */
+        /* .gruns-card { ... } */
+        /* .jitter-card { ... } */
+
+        @media (max-width: 1200px) {
+            .page-container {
+                grid-template-columns: 1fr;
+                /* align-items: stretch; is default and fine here */
+            }
+
+            .left-content {
+                justify-content: flex-start; /* Align content to the top when stacked */
+            }
+
+            /* .stats margin-bottom is removed here, spacing controlled by brand-logos and right-content */
+            /* .stats { margin-bottom: 12px; } */
+
+            /* NEW: Reduce bottom margin of the last item in left-content when stacked */
+            .brand-logos {
+                margin-bottom: 16px; /* Adjust this value as needed for desired gap */
+            }
+
+            .right-content {
+                padding-top: 0;      /* Explicitly remove top padding when stacked */
+                margin-top: 16px;    /* Control margin when stacked, matching brand-logos bottom */
+            }
+
+            .info-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .info-card {
+                padding: 14px;
+            }
+
+            .info-card h3 {
+                font-size: 18px;
+            }
+
+            .info-card p {
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            html, body {
+                overflow-x: clip;
+                max-width: 100vw;
+            }
+
+            /* Adjust wrapper padding for smaller screens */
+            .main-content-wrapper {
+                 /* Adjusted horizontal padding for tablets/mobile (between 48px and 64px) */
+                padding: 16px 20px; /* MODIFIED: Was 16px 56px */
+                overflow-x: clip; /* Changed from hidden to clip - allows position:sticky to work */
+            }
+            /* Keep body padding removal */
+            /* body { padding: 16px; } */ /* Already removed */
+
+            /* Reduce negative margins on mobile to prevent horizontal overflow */
+            .crt-text-container {
+                padding: 80px 20px 40px 20px;
+                margin: -80px -20px -40px -20px;
+            }
+
+            /* FIX: Hide ASCII eye scanlines on mobile to prevent doubling up */
+            .ascii-eye::before {
+                display: none;
+            }
+
+            /* Scale down iPhone preview for mobile */
+            .iphone-preview {
+                width: 260px;
+            }
+
+            /* Reduce iPhone screen border radius MORE aggressively for mobile */
+            .iphone-screen {
+                border-radius: 28px;
+                /* FIX: Allow status bar to overflow and eliminate gap */
+                overflow: visible !important;
+            }
+
+            /* Scale down home indicator for mobile */
+            .iphone-screen::after {
+                width: 32%;
+                height: 3px;
+                bottom: 4px;
+            }
+
+            /* Scale status bar and nav bar for 768px */
+            .iphone-status-bar {
+                height: 36px; /* Scaled down from 41px */
+                padding: 0 3px;
+                margin-bottom: -2px; /* Negative margin to eliminate gap */
+                top: -5px; /* FIX: Move UP more to eliminate gap with screen top edge */
+                border-top-left-radius: 70px; /* FIX: Increased for more curve */
+                border-top-right-radius: 70px;
+                overflow: hidden; /* FIX: Clip image to border-radius */
+            }
+
+            .iphone-status-bar img {
+                border-top-left-radius: 42px;
+                border-top-right-radius: 42px;
+            }
+            .top-nav-bar {
+                top: 28px; /* Position below scaled status bar - aggressive overlap to eliminate gap */
+                height: 28px; /* Scaled down from 32px */
+                margin-top: -2px; /* Extra negative margin to eliminate gap */
+            }
+            .iphone-screen .message-container {
+                padding-top: 84px; /* Scaled: status bar (36px) + nav bar (28px) + extra spacing (20px) */
+                padding-bottom: 100px; /* FIX: Allow scrolling past input bar */
+            }
+
+            /* Scale down message bubble text - increased further */
+            .iphone-screen .agent-message,
+            .iphone-screen .user-message {
+                font-size: 12px !important;
+                padding: 4px 10px !important;
+            }
+
+            /* Scale down message header (You 00:00) */
+            .iphone-screen .message-header {
+                font-size: 8.6px !important;
+                margin-bottom: 5px !important;
+            }
+
+            /* Scale down action widget text */
+            .iphone-screen .agent-message span {
+                font-size: 12px !important;
+            }
+
+            .iphone-screen .agent-message p {
+                font-size: 12px !important;
+            }
+
+            /* Scale down integration message text */
+            .iphone-screen .integration-title {
+                font-size: 12px !important;
+            }
+
+            .iphone-screen .integration-content {
+                font-size: 12px !important;
+                padding: 3px 8px !important;
+            }
+
+            /* Scale down icons in message bubbles */
+            .iphone-screen .agent-message img {
+                width: 20px !important;
+                height: 20px !important;
+                margin-right: 6px !important;
+            }
+
+            /* Reduce spacing under action message headers */
+            .iphone-screen .agent-message div[style*="margin-bottom"] {
+                margin-bottom: 4px !important;
+            }
+
+            .main-title {
+                font-size: 48px;
+            }
+
+            .subtitle {
+                font-size: 24px;
+            }
+
+            /* Hide bottom automated text on mobile */
+            .automated-text {
+                display: none !important;
+            }
+
+            .stats {
+                flex-wrap: wrap;
+                /* margin-bottom: 8px; */ /* Let brand-logos handle space below left-content block */
+            }
+
+            /* NEW: Further reduce bottom margin of brand-logos for tighter mobile */
+            .brand-logos {
+                margin-bottom: 12px; /* Adjust for tighter mobile */
+            }
+
+            .right-content {
+                margin-top: 12px; /* Further reduce margin for tighter mobile, matching brand-logos */
+                /* padding-top: 0; is inherited from the 1200px media query */
+            }
+
+            /* Scale down titles for tablet */
+            .title-overlord {
+                font-size: 4.2rem; /* FIX: Increased by 20% (was 3.5rem) */
+                line-height: 0.82; /* FIX: Slightly more line spacing */
+            }
+
+            .title-watching {
+                font-size: 4.8rem; /* FIX: Increased by 20% (was 4rem) */
+                line-height: 0.82; /* FIX: Slightly more line spacing */
+                margin-bottom: 2rem; /* FIX: More spacing before eye */
+            }
+
+            /* Increase ASCII eye size for tablet */
+            .ascii-eye {
+                font-size: 0.25rem;
+                transform: scale(1);
+                transform-origin: center;
+                max-width: 100%;
+            }
+
+            .eye-container {
+                margin: -3rem auto -3rem auto; /* FIX: Negative margin to pull text/buttons much closer */
+                overflow: hidden;
+                -webkit-mask-image: radial-gradient(ellipse at center, black 30%, rgba(0,0,0,0.5) 55%, transparent 75%);
+                mask-image: radial-gradient(ellipse at center, black 30%, rgba(0,0,0,0.5) 55%, transparent 75%);
+                padding: 3rem; /* FIX: Add padding back to make container bigger */
+                background: transparent; /* No background */
+                width: 100%; /* FIX: Full width */
+                box-sizing: border-box;
+                border-radius: 8px; /* FIX: Add subtle corner radius */
+            }
+        }
+
+        .download-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 32px 0;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .download-button {
+            display: flex;
+            align-items: center;
+            padding: 16px 40px;
+            border-radius: 0;
+            text-decoration: none;
+            font-size: 1.1rem;
+            border: 4px solid transparent;
+            background: #ffffff;
+            color: #e8e8e8;
+            font-family: 'AirbnbCereal', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.2s ease;
+            position: relative;
+            box-shadow: 0 0 0 1px #666;
+            justify-content: center;
+            white-space: nowrap;
+            overflow: visible;
+            flex: 1;
+        }
+
+
+        /* ASCII background for buttons - 80/20 gradient */
+        .button-ascii-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'Figtree', monospace;
+            font-size: 0.6rem;
+            line-height: 1.2;
+            background: linear-gradient(135deg, #202020 80%, #00442a 100%);
+            color: #00ff41;
+            opacity: 0.12;
+            white-space: pre;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+            text-shadow:
+                0 0 2px #00ff41,
+                0 0 3px #00ff4180;
+        }
+
+        /* Unified ASCII background for grid containers - Full viewport width */
+        .grid-ascii-background {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100vw;
+            height: 300px;
+            font-family: 'Figtree', monospace;
+            font-size: 0.6rem;
+            line-height: 1.2;
+            color: #00ff41;
+            opacity: 0.12;
+            white-space: pre;
+            overflow: visible;
+            pointer-events: none;
+            z-index: 0;
+            text-shadow:
+                0 0 2px #00ff41,
+                0 0 3px #00ff4180;
+            mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+        }
+
+        /* Lava Lamp Effect - Full Screen */
+        .lava-lamp-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 1;
+            display: none; /* Hidden by default, shown on tablet+ */
+            isolation: isolate;
+            background: #ffffff;
+        }
+
+        @media (min-width: 768px) {
+            .lava-lamp-container {
+                display: block;
+            }
+        }
+
+        /* ASCII background for lava lamp - masked by SVG */
+        .lava-lamp-ascii {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100%;
+            font-family: 'Figtree', monospace;
+            font-size: 0.6rem;
+            line-height: 1.2;
+            color: #00ff41;
+            opacity: 0.35;
+            white-space: pre;
+            overflow: hidden;
+            z-index: 2;
+            text-shadow:
+                0 0 2px #00ff41,
+                0 0 3px #00ff4180;
+            mask: url(#bubbleMask);
+            -webkit-mask: url(#bubbleMask);
+            mask-size: 100% 100%;
+            -webkit-mask-size: 100% 100%;
+        }
+
+        .download-button::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            width: 12px;
+            height: 12px;
+            border-left: 1px solid white;
+            border-top: 1px solid white;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .download-button::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            right: -5px;
+            width: 12px;
+            height: 12px;
+            border-right: 1px solid white;
+            border-bottom: 1px solid white;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .corner-brackets-extra {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .corner-brackets-extra::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 12px;
+            height: 12px;
+            border-right: 1px solid white;
+            border-top: 1px solid white;
+            pointer-events: none;
+        }
+
+        .corner-brackets-extra::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: -5px;
+            width: 12px;
+            height: 12px;
+            border-left: 1px solid white;
+            border-bottom: 1px solid white;
+            pointer-events: none;
+        }
+
+        .download-button:hover {
+            transform: translateY(-1px);
+        }
+
+        .download-button:hover .button-ascii-bg {
+            opacity: 0.25;
+        }
+
+        .download-button img {
+            height: 20px;
+            margin-right: 16px;
+            width: auto;
+            filter: brightness(0) saturate(100%) invert(50%) sepia(96%) saturate(5162%) hue-rotate(90deg) brightness(118%) contrast(120%);
+        }
+
+        /* Fix button text overflow at mid-size screens */
+        @media (max-width: 900px) and (min-width: 601px) {
+            .download-section {
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+                max-width: 100%;
+            }
+
+            .download-button {
+                padding: 14px 10px;
+                font-size: 0.75rem;
+                letter-spacing: 0.5px;
+                white-space: normal !important;
+                overflow: visible !important;
+                text-align: center;
+                line-height: 1.3;
+            }
+
+            .download-button > span:not(.corner-brackets-extra) {
+                white-space: normal !important;
+                word-wrap: break-word !important;
+                overflow-wrap: break-word !important;
+                display: block;
+            }
+
+            .download-button img {
+                display: none;
+            }
+        }
+
+        /* Scroll Animation Styles */
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+
+        .animate-on-scroll.animate-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Speed up animation on mobile */
+        @media (max-width: 768px) {
+            .animate-on-scroll {
+                transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+            }
+        }
+
+        /* Add media query for mobile */
+        @media (max-width: 600px) {
+            /* Change to 2x2 grid for mobile */
+             .download-section {
+                 grid-template-columns: 1fr 1fr;
+                 gap: 12px;
+                 max-width: 100%;
+             }
+
+            .download-button {
+                padding: 12px 10px;
+                font-size: 0.7rem;
+                letter-spacing: 0.5px;
+                min-width: 0;
+                justify-content: center;
+                white-space: normal !important;
+                line-height: 1.25;
+                text-align: center;
+            }
+
+            .download-button > span:not(.corner-brackets-extra) {
+                white-space: normal !important;
+                word-break: break-word !important;
+                display: block;
+            }
+
+            .download-button img {
+                display: none; /* Hide icons on mobile to save space */
+            }
+        }
+
+        /* Scale down even more for very small mobile screens */
+        @media (max-width: 480px) {
+            /* Further reduce negative margins for very small screens */
+            .crt-text-container {
+                padding: 120px 10px 30px 10px;
+                margin: -60px -10px -30px -10px;
+            }
+
+            /* FIX: Hide ASCII eye scanlines on mobile to prevent doubling up */
+            .ascii-eye::before {
+                display: none;
+            }
+
+            /* Make download buttons slightly smaller on very small screens */
+            .download-section {
+                gap: 10px;
+            }
+
+            .download-button {
+                padding: 10px 8px;
+                font-size: 0.8rem;
+                letter-spacing: 0.8px;
+            }
+
+            /* Further scale down iPhone preview for small mobile */
+            /* COMMENTED OUT: Duplicate 480px media query - using later one instead */
+            /*
+            .iphone-preview {
+                width: 240px;
+            }
+
+            .iphone-screen {
+                border-radius: 26px;
+                top: 2.2%;
+                left: 3.4%;
+                width: 93.2%;
+                height: 95.6%;
+            }
+
+            .iphone-screen::after {
+                width: 32%;
+                height: 3px;
+                bottom: 3px;
+            }
+            */
+
+            .title-overlord {
+                font-size: 3rem; /* FIX: Increased by 20% (was 2.5rem) */
+                line-height: 0.82; /* FIX: Slightly more line spacing */
+            }
+
+            .title-watching {
+                font-size: 3.6rem; /* FIX: Increased by 20% (was 3rem) */
+                line-height: 0.82; /* FIX: Slightly more line spacing */
+                margin-bottom: 2rem; /* FIX: More spacing before eye */
+            }
+
+            .ascii-eye {
+                font-size: 0.18rem;
+                transform: scale(1.2);
+                transform-origin: center;
+            }
+
+            .eye-container {
+                margin: -3rem auto -3rem auto; /* FIX: Negative margin to pull text/buttons much closer */
+                overflow: visible;
+                -webkit-mask-image: radial-gradient(ellipse at center, black 30%, rgba(0,0,0,0.5) 55%, transparent 75%);
+                mask-image: radial-gradient(ellipse at center, black 30%, rgba(0,0,0,0.5) 55%, transparent 75%);
+                padding: 3rem; /* FIX: Add padding back to make container bigger */
+                background: transparent; /* No background */
+                width: 100%; /* FIX: Full width */
+                box-sizing: border-box;
+                border-radius: 8px; /* FIX: Add subtle corner radius */
+            }
+        }
+
+        .workflows {
+            margin: 60px 0;
+        }
+        
+        .workflows-title {
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+        
+        .workflows-subtitle {
+            font-size: 1.1rem;
+            color: #555;
+            margin-bottom: 40px;
+            max-width: 800px;
+        }
+        
+        .workflows-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+        
+        .workflow-card {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
+        }
+        
+        .workflow-images {
+            width: 100%;
+            margin-bottom: 20px;
+            height: 80px;
+            overflow: hidden;
+        }
+        
+        .workflow-images img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        
+        .workflow-title {
+            font-size: 1.25rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #000;
+        }
+        
+        .workflow-control {
+            color: #666;
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+        }
+        
+        .workflow-description {
+            color: #000;
+            margin-bottom: 8px;
+            line-height: 1.4;
+            font-size: 1rem;
+        }
+        
+        .workflow-for {
+            color: #666;
+            font-style: italic;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 1200px) {
+            .workflows-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .workflows-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Aspects Section Styling */
+        .aspects-section {
+            padding: 80px 0;
+            background-color: #ffffff;
+        }
+        
+        .aspects-title {
+            font-family: 'Figtree', monospace;
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+            font-weight: 600;
+            color: #00ff41;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            position: relative;
+            text-shadow:
+                0 0 5px #00ff41,
+                0 0 10px #00ff4180,
+                0 0 15px #00ff4140;
+            filter: contrast(1.1);
+        }
+        
+        .aspects-subtitle {
+            font-size: 1.1rem;
+            color: #555;
+            margin-bottom: 50px;
+            max-width: 800px;
+        }
+        
+        .aspects-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+        
+        .aspects-list {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        
+        .aspect-item {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-left: 4px solid transparent;
+        }
+        
+        .aspect-item.active {
+            border-left: 4px solid #0062E6;
+            background: #f8f9ff;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+            transform: translateX(5px);
+        }
+        
+        .aspect-item h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin: 0 0 8px 0;
+        }
+        
+        .aspect-item p {
+            font-size: 0.95rem;
+            color: #555;
+            margin: 0;
+            line-height: 1.5;
+        }
+        
+        /* iPhone Styling (Updated for Background Image Template) */
+        /* White-frame phone: gradient bg + 1px border + uniform padding.
+           Padding IS the bezel - top/left/right/bottom are equal by
+           construction, no PNG cutout to align to. Mirrors the hero
+           pattern in .right-content > .iphone-preview. */
+        .iphone-preview {
+            width: 300px;
+            aspect-ratio: 686 / 1376;
+            background: linear-gradient(180deg, #f7f7f9 0%, #ececef 100%);
+            border: 1px solid #e6e6e8;
+            border-radius: 46px;
+            padding: 12px;
+            box-sizing: border-box;
+            box-shadow:
+                0 28px 70px rgba(11,11,12,0.12),
+                0 6px 18px rgba(11,11,12,0.05);
+            position: relative;
+            margin: 0 auto;
+        }
+
+        /* REMOVE or comment out old frame and button styles */
+        /*
+        .iphone-frame { ... }
+        .iphone-button { ... }
+        .volume-up { ... }
+        .volume-down { ... }
+        .side-button { ... }
+        */
+
+        /* White screen fills the padding box of .iphone-preview, so the
+           four bezel widths are all whatever the parent's padding is. */
+        .iphone-screen {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            border-radius: 34px;
+            overflow: hidden !important;
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            margin: 0;
+            font-size: 0;
+            line-height: 0;
+        }
+
+
+        /* --- ADD or MODIFY THIS RULE --- */
+        /* Style the ACTUAL home indicator pseudo-element */
+        .iphone-screen::after {
+            content: ""; /* Necessary for pseudo-elements to appear */
+            position: absolute;
+            bottom: 6px; /* Keep position from previous step */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 38%; /* Keep width from previous step */
+            height: 4px; /* *** INCREASED HEIGHT slightly (was 3px) *** */
+            background-color: #fafafa; /* Darker color */
+            border-radius: 2px; /* *** ADJUSTED BORDER RADIUS (half of new 4px height) *** */
+            z-index: 10; /* Keep on top */
+            display: block; /* Ensure it's displayed as a block */
+        }
+
+        /* Status Bar Styles (No changes needed if using image) */
+        .iphone-status-bar {
+            height: 43px;
+            position: absolute;
+            top: -1px;
+            left: 0;
+            right: 0;
+            width: 100%;
+            z-index: 10;
+            overflow: visible;
+            line-height: 0;
+            margin: 0;
+            padding: 0 3px;
+            font-size: 0;
+            box-sizing: border-box;
+            background-color: #ffffff;
+        }
+
+        .iphone-status-bar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Changed to cover to stretch image */
+            display: block;
+            margin: 0;
+            padding: 0;
+            vertical-align: top;
+            transform: scaleY(1.05); /* Stretch vertically by 5% */
+            position: absolute; /* Position absolutely within container */
+            top: 0; /* Stick to top of container */
+            left: 0; /* Stick to left of container */
+        }
+
+        /* Top Navigation Bar */
+        .top-nav-bar {
+            position: absolute;
+            top: 39px; /* Below status bar - reduced by 2px to eliminate gap */
+            left: 0;
+            right: 0;
+            height: 26px;
+            background-color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 6px;
+            z-index: 50;
+            margin-top: -2px; /* Negative margin to eliminate gap */
+        }
+
+        .nav-menu-icon {
+            width: 14px;
+            height: 11px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .nav-menu-icon span {
+            width: 14px;
+            height: 1.5px;
+            background-color: #ffffff;
+        }
+
+        .nav-center-tabs {
+            display: flex;
+            gap: 0;
+            background-color: #f4f4f5;
+            border-radius: 13px;
+            padding: 2px;
+        }
+
+        .nav-tab {
+            background-color: transparent;
+            padding: 3px 10px;
+            border-radius: 11px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            color: #8e8e93;
+            transition: all 0.2s ease;
+        }
+
+        .nav-tab.active {
+            background-color: #f4f4f5;
+            color: #0b0b0c;
+        }
+
+        .nav-tab svg {
+            width: 12px;
+            height: 12px;
+            stroke-width: 2;
+        }
+
+        .nav-edit-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-edit-icon svg {
+            width: 20px;
+            height: 20px;
+            stroke: #fff;
+            stroke-width: 2;
+        }
+
+        /* Message container adjustments (mostly unchanged) */
+        .iphone-screen .message-container {
+            padding-top: 93px; /* Padding for status bar (41px) + nav bar (32px) + extra spacing (20px) */
+            flex: 1 1 0;
+            min-height: 0; /* Allow flex child to shrink below content size */
+            overflow-y: auto;
+            overflow-x: hidden;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            /* Add bottom padding for input bar */
+            padding-bottom: 100px; /* FIX: Allow scrolling past input bar */
+            /* ADDED: Symmetrical horizontal padding */
+            /* Adjust '14px' value if needed for desired spacing */
+            padding-left: 14px;
+            padding-right: 14px;
+            /* Ensure padding is included in the element's total width/height */
+            box-sizing: border-box;
+        }
+        .iphone-screen .message-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* ===== CHAT INPUT BAR - DESKTOP ===== */
+        .chat-input-bar {
+            position: absolute;
+            bottom: 30px;
+            left: 12px;
+            right: 12px;
+            background-color: #f4f4f5;
+            border-radius: 22px;
+            padding: 5px 8px 5px 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 100;
+        }
+
+        .chat-input-bar::before {
+            content: "+";
+            width: 32px;
+            height: 32px;
+            background-color: #ffffff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #8e8e93;
+            font-size: 20px;
+            font-weight: 300;
+            line-height: 1;
+            flex-shrink: 0;
+            padding-bottom: 2px;
+        }
+
+        .chat-input-bar::after {
+            content: "";
+            width: 32px;
+            height: 32px;
+            background-color: #ffffff;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-left: auto;
+            margin-right: -3px;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z'/%3E%3Cpath d='M19 10v2a7 7 0 0 1-14 0v-2'/%3E%3Cline x1='12' y1='19' x2='12' y2='23'/%3E%3Cline x1='8' y1='23' x2='16' y2='23'/%3E%3C/svg%3E");
+            background-size: 16px;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .chat-placeholder {
+            flex: 1;
+            color: #b8b8bd;
+            font-size: 15px;
+            font-weight: 500;
+            font-family: 'AirbnbCereal', system-ui, -apple-system, sans-serif;
+        }
+
+        /* Remove the old media query affecting .iphone-frame */
+        /* @media (max-width: 992px) { ... .iphone-frame { ... } } */
+        /* Add new media queries if needed to adjust .iphone-preview size */
+        @media (max-width: 992px) {
+            .iphone-preview {
+                width: 280px; /* Example smaller size */
+                /* Aspect ratio will maintain height */
+            }
+
+            /* Scale down the top phone */
+            .right-content > .iphone-preview {
+                transform: scale(0.9);
+            }
+
+            /* Adjustments for the iPhone screen content on smaller previews */
+            .iphone-screen {
+                border-radius: 30px;
+                /* FIX: Allow status bar to overflow and eliminate gap */
+                overflow: visible !important;
+            }
+            /* Scale status bar height and message container padding */
+            .iphone-status-bar {
+                height: 39px; /* Scaled down from 41px */
+                padding: 0 3px;
+                margin-bottom: -2px; /* Negative margin to eliminate gap */
+                top: -5px; /* FIX: Move UP more to eliminate gap with screen top edge */
+                border-top-left-radius: 75px; /* FIX: Increased for more curve */
+                border-top-right-radius: 75px;
+                overflow: hidden; /* FIX: Clip image to border-radius */
+            }
+
+            .iphone-status-bar img {
+                border-top-left-radius: 46px;
+                border-top-right-radius: 46px;
+            }
+            .top-nav-bar {
+                top: 31px; /* Position below scaled status bar - aggressive overlap to eliminate gap */
+                height: 30px; /* Scaled down from 32px */
+                margin-top: -2px; /* Extra negative margin to eliminate gap */
+            }
+            .iphone-screen .message-container {
+                padding-top: 89px; /* Scaled: status bar (39px) + nav bar (30px) + extra spacing (20px) */
+                padding-bottom: 100px; /* FIX: Allow scrolling past input bar */
+            }
+            /* ===== CHAT INPUT BAR - MOBILE (992px) ===== */
+            .chat-input-bar {
+                bottom: 24px;
+                left: 10px;
+                right: 10px;
+                padding: 5px 10px 5px 5px;
+                border-radius: 18px;
+            }
+            .chat-input-bar::before {
+                width: 26px;
+                height: 26px;
+                font-size: 16px;
+                padding-bottom: 2px;
+            }
+            .chat-input-bar::after {
+                width: 26px;
+                height: 26px;
+                background-size: 13px;
+            }
+            .chat-placeholder {
+                font-size: 11px;
+            }
+        }
+        @media (max-width: 480px) {
+            .iphone-preview {
+                width: 250px; /* Example even smaller size */
+            }
+            .iphone-screen {
+                border-radius: 26px;
+                /* FIX: Allow status bar to overflow and eliminate gap */
+                overflow: visible !important;
+            }
+            /* Further scale status bar height and message container padding */
+            .iphone-status-bar {
+                height: 35px; /* Further scaled down from 41px */
+                padding: 0 3px;
+                margin-bottom: -2px; /* Negative margin to eliminate gap */
+                top: -5px; /* FIX: Move UP more to eliminate gap with screen top edge */
+                border-top-left-radius: 68px; /* FIX: Increased for more curve */
+                border-top-right-radius: 68px;
+                overflow: hidden; /* FIX: Clip image to border-radius */
+            }
+
+            .iphone-status-bar img {
+                border-top-left-radius: 40px;
+                border-top-right-radius: 40px;
+            }
+            .top-nav-bar {
+                top: 27px; /* Position below scaled status bar - aggressive overlap to eliminate gap */
+                height: 27px; /* Scaled down from 32px */
+                margin-top: -2px; /* Extra negative margin to eliminate gap */
+            }
+            .iphone-screen .message-container {
+                padding-top: 82px; /* Scaled: status bar (35px) + nav bar (27px) + extra spacing (20px) */
+                padding-bottom: 100px; /* FIX: Allow scrolling past input bar */
+            }
+            /* ===== CHAT INPUT BAR - MOBILE (480px) ===== */
+            .chat-input-bar {
+                bottom: 20px;
+                left: 8px;
+                right: 8px;
+                padding: 4px 8px 4px 4px;
+                border-radius: 16px;
+            }
+            .chat-input-bar::before {
+                width: 24px;
+                height: 24px;
+                font-size: 14px;
+                padding-bottom: 2px;
+            }
+            .chat-input-bar::after {
+                width: 24px;
+                height: 24px;
+                background-size: 11px;
+            }
+            .chat-placeholder {
+                font-size: 10px;
+            }
+            /* Scale down message bubble text - increased further */
+            .iphone-screen .agent-message,
+            .iphone-screen .user-message {
+                font-size: 12px !important;
+                padding: 4px 10px !important;
+            }
+
+            /* Scale down message header (You 00:00) */
+            .iphone-screen .message-header {
+                font-size: 8.6px !important;
+                margin-bottom: 5px !important;
+            }
+
+            /* Scale down action widget text */
+            .iphone-screen .agent-message span {
+                font-size: 12px !important;
+            }
+
+            .iphone-screen .agent-message p {
+                font-size: 12px !important;
+            }
+
+            /* Scale down integration message text */
+            .iphone-screen .integration-title {
+                font-size: 12px !important;
+            }
+
+            .iphone-screen .integration-content {
+                font-size: 12px !important;
+                padding: 3px 8px !important;
+            }
+
+            /* Scale down icons in message bubbles */
+            .iphone-screen .agent-message img {
+                width: 20px !important;
+                height: 20px !important;
+                margin-right: 6px !important;
+            }
+
+            /* Reduce spacing under action message headers */
+            .iphone-screen .agent-message div[style*="margin-bottom"] {
+                margin-bottom: 4px !important;
+            }
+            /* Scale down home indicator for mobile */
+            .iphone-screen::after {
+                width: 32%;
+                height: 3px;
+                bottom: 4px;
+            }
+        }
+
+        /* Integrations Section Styling */
+        .integrations-section {
+            padding: 80px 0; /* Keep vertical padding, horizontal handled by wrapper */
+            /* background-color: #f8f9fa; */ /* Background color might not be needed if wrapper bg is different */
+             /* Remove background if sections should blend */
+             background-color: transparent;
+             position: relative;
+             overflow-x: visible;
+        }
+
+        .integrations-label {
+            display: inline-block;
+            font-family: 'Figtree', monospace;
+            font-size: 0.8rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 8px 19px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            color: #0b0b0c;
+            width: auto;
+            max-width: fit-content;
+        }
+
+        .integrations-title {
+            font-family: 'Figtree', serif;
+            font-size: 3rem;
+            margin-bottom: 0px;
+            font-weight: 600;
+            margin-top: 0;
+            color: #0b0b0c;
+            letter-spacing: normal;
+            position: relative;
+            line-height: 0.9;
+        }
+
+
+        /* Scanlines over integrations title - DISABLED */
+
+        .integrations-subtitle {
+            font-size: 1.1rem;
+            color: #aaa;
+            margin-top: 8px; /* Reduce space between title and subtitle */
+            margin-bottom: 0; /* Subtitle will be followed by the logo grid's margin-top */
+            max-width: 800px;
+            font-family: 'AirbnbCereal', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .integrations-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center; /* Vertically center the left and right columns (grid items) */
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        /* Make the wrapper for title, subtitle, and logo-grid a flex container */
+        .integrations-grid-wrapper {
+            display: flex;
+            flex-direction: column;
+            /* align-items: flex-start; /* This would align children to the left, which is default for block */
+                                     /* No specific justify-content needed here as we want natural top flow */
+        }
+        
+        .integrations-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 40px; /* Space below the logo grid */
+            margin-top: 35px;    /* Space between subtitle and the logo grid. Adjust if needed. */
+            /* width: 100%; */ /* The grid should naturally take available width of the flex item parent */
+            position: relative;
+            overflow: visible;
+        }
+        
+        .integration-logo {
+            background: transparent !important;
+            border: 1px solid rgba(200, 200, 200, 0.25);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #0b0b0c;
+            font-family: 'AirbnbCereal', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            box-shadow: 0 0 4px rgba(200, 200, 200, 0.15), inset 0 0 2px rgba(200, 200, 200, 0.08);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Active integration logo - subtle square brightening */
+        .integration-logo.active::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.06);
+            mix-blend-mode: screen;
+            border-radius: 16px;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .integration-logo img,
+        .integration-logo h3 {
+            position: relative;
+            z-index: 3;
+            opacity: 0.6;
+            filter: blur(0.5px);
+            transition: opacity 0.3s ease, filter 0.3s ease;
+        }
+        
+        /* Add border-radius to the image inside the logo container */
+        .integration-logo img {
+            /* ... existing styles ... */
+            border-radius: 10px; /* Adjust value as needed */
+            margin-bottom: 12px; /* Keep existing margin */
+            width: 60px; /* Keep existing size */
+            height: 60px; /* Keep existing size */
+            object-fit: contain; /* Keep existing fit */
+        }
+
+        /* Make only SVG icons white, not colored logo images */
+        .integration-logo img[src*="icons/"] {
+            filter: brightness(0) invert(1);
+        }
+
+        .integration-logo.active {
+            border-color: rgba(255, 255, 255, 0.6);
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.25), 0 0 12px rgba(255, 255, 255, 0.15), inset 0 0 4px rgba(255, 255, 255, 0.1);
+            z-index: 15;
+        }
+
+        .integration-logo.active img[src*="icons/"] {
+            opacity: 1;
+            filter: brightness(0) invert(1) blur(0);
+            animation: pipboy-flicker 0.4s ease-out;
+        }
+
+        .integration-logo.active img:not([src*="icons/"]) {
+            opacity: 1;
+            filter: blur(0);
+            animation: pipboy-flicker 0.4s ease-out;
+        }
+
+        .integration-logo.active h3 {
+            opacity: 1;
+            filter: blur(0);
+            animation: pipboy-flicker 0.4s ease-out;
+            text-shadow: 0 0 4px rgba(255, 255, 255, 0.6);
+        }
+
+        .integration-logo h3 {
+            font-size: 1rem;
+            font-weight: 500;
+            margin: 0;
+            color: #0b0b0c;
+        }
+        
+        @media (max-width: 992px) {
+            .integrations-container {
+                display: flex;
+                flex-direction: column;
+                gap: 0;
+            }
+
+            /* Flatten the wrapper to access children */
+            .integrations-grid-wrapper {
+                display: contents;
+            }
+
+            /* Order: title/subtitle first, then phone, then buttons */
+            .integrations-label {
+                order: 1;
+                margin-bottom: 8px;
+                align-self: flex-start;
+            }
+
+            .integrations-title {
+                order: 2;
+                margin-bottom: 2px;
+                margin-top: 0;
+                align-self: flex-start;
+            }
+
+            .integrations-subtitle {
+                order: 3;
+                margin-bottom: 20px;
+                margin-top: 0;
+                align-self: flex-start;
+            }
+
+            .integrations-container .iphone-preview {
+                order: 4;
+                margin-bottom: -35px;
+                transform: scale(0.9);
+            }
+
+            .integrations-grid {
+                order: 5;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 12px;
+            }
+
+            /* Make integration buttons smaller */
+            .integration-logo {
+                padding: 12px;
+            }
+
+            .integration-logo img {
+                width: 45px;
+                height: 45px;
+                margin-bottom: 8px;
+            }
+
+            .integration-logo h3 {
+                font-size: 0.85rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .integrations-title {
+                font-size: 2.2rem;
+            }
+            .integrations-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 10px;
+            }
+            /* Make buttons even smaller on smaller screens */
+            .integration-logo {
+                padding: 10px;
+            }
+            .integration-logo img {
+                width: 40px;
+                height: 40px;
+                margin-bottom: 6px;
+            }
+            .integration-logo h3 {
+                font-size: 0.8rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .integrations-section {
+                padding: 40px 0;
+            }
+
+            .integrations-title {
+                font-size: 2rem;
+            }
+            .integrations-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 8px;
+            }
+            /* Further adjustments for integration logos on mobile */
+            .integration-logo {
+                padding: 8px;
+            }
+            .integration-logo img {
+                width: 35px;
+                height: 35px;
+                margin-bottom: 5px;
+            }
+            .integration-logo h3 {
+                font-size: 0.75rem;
+            }
+        }
+
+        /* Actions Section Styling - mirrors the integrations section styling */
+        .actions-section {
+            /* Keep vertical padding for space around the section */
+            padding: 80px 0;
+            background-color: transparent;
+            position: relative;
+            overflow-x: visible;
+        }
+
+        .actions-label {
+            display: inline-block;
+            font-family: 'Figtree', monospace;
+            font-size: 0.8rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 8px 19px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            color: #0b0b0c;
+            width: auto;
+            max-width: fit-content;
+        }
+
+        .actions-title {
+            font-family: 'Figtree', serif;
+            font-size: 3rem;
+            margin-bottom: 0px;
+            font-weight: 600;
+            text-align: left;
+            margin-top: 0;
+            color: #0b0b0c;
+            letter-spacing: normal;
+            position: relative;
+            line-height: 0.9;
+        }
+
+
+        /* Scanlines over actions title - DISABLED */
+
+        .actions-subtitle {
+            font-size: 1.1rem;
+            color: #aaa; /* Match integrations color */
+            margin-top: 8px; /* Match integrations spacing */
+            margin-bottom: 0;
+            max-width: 800px;
+            text-align: left; /* Align left to match integrations */
+            margin-left: 0; /* Remove auto centering */
+            margin-right: auto;
+            line-height: 1.5; /* Add line-height */
+            font-family: 'AirbnbCereal', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; /* Match integrations font */
+        }
+
+        /* NEW: Style for the actions card - MODIFIED to remove white box appearance */
+        .actions-card {
+            /* max-width: 900px; */ /* REMOVED: To allow it to be wider like story-card */
+            margin: 0 auto; /* Center the container if it ever gets a max-width */
+            /* background: white; */ /* REMOVED */
+            /* border-radius: 24px; */ /* REMOVED */
+            /* padding: 40px; */ /* REMOVED */
+            /* box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); */ /* REMOVED */
+        }
+
+        .actions-container { /* Styles for the grid container INSIDE the card */
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+            max-width: 1300px; /* Match integrations-container width */
+            margin: 0 auto;
+        }
+
+        /* NEW: Order the children to put phone on the left */
+        .actions-container > div:first-child { /* This is the div with title, subtitle, buttons */
+            order: 2; /* This content will now be on the right on DESKTOP */
+        }
+
+        .actions-container > .iphone-preview { /* This is the phone preview */
+            order: 1; /* This content will now be on the left on DESKTOP */
+        }
+
+        .actions-grid { /* Styles for the button grid INSIDE the card - UPDATED */
+            display: grid; /* Changed from flex to grid */
+            grid-template-columns: repeat(4, 1fr); /* Default to 4 columns */
+            gap: 20px; /* Match integrations-grid gap */
+            margin-top: 35px; /* Match integrations-grid spacing */
+            margin-bottom: 0;
+            position: relative;
+            overflow: visible;
+        }
+
+        .action-button { /* UPDATED to match .integration-logo */
+            background: transparent !important;
+            border: 1px solid rgba(200, 200, 200, 0.25);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 4px rgba(200, 200, 200, 0.15), inset 0 0 2px rgba(200, 200, 200, 0.08);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #0b0b0c;
+            position: relative;
+            overflow: visible;
+            z-index: 2;
+        }
+
+        /* Active action button - subtle square brightening */
+        .action-button.active::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.06);
+            mix-blend-mode: screen;
+            border-radius: 16px;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .action-button img,
+        .action-button h3 {
+            position: relative;
+            z-index: 3;
+            opacity: 0.6;
+            filter: blur(0.5px);
+            transition: opacity 0.3s ease, filter 0.3s ease;
+        }
+
+        /* NEW: Styles for image and h3 inside action-button */
+        .action-button img {
+            margin-bottom: 12px;
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+        }
+
+        /* Make action button icons white */
+        .action-button img[src*="icons/"] {
+            filter: brightness(0) invert(1);
+        }
+
+        .action-button h3 {
+            font-size: 1rem;
+            font-weight: 500;
+            margin: 0;
+            color: #0b0b0c;
+        }
+
+        .action-button.active { /* UPDATED to match .integration-logo.active */
+            border-color: rgba(255, 255, 255, 0.6);
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.25), 0 0 12px rgba(255, 255, 255, 0.15), inset 0 0 4px rgba(255, 255, 255, 0.1);
+            z-index: 15;
+        }
+
+        .action-button.active img {
+            opacity: 1;
+            filter: brightness(0) invert(1) blur(0);
+            animation: pipboy-flicker 0.4s ease-out;
+        }
+
+        .action-button.active h3 {
+            opacity: 1;
+            filter: blur(0);
+            animation: pipboy-flicker 0.4s ease-out;
+            text-shadow: 0 0 4px rgba(255, 255, 255, 0.6);
+        }
+
+        .action-button img,
+        .action-button h3 {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Action counter styling - corner badge */
+        .action-count {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            font-size: 0.7rem;
+            color: #00ff41;
+            font-family: 'SF Mono', Monaco, monospace;
+            opacity: 0.8;
+            padding: 3px 6px 3px 14px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            border: 1px solid rgba(0, 255, 65, 0.2);
+            transition: all 0.3s;
+        }
+
+        /* Stock market arrow ticker */
+        .action-count::before {
+            content: '▲';
+            position: absolute;
+            left: 4px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #00ff41;
+            font-size: 0.6rem;
+        }
+
+        .action-button.active .action-count {
+            opacity: 1;
+            border-color: rgba(0, 255, 65, 0.4);
+            background: rgba(0, 255, 65, 0.08);
+        }
+
+        /* Flash effect when count updates */
+        .action-count.count-updated {
+            background: rgba(0, 255, 65, 0.2);
+            border-color: rgba(0, 255, 65, 0.6);
+            animation: badgeFlash 0.6s ease-out;
+        }
+
+        .action-count.count-updated::before {
+            animation: arrowPop 0.6s ease-out;
+        }
+
+        @keyframes badgeFlash {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @keyframes arrowPop {
+            0%, 100% { transform: translateY(-50%) scale(1); }
+            50% { transform: translateY(-60%) scale(1.3); }
+        }
+
+        /* Toast notification system - Minimal */
+        .toast-container { display: none !important; }
+        .toast-container--legacy {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: #ffffff;
+            border: 1px solid #333;
+            border-radius: 6px;
+            padding: 12px 16px;
+            color: #0b0b0c;
+            font-size: 0.85rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            transform: translateY(-100px);
+            opacity: 0;
+            animation: toastDrop 0.3s ease-out forwards,
+                       toastFade 0.2s ease-in 3.8s forwards;
+            min-width: 280px;
+            max-width: 320px;
+            font-family: 'Figtree', monospace;
+        }
+
+        .toast strong {
+            color: #0b0b0c;
+            font-weight: 500;
+        }
+
+        @keyframes toastDrop {
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes toastFade {
+            to {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .toast-container {
+                right: 16px;
+                left: 16px;
+                top: 16px;
+            }
+            .toast {
+                min-width: auto;
+                max-width: 100%;
+            }
+        }
+
+        /* Old color specific classes like .action-button.green, .orange, etc., are removed. */
+
+        @media (max-width: 992px) {
+            .actions-container {
+                display: flex;
+                flex-direction: column;
+                gap: 0;
+            }
+
+            /* Flatten to access children for ordering */
+            .actions-container > div:first-child {
+                display: contents;
+            }
+
+            /* Order: label → title → subtitle → phone → buttons */
+            .actions-label {
+                order: 1;
+                margin-bottom: 8px;
+                align-self: flex-start;
+            }
+
+            .actions-title {
+                order: 2;
+                margin-bottom: 2px;
+                margin-top: 0;
+                align-self: flex-start;
+            }
+
+            .actions-subtitle {
+                order: 3;
+                margin-bottom: 20px;
+                margin-top: 0;
+                align-self: flex-start;
+            }
+
+            .actions-container > .iphone-preview {
+                order: 4;
+                margin-bottom: -35px;
+                transform: scale(0.9);
+            }
+
+            .actions-grid {
+                order: 5;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 12px;
+            }
+
+            /* Make action buttons smaller */
+            .action-button {
+                padding: 12px;
+            }
+
+            .action-button img {
+                width: 45px;
+                height: 45px;
+                margin-bottom: 8px;
+            }
+
+            .action-button h3 {
+                font-size: 0.85rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+             .actions-section {
+                 padding: 60px 0;
+             }
+            .actions-title {
+                font-size: 2.2rem;
+            }
+            .actions-subtitle {
+                font-size: 1rem;
+            }
+             .actions-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 10px;
+            }
+            /* Make buttons even smaller on smaller screens */
+            .action-button {
+                padding: 10px;
+            }
+            .action-button img {
+                width: 40px;
+                height: 40px;
+                margin-bottom: 6px;
+            }
+            .action-button h3 {
+                font-size: 0.8rem;
+            }
+            /* Smaller tally badges on tablet */
+            .action-count {
+                top: 4px;
+                right: 4px;
+                font-size: 0.55rem;
+                padding: 2px 4px 2px 12px;
+            }
+            .action-count::before {
+                font-size: 0.5rem;
+                left: 3px;
+            }
+        }
+
+        @media (max-width: 480px) {
+             .actions-section {
+                 padding: 40px 0;
+             }
+
+             .actions-title {
+                 font-size: 2rem;
+             }
+             .actions-subtitle {
+                  font-size: 0.95rem;
+             }
+             .actions-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 8px;
+            }
+            /* Further adjustments for action buttons on mobile */
+            .action-button {
+                padding: 8px;
+            }
+            .action-button img {
+                width: 35px;
+                height: 35px;
+                margin-bottom: 5px;
+            }
+            .action-button h3 {
+                font-size: 0.75rem;
+            }
+            /* Hide tally badges on mobile */
+            .action-count {
+                display: none;
+            }
+        }
+
+        /* New Desktop Integration Section - Refactored for Target Style */
+        .desktop-section {
+            padding: 80px 0; /* Keep vertical padding */
+            /* background-color: #ffffff; */
+            background-color: transparent;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end; /* Align content to bottom */
+        }
+
+        .desktop-title {
+            font-family: 'Figtree', monospace;
+            font-size: 6.5rem;
+            margin-bottom: 16px;
+            font-weight: 600;
+            color: #00ff41;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            position: relative;
+            text-shadow:
+                0 0 5px #00ff41,
+                0 0 10px #00ff4180,
+                0 0 15px #00ff4140;
+            filter: contrast(1.1);
+        }
+
+        .desktop-subtitle {
+            font-size: 1.1rem;
+            color: #e8e8e8;
+            margin-bottom: 50px;
+            max-width: 700px; /* Slightly narrower max-width */
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.5;
+        }
+
+        .desktop-screenshot-container {
+            max-width: 900px; /* Max width for the screenshot */
+            margin: 0 auto 60px auto; /* Center container and add bottom margin */
+            overflow: hidden; /* Add this to clip the scaled image */
+            border-radius: 7px; /* Apply border-radius here now */
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15); /* Apply shadow here now */
+        }
+
+        .desktop-screenshot {
+            width: 100%; /* Make image responsive within container */
+            height: auto;
+            display: block; /* Remove extra space below image */
+            border: none; /* Explicitly remove any border */
+            margin: 0;
+            max-width: 100%;
+            /* Optional: Add scale if negative margins aren't enough */
+            /* transform: scale(1.05); */
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 40px 30px;
+            max-width: 1200px;
+            margin: 80px auto 0;
+        }
+
+        .feature-item {
+            text-align: center; /* Keep items centered */
+            align-self: end; /* Align bottoms so they're in line */
+        }
+
+        .feature-icon-container {
+            /* Anchor the chat illustrations to the bottom of a fixed-height
+               zone so all four cards in the row end at the same y line just
+               above the title. Without this, illustrations with different
+               heights (trackbar vs. action card vs. single bubble) float at
+               different positions and the row looks lopsided even though the
+               titles themselves are aligned via .feature-item align-self:end. */
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            min-height: 240px;
+            width: 100%;
+            max-width: 280px;
+            margin: 0 auto 20px auto;
+            background-color: transparent;
+            box-shadow: none;
+            text-align: initial;
+        }
+
+        /* Ensure wrappers stack and take appropriate width */
+         .feature-icon-container .message-wrapper {
+            /* display: inline-block; */ /* No longer needed */
+            width: 100%; /* Allow wrappers to fill container */
+            margin-bottom: 6px; /* Space between bubbles */
+            /* Alignment is handled by agent/user class from chat-styles.css */
+         }
+         .feature-icon-container .message-wrapper:last-child {
+              margin-bottom: 0;
+         }
+
+         /* These styles should mostly come from chat-styles.css */
+         /* We are mainly overriding font-size/padding here */
+         .feature-icon-container .agent-message,
+         .feature-icon-container .user-message {
+             padding: 8px 12px;
+             font-size: 0.9rem;
+             display: inline-block; /* Important: Prevents stretching full width */
+             max-width: 85%; /* Inherited or enforced */
+         }
+         /* Remove specific agent message override */
+         /* .feature-icon-container .agent-message { ... } */
+
+
+        /* Restore feature text styles */
+        .feature-text {
+             /* Increased size roughly 2x */
+            font-size: 1.5rem; /* Reduced from 2rem for balance */
+            font-weight: 600; /* Make title bolder */
+            color: #0b0b0c;
+            line-height: 1.3; /* Adjust line-height for larger font */
+            margin: 0;
+        }
+
+        /* Restore feature description styles */
+        .feature-description {
+            font-size: 1rem;
+            color: #2a2a2f;
+            font-weight: 400;
+            line-height: 1.5;
+            margin: 8px 0 0 0;
+            padding: 0 10px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .desktop-section {
+                padding: 60px 20px;
+            }
+            .feature-grid {
+                grid-template-columns: 1fr; /* Stack vertically on mobile */
+                gap: 50px 30px;
+                max-width: 450px;
+            }
+             .desktop-title {
+                 font-size: 2rem;
+             }
+              .desktop-subtitle {
+                  font-size: 1rem;
+                  margin-bottom: 40px;
+              }
+              .desktop-screenshot-container {
+                  margin-bottom: 50px;
+              }
+              .feature-description {
+                  font-size: 0.95rem; /* Adjust description size */
+              }
+        }
+
+        @media (max-width: 480px) {
+             .desktop-section {
+                padding: 50px 15px;
+            }
+             .feature-grid {
+                 grid-template-columns: 1fr; /* Stack vertically on small mobile */
+                 max-width: 95%;
+                 gap: 40px 20px;
+             }
+            .feature-icon-container {
+                margin-bottom: 15px; /* Keep smaller margin for mobile */
+                max-width: 240px; /* Adjust max-width for mobile */
+            }
+            /* Remove styles for the old span icon */
+            /* .feature-icon { ... } */
+            
+            /* Adjust img icon size for mobile (approx 3x of 28px) */
+             .feature-icon-img {
+                 width: 84px; 
+                 height: 84px; 
+             }
+
+            .feature-text {
+                 /* Adjust text size for mobile (approx 2x of 0.95rem) */
+                font-size: 1.5rem; /* Let's reduce this a bit from 1.9 */
+            }
+            /* .desktop-screenshot { */
+                 /* border-radius: 12px; */ /* No longer needed here */
+            /* } */
+             .desktop-screenshot-container {
+                 border-radius: 12px; /* Apply smaller radius to container */
+             }
+             .desktop-screenshot {
+                 margin: 0;
+                 width: 100%;
+             }
+             .feature-description {
+                 font-size: 0.9rem; /* Adjust description size */
+                 padding: 0 5px;
+             }
+             .feature-icon-container .agent-message,
+             .feature-icon-container .user-message {
+                 /* Adjust padding/fontsize if needed for this context */
+                 padding: 6px 10px;
+                 font-size: 0.85rem;
+             }
+        }
+
+        /* Remove previous desktop styles that are no longer needed */
+        /* .desktop-container, .desktop-image-container, .desktop-features, .desktop-features ul, .desktop-download-button no longer used in this structure */
+
+        /* Goal Section Styling */
+        .goals-section {
+            /* Adjusted padding for when it's inside right-content */
+            padding: 0; /* Remove padding */
+            /* background-color: #ffffff; */ /* Background is inherited or transparent */
+            border-top: none; /* Remove separator line */
+            border-bottom: none; /* Remove separator line */
+            height: 100%; /* Make section take full height of grid cell */
+            display: flex; /* Use flex to center content */
+            flex-direction: column; /* Stack vertically */
+            justify-content: center; /* Center vertically */
+            align-items: center; /* Center horizontally */
+        }
+        
+        /* Remove centered text alignment for titles as they are removed */
+        /* .goals-title { ... text-align: center; } */
+        /* .goals-subtitle { ... text-align: center; } */
+        
+        .goal-interaction-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Center items */
+            gap: 40px; /* Space between buttons and preview */
+        }
+        
+        .goal-buttons {
+            display: flex;
+            flex-wrap: wrap; /* Allow buttons to wrap */
+            /* Removed justify-content: center; - align naturally left now */
+            /* justify-content: center; */ 
+            gap: 12px;
+            /* Add margin for spacing below stats */
+            margin-top: 32px; 
+            margin-bottom: 32px; /* Add space before brand logos */
+            /* max-width: 900px; */ /* Remove max-width, let it flow in left column */
+        }
+        
+        .goal-button {
+            /* padding: 10px 20px; */ /* Adjusted padding slightly */
+            padding: 9px 18px;
+            border-radius: 100px; /* Pill shape */
+            font-size: 0.95rem;
+            font-weight: 500;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            /* --- Updated Styles for Clarity --- */
+            /* Inactive state: Light grey background, subtle border, subtle shadow */
+            border: 1px solid rgba(0, 0, 0, 0.1); 
+            background-color: #f2f2f7; /* kSystemGrey6 equivalent */
+            color: #0b0b0c; /* Black text for contrast */
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04); 
+            /* --- End Updated Styles --- */
+        }
+        
+        .goal-button:hover {
+            /* --- Hover State --- */
+            /* Darken background slightly, enhance border/shadow */
+            background-color: #e5e5ea; /* kSystemGrey5 equivalent */
+            border-color: rgba(0, 0, 0, 0.15);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+             /* --- End Hover State --- */
+        }
+        
+        .goal-button.active {
+             /* --- Active State --- */
+             /* Black background, white text, black border, inset shadow */
+            background-color: #ffffff; /* Black background */
+            color: #0b0b0c; /* White text */
+            border-color: #000; /* Black border */
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.1); /* Subtle inset shadow */
+             /* --- End Active State --- */
+        }
+        
+        /* Reuse existing iPhone preview styles */
+        .goals-section .iphone-preview {
+            /* margin-top: 20px; */ /* Adjust margin as needed */
+        }
+        
+        /* Responsive adjustments for goal section */
+        @media (max-width: 768px) {
+            .goals-title {
+                font-size: 2rem;
+            }
+            .goals-subtitle {
+                font-size: 1rem;
+                margin-bottom: 40px;
+            }
+            .goal-buttons {
+                gap: 10px;
+                margin-top: 24px;
+                margin-bottom: 24px;
+            }
+            .goal-button {
+                font-size: 0.9rem;
+                padding: 8px 16px;
+            }
+             /* Ensure right content still works on smaller screens */
+             /* .right-content { ... } */ /* MOVED general stacking rules for .right-content out */
+        }
+        
+        @media (max-width: 480px) {
+             .goals-section {
+                padding: 60px 0;
+            }
+             .goal-button {
+                font-size: 0.85rem;
+                padding: 7px 14px;
+            }
+            /* Ensure iPhone preview scales nicely */
+            .goals-section .iphone-preview .iphone-frame {
+                width: 280px; /* Adjust as needed */
+                height: 560px;
+            }
+        }
+
+        /* Discord Section Styling */
+        .discord-section {
+            padding: 80px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .discord-title {
+            font-family: 'Figtree', monospace;
+            font-size: 2.5rem;
+            color: #0b0b0c;
+            text-align: center;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .discord-subtitle {
+            font-family: 'Figtree', monospace;
+            font-size: 1rem;
+            color: #00ff41;
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .discord-invite-container {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .discord-invite-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 32px;
+            background: #5865F2;
+            color: #0b0b0c;
+            text-decoration: none;
+            border-radius: 8px;
+            font-family: 'Figtree', monospace;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: 1px solid #5865F2;
+        }
+
+        .discord-invite-button:hover {
+            background: #4752C4;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(88, 101, 242, 0.3);
+        }
+
+        .discord-invite-button svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .discord-invite-button .arrow {
+            font-size: 1.2rem;
+            transition: transform 0.3s;
+        }
+
+        .discord-invite-button:hover .arrow {
+            transform: translateX(4px);
+        }
+
+        .discord-invite-note {
+            margin-top: 16px;
+            font-family: 'Figtree', monospace;
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        /* Discord Section Bottom - Subtle */
+        .discord-section-bottom {
+            padding: 30px 20px 0 20px;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .discord-link-bottom {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: #5865F2;
+            color: #0b0b0c;
+            text-decoration: none;
+            border-radius: 6px;
+            font-family: 'Figtree', monospace;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+            border: 1px solid #5865F2;
+        }
+
+        .discord-link-bottom:hover {
+            background: #4752C4;
+            color: #0b0b0c;
+            border-color: #4752C4;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(88, 101, 242, 0.4);
+        }
+
+        .discord-link-bottom svg {
+            width: 18px;
+            height: 18px;
+            opacity: 1;
+        }
+
+        .discord-link-bottom:hover svg {
+            opacity: 1;
+        }
+
+        /* FAQ Section Styling - Updated */
+        .faq-section {
+            padding: 80px 0;
+            background-color: transparent;
+            font-family: 'Figtree', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            position: relative;
+        }
+
+        .faq-title {
+            font-family: 'Figtree', system-ui, -apple-system, sans-serif;
+            font-size: 40px;
+            font-weight: 800;
+            text-align: left;
+            margin: 0 auto 40px;
+            padding: 0 24px;
+            color: #0b0b0c;
+            text-transform: none;
+            letter-spacing: -0.025em;
+            position: relative;
+            line-height: 1.06;
+            text-shadow: none;
+            filter: none;
+            max-width: 1140px;
+            box-sizing: border-box;
+            width: 100%;
+        }
+
+        /* Disable old glitch + scanline effects on FAQ */
+        .faq-title::before,
+        .faq-title::after {
+            display: none;
+        }
+
+        .faq-section::after {
+            display: none;
+        }
+
+        .faq-card {
+            background: transparent;
+            border-radius: 0;
+            padding: 0 24px;
+            max-width: 1140px;
+            margin: 0 auto;
+            display: grid;
+            gap: 12px;
+            box-sizing: border-box;
+            width: 100%;
+        }
+
+        .faq-item {
+            background-color: #ffffff;
+            border-radius: 12px;
+            margin-bottom: 0;
+            border: 1px solid #e6e6e8;
+            overflow: hidden;
+            transition: background-color 0.2s ease;
+        }
+
+        .faq-item:hover {
+            background-color: #fafafa;
+            border-color: #e6e6e8;
+        }
+
+        .faq-question {
+            background: none;
+            border: none;
+            width: 100%;
+            text-align: left;
+            padding: 18px 22px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #0b0b0c;
+            font-family: 'Figtree', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            transition: color 0.2s ease;
+        }
+
+        .faq-question:hover {
+            color: #0b0b0c;
+        }
+
+        /* Plus / minus icon (CSS-drawn so we don't change the HTML content) */
+        .faq-icon {
+            position: relative;
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+            font-size: 0;
+            color: transparent;
+            margin-left: 16px;
+            transform: none !important;
+            transition: none;
+        }
+        .faq-icon::before,
+        .faq-icon::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            background: #0b0b0c;
+        }
+        .faq-icon::before {
+            width: 14px;
+            height: 2px;
+            transform: translate(-50%, -50%);
+        }
+        .faq-icon::after {
+            width: 2px;
+            height: 14px;
+            transform: translate(-50%, -50%);
+            transition: transform 0.2s ease;
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), padding-top 0.35s cubic-bezier(0.4, 0, 0.2, 1), padding-bottom 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 0 22px;
+            font-family: 'Figtree', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: #5a5a5f;
+        }
+
+        .faq-answer p {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #5a5a5f;
+            margin: 0 0 1em 0;
+            padding-right: 0;
+        }
+        .faq-answer p:last-child {
+            margin-bottom: 0;
+        }
+
+        .faq-item.active .faq-answer {
+            max-height: 500px;
+            padding-top: 0;
+            padding-bottom: 20px;
+        }
+
+        .faq-item.active .faq-icon::after {
+            transform: translate(-50%, -50%) scaleY(0);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .faq-section {
+                padding: 40px 0;
+            }
+            .faq-title {
+                font-size: 28px;
+                margin-bottom: 24px;
+            }
+            .faq-card {
+                padding: 0 20px;
+                gap: 10px;
+            }
+            .faq-question {
+                font-size: 15px;
+                padding: 16px 18px;
+                gap: 12px;
+            }
+            .faq-answer {
+                padding: 0 18px;
+            }
+            .faq-answer p {
+                font-size: 14px;
+            }
+            .faq-item.active .faq-answer {
+                padding-bottom: 18px;
+            }
+        }
+        @media (max-width: 480px) {
+            .main-content-wrapper {
+                padding: 16px 15px;
+            }
+
+            .faq-card {
+                padding: 0 15px;
+            }
+            .faq-question {
+                font-size: 14px;
+                padding: 14px 16px;
+                gap: 10px;
+            }
+            .faq-answer {
+                padding: 0 16px;
+            }
+            .faq-answer p {
+                font-size: 13.5px;
+            }
+        }
+
+        /* Final CTA Section */
+        .final-cta-section {
+            padding: 40px 20px 180px 20px;
+            background-color: transparent;
+            text-align: center;
+        }
+
+        .final-cta-video {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(1.7);
+            width: 100%;
+            height: 65%;
+            object-fit: cover;
+            object-position: center center;
+            z-index: 0;
+            opacity: 0.4;
+        }
+
+        .final-cta-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 50px 40px 50px 40px;
+            background: transparent;
+            border: 1.5px solid rgba(200, 200, 200, 0.2);
+            border-radius: 8px;
+            box-shadow: none;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .final-cta-title {
+            font-family: 'Figtree', serif;
+            font-size: 6rem;
+            font-weight: 600;
+            color: #0b0b0c;
+            letter-spacing: -0.02em;
+            margin: 0;
+            padding: 0;
+            position: relative;
+            z-index: 1;
+            line-height: 1.1;
+        }
+
+        .final-cta-subtitle {
+            font-size: 0.95rem;
+            color: #5a5a5f;
+            margin: 0 auto 20px auto;
+            padding: 0;
+            line-height: 1.4;
+            font-weight: 300;
+            position: relative;
+            z-index: 1;
+            max-width: 700px;
+        }
+
+        .final-cta-buttons {
+            display: flex;
+            position: relative;
+            z-index: 1;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .final-cta-button {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1.5px solid rgba(255, 255, 255, 0.4);
+            border-radius: 50px;
+            color: #0b0b0c;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: none;
+            cursor: pointer;
+            font-family: 'AirbnbCereal', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .final-cta-button .cta-button-icon {
+            display: none;
+        }
+
+        .final-cta-button:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.6);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 255, 65, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .cta-button-icon {
+            width: 28px;
+            height: 28px;
+            filter: brightness(0) invert(1);
+            transition: filter 0.3s ease;
+        }
+
+        .final-cta-button:hover .cta-button-icon {
+            filter: brightness(0) invert(1);
+        }
+
+        @media (max-width: 768px) {
+            .final-cta-section {
+                padding: 60px 20px;
+            }
+
+            .final-cta-video {
+                transform: translate(-50%, -50%) scale(1.7);
+                width: 100%;
+                height: 65%;
+                object-fit: cover;
+                object-position: center center;
+            }
+
+            .final-cta-container {
+                padding: 40px 32px 50px 32px;
+                border-radius: 16px;
+            }
+
+            .final-cta-title {
+                font-size: 2.5rem;
+                margin: 0;
+                padding: 0;
+                line-height: 1;
+            }
+
+            .final-cta-subtitle {
+                font-size: 0.9rem;
+                margin: 4px auto 8px auto;
+                padding: 0;
+            }
+
+            .final-cta-buttons {
+                flex-direction: row;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .final-cta-button {
+                padding: 6px 10px;
+                font-size: 0.75rem;
+                gap: 4px;
+            }
+
+            .final-cta-button .cta-button-icon {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .final-cta-section {
+                padding: 50px 16px;
+            }
+
+            .final-cta-container {
+                padding: 32px 24px 45px 24px;
+                border-radius: 12px;
+            }
+
+            .final-cta-title {
+                font-size: 1.8rem;
+                letter-spacing: -0.02em;
+                margin: 0;
+                padding: 0;
+                line-height: 1;
+            }
+
+            .final-cta-subtitle {
+                font-size: 0.85rem;
+                margin: 4px auto 8px auto;
+                padding: 0;
+            }
+
+            .final-cta-button {
+                padding: 5px 8px;
+                font-size: 0.7rem;
+                gap: 4px;
+            }
+
+            .final-cta-button .cta-button-icon {
+                display: none;
+            }
+        }
+
+        /* Final CTA - Iter05 (Landing36) port: split-line gradient headline,
+           App Store badges, "AS SEEN IN" press row. Scoped to .fcta-iter05. */
+        .final-cta-section.fcta-iter05 {
+            padding: 40px 20px 50px;
+            background: #ffffff;
+            text-align: center;
+        }
+        .final-cta-container.fcta-iter05-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 24px 40px;
+            background: #ffffff;
+            border: none;
+            border-radius: 0;
+            box-shadow: none;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 18px;
+        }
+        .fcta-iter05-title {
+            font-family: 'Figtree', system-ui, -apple-system, sans-serif;
+            font-size: 72px;
+            line-height: 1.02;
+            letter-spacing: -0.032em;
+            font-weight: 800;
+            color: #0b0b0c;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        .fcta-iter05-grad {
+            background: linear-gradient(90deg, #2f5bff 0%, #7c4dff 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+        }
+        .fcta-iter05-sub {
+            font-family: 'Figtree', system-ui, -apple-system, sans-serif;
+            font-size: 19px;
+            line-height: 1.45;
+            font-weight: 500;
+            color: #5a5a5f;
+            margin: 0;
+            max-width: 560px;
+            text-align: center;
+        }
+        .fcta-iter05-badges {
+            display: inline-flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 0;
+        }
+        .final-cta-section.fcta-iter05 .fcta-iter05-badge {
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 10px !important;
+            padding: 12px 20px !important;
+            background: #0b0b0c !important;
+            color: #ffffff !important;
+            border: none !important;
+            border-radius: 12px !important;
+            cursor: pointer !important;
+            font-family: 'Figtree', system-ui, -apple-system, sans-serif !important;
+            transition: transform 0.15s ease, background 0.15s ease !important;
+            box-shadow: none !important;
+        }
+        .final-cta-section.fcta-iter05 .fcta-iter05-badge:hover {
+            background: #1f1f24 !important;
+            border: none !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 8px 24px rgba(11,11,12,0.18) !important;
+        }
+        .fcta-iter05-glyph { flex-shrink: 0; }
+        .fcta-iter05-badge-text { text-align: left; line-height: 1.1; }
+        .fcta-iter05-badge-top { font-size: 10px; opacity: 0.85; color: #ffffff; }
+        .fcta-iter05-badge-bot { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; color: #ffffff; }
+        .fcta-iter05-press {
+            display: inline-flex;
+            align-items: center;
+            gap: 20px;
+            margin-top: 8px;
+            padding-top: 24px;
+            border-top: 1px solid #e6e6e8;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .fcta-iter05-press-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            color: #8a8a90;
+        }
+        .fcta-iter05-press-logo {
+            font-size: 13px;
+            font-weight: 800;
+            color: #8a8a90;
+            letter-spacing: 0.04em;
+            opacity: 0.7;
+        }
+        @media (max-width: 768px) {
+            .final-cta-section.fcta-iter05 { padding: 60px 20px 90px; }
+            .final-cta-container.fcta-iter05-container { padding: 44px 24px; border-radius: 18px; gap: 18px; }
+            .fcta-iter05-title { font-size: 44px; letter-spacing: -0.025em; }
+            .fcta-iter05-sub { font-size: 16px; }
+            .final-cta-section.fcta-iter05 .fcta-iter05-badge { padding: 9px 14px; }
+            .fcta-iter05-badge-bot { font-size: 14px; }
+            .fcta-iter05-press { gap: 12px 16px; padding-top: 18px; }
+            .fcta-iter05-press-logo { font-size: 12px; }
+        }
+        @media (max-width: 480px) {
+            .fcta-iter05-title { font-size: 36px; }
+            .fcta-iter05-sub { font-size: 15px; }
+        }
+
+        /* ---------- Store badge iterations (5 size variants for selection) ---------- */
+        .fcta-store-iters { display: flex; flex-direction: column; gap: 22px; margin-top: 32px; align-items: center; width: 100%; }
+        .fcta-store-iter { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .fcta-store-iter-label { font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #8a8a90; }
+        .fcta-store-iter-pair { display: inline-flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+        .fcta-sb {
+            display: inline-flex !important; align-items: center !important; gap: 10px !important;
+            background: #0b0b0c !important; color: #ffffff !important; border: none !important; cursor: pointer !important;
+            font-family: 'Figtree', system-ui, -apple-system, sans-serif !important;
+            transition: transform 0.15s ease, background 0.15s ease !important;
+        }
+        .fcta-sb:hover { background: #1f1f24 !important; transform: translateY(-1px) !important; }
+        .fcta-sb-text { text-align: left; line-height: 1.05; display: flex; flex-direction: column; }
+        .fcta-sb-top { color: #ffffff; opacity: 0.85; display: block; line-height: 1.1; }
+        .fcta-sb-bot { color: #ffffff; display: block; line-height: 1.1; }
+        .fcta-sb-glyph { flex-shrink: 0; }
+
+        /* A - Apple-spec proportions */
+        .fcta-sb--a { padding: 10px 18px !important; border-radius: 10px !important; }
+        .fcta-sb--a .fcta-sb-top { font-size: 11px; }
+        .fcta-sb--a .fcta-sb-bot { font-size: 18px; font-weight: 600; letter-spacing: -0.015em; }
+
+        /* B - Bigger, confident */
+        .fcta-sb--b { padding: 14px 24px !important; border-radius: 14px !important; }
+        .fcta-sb--b .fcta-sb-top { font-size: 13px; }
+        .fcta-sb--b .fcta-sb-bot { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
+
+        /* C - Compact and tight */
+        .fcta-sb--c { padding: 8px 16px !important; border-radius: 8px !important; }
+        .fcta-sb--c .fcta-sb-top { font-size: 10px; }
+        .fcta-sb--c .fcta-sb-bot { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; }
+
+        /* D - Balanced (top line less tiny relative to bot) */
+        .fcta-sb--d { padding: 12px 20px !important; border-radius: 12px !important; }
+        .fcta-sb--d .fcta-sb-top { font-size: 13px; opacity: 0.75; }
+        .fcta-sb--d .fcta-sb-bot { font-size: 18px; font-weight: 700; letter-spacing: -0.015em; }
+
+        /* E - Pill / semibold */
+        .fcta-sb--e { padding: 11px 22px !important; border-radius: 999px !important; }
+        .fcta-sb--e .fcta-sb-top { font-size: 11px; }
+        .fcta-sb--e .fcta-sb-bot { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
+
+        /* REMOVED DUPLICATE .right-content definitions - already defined at line 207 and in media queries above */
+
+        /* Other Features Section - Refactored Layout */
+        .other-features-section {
+            padding: 80px 0;
+            background-color: transparent;
+        }
+
+        .other-features-title {
+            font-family: 'Figtree', monospace;
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+            font-weight: 600;
+            color: #0b0b0c;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            position: relative;
+            text-shadow: none;
+            filter: none;
+        }
+
+        .other-features-subtitle {
+            font-size: 1.1rem;
+            color: #555;
+            margin-bottom: 50px;
+            max-width: 800px;
+        }
+
+        /* Container for the grid + phone */
+        .other-features-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Split view */
+            gap: 60px;
+            align-items: center; /* Vertically align items */
+        }
+
+        /* Grid for the buttons */
+        .other-features-grid {
+            display: flex;
+            flex-wrap: wrap; /* Allow buttons to wrap */
+            gap: 10px; /* Space between buttons */
+            margin-bottom: 40px; /* Space below buttons */
+            /* Removed width: 100%; as flex container manages it */
+        }
+
+        /* Styling for individual buttons */
+        .other-feature-button {
+            padding: 10px 15px;
+            border-radius: 7px;
+            font-size: 16px;
+            font-weight: 500;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+            width: auto;
+            flex: 0 0 auto; /* Prevent buttons from growing/shrinking unevenly */
+        }
+
+        /* Active state for buttons */
+        .other-feature-button.active {
+            transform: translateX(5px); /* Subtle shift like actions */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Color styles matching action buttons */
+        .other-feature-button.green {
+            color: #4CAF50;
+            background-color: rgba(76, 175, 80, 0.1);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+        .other-feature-button.orange { /* Currently unused, kept for consistency */
+            color: #FF9800;
+            background-color: rgba(255, 152, 0, 0.1);
+            border: 1px solid rgba(255, 152, 0, 0.3);
+        }
+        .other-feature-button.pink {
+            color: #E91E63; /* Using a slightly different pink */
+            background-color: rgba(233, 30, 99, 0.1);
+            border: 1px solid rgba(233, 30, 99, 0.3);
+        }
+        .other-feature-button.red { /* Currently unused */
+            color: #F44336;
+            background-color: rgba(244, 67, 54, 0.1);
+            border: 1px solid rgba(244, 67, 54, 0.3);
+        }
+        .other-feature-button.blue {
+            color: #2196F3;
+            background-color: rgba(33, 150, 243, 0.1);
+            border: 1px solid rgba(33, 150, 243, 0.3);
+        }
+        .other-feature-button.purple {
+            color: #9C27B0;
+            background-color: rgba(156, 39, 176, 0.1);
+            border: 1px solid rgba(156, 39, 176, 0.3);
+        }
+
+
+        /* Responsive adjustments for Other Features section */
+        @media (max-width: 992px) {
+            .other-features-section {
+                padding: 0 20px; /* Reduce horizontal padding */
+                /* Ensure vertical centering still works well with potentially less content height */
+                /* display: flex; justify-content: center; flex-direction: column; are already set */
+            }
+
+            .sticky-scroll-parent {
+                /* Adjusted height for 6 items: ( (6-1) * 0.7 stepVh + 1.5 bufferVh ) * 100vh = 500vh */
+                /* Let's try a slightly more compact version for tablet */
+                height: 700vh; /* Increased to allow all 6 items to show */
+            }
+
+            .other-features-container {
+                grid-template-columns: 1fr; /* Stack the list and phone */
+                gap: 30px; /* Adjust gap when stacked */
+                /* Max-width to prevent content from becoming too wide if section padding is small */
+                max-width: 600px; 
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .feature-list {
+                align-items: center; /* Center list items when stacked */
+                text-align: center; /* Center text within list items (for the title) */
+            }
+            
+            /* Labels are sized for the desktop left rail. Once the layout
+               collapses to one column at <=992 they wrap and dwarf the
+               phone preview, making the phone read as "tiny". Drop to a
+               readable subtitle size with tighter letter-spacing so they
+               stop competing with the phone for visual weight. */
+            .feature-list-title {
+                font-size: 1.1rem;
+                letter-spacing: 0.08em;
+                line-height: 1.2;
+            }
+
+            .iphone-preview {
+                margin: 0 auto; /* Center phone when stacked */
+            }
+            /* Make the phone in this section the dominant visual on tablet
+               instead of letting it sit at the same 280px as everywhere
+               else in a roomier 600px container. No !important so the
+               narrower ≤480 override can still take effect on small phones. */
+            .other-features-container .iphone-preview {
+                width: 340px;
+                max-width: 340px;
+            }
+
+            .fake-scrollbar-container {
+                display: none; /* Hide fake scrollbar when layout is stacked */
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sticky-scroll-parent {
+                height: 700vh; /* Increased to allow all 6 items to show */
+            }
+
+            /* Labels are sized for the desktop left rail; on mobile they
+               wrap awkwardly and dwarf the phone preview. Drop them to a
+               readable subtitle size with tighter letter-spacing so they
+               fit one line and let the phone be the visual focus. */
+            .feature-list-title {
+                font-size: 0.95rem;
+                letter-spacing: 0.08em;
+                line-height: 1.2;
+            }
+
+            .other-features-container {
+                gap: 25px; /* Slightly smaller gap */
+                max-width: 90%; /* Allow a bit more width relative to screen */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .other-features-section {
+                padding: 0 10px; /* Even tighter padding for very small screens */
+            }
+
+            .sticky-scroll-parent {
+                height: 700vh; /* Increased to allow all 6 items to show */
+            }
+
+            .feature-list-title {
+                font-size: 0.85rem;
+                letter-spacing: 0.06em;
+                line-height: 1.15;
+            }
+
+            .feature-list {
+                gap: 8px; /* Reduced from 10px */
+            }
+            .other-features-container {
+                gap: 10px; /* Reduced from 15px */
+            }
+            /* Drop the section-specific 240px cap so this phone matches the
+               global mobile width (250px) instead of looking ~12% smaller
+               than every other phone on the page. The narrower cap was also
+               what made the input bar's + and mic buttons look oversized -
+               they're fixed-px and don't scale with the phone. */
+            .other-features-container .iphone-preview {
+                width: 100%;
+                max-width: 250px;
+            }
+        }
+
+        /* Mobile: collapse the 8-item list to just the active item, sized up
+           and centered. The full vertical list was getting cut off by the
+           dark fade gradient on phones - showing only the active example
+           keeps a stable height so the gradient covers it cleanly, and the
+           cycling still conveys "lots of examples" without needing them all
+           visible at once. */
+        @media (max-width: 768px) {
+            .other-features-section .feature-list {
+                position: relative;
+                min-height: 180px;
+                gap: 0;
+                align-items: center;
+                justify-content: flex-start;
+            }
+            .other-features-section .other-features-title {
+                position: relative;
+                margin-bottom: 36px !important;
+            }
+            .other-features-section .feature-list-item {
+                position: absolute;
+                bottom: 24px;
+                left: 0;
+                right: 0;
+                transform: translateY(8px);
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.35s ease, transform 0.35s ease;
+                text-align: center;
+                padding: 0 8px;
+            }
+            .other-features-section .feature-list-item.is-active {
+                opacity: 1;
+                transform: none;
+            }
+            .section-wrapper .other-features-section .feature-list-title {
+                font-size: clamp(2.6rem, 9vw, 4.2rem) !important;
+                letter-spacing: 0.02em !important;
+                line-height: 1.05 !important;
+            }
+        }
+        @media (max-width: 480px) {
+            .other-features-section .feature-list { min-height: 160px; }
+            .section-wrapper .other-features-section .feature-list-title {
+                font-size: clamp(2.2rem, 9vw, 3.4rem) !important;
+            }
+            /* Shrink the phone preview so heading + cycling text + phone all
+               fit in one mobile viewport when the section is sticky-pinned. */
+            .other-features-container .iphone-preview {
+                max-width: 200px !important;
+            }
+        }
+
+        /* Remove old feature-grid styles within other-features section if they exist */
+        .other-features-section .feature-grid { display: none; } /* Hide old grid */
+        .other-features-section .feature-item { display: none; } /* Hide old items */
+
+        /* Wrapper for sections - REMOVE the visual styles added previously */
+        /* Restore it to its state before the last change */
+        .section-wrapper {
+            /* background-color: #ffffff; */ /* REMOVED */
+            /* border-radius: 24px; */ /* REMOVED */
+            /* padding: 40px; */ /* REMOVED */
+            margin-top: 120px; /* Add spacing above the section */
+            margin-bottom: 40px; /* Keep margin if it was original */
+            /* box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); */ /* REMOVED */
+            /* height: auto; */ /* Keep if original */
+            /* max-width: 900px; */ /* REMOVED */
+            /* margin-left: auto; */ /* REMOVED */
+            /* margin-right: auto; */ /* REMOVED */
+            /* Ensure any other original styles are preserved */
+            /* For example, if it originally just had margin-bottom: */
+            /* margin-bottom: 40px; */ 
+        }
+
+        /* Styles for the intermediary scroll parent remain the same */
+        .sticky-scroll-parent {
+            position: relative;
+            height: 700vh; /* Increased to allow all 6 items to show (6 items * 0.7 stepVh = ~4.2, plus buffer) */
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* === Dark mode override for "Introducing Overlord" section === */
+        div.section-wrapper,
+        .section-wrapper {
+            background: #0a0a0c !important;
+            background-color: #0a0a0c !important;
+            margin-top: 0 !important;
+            padding-top: 80px !important;
+            margin-bottom: 0 !important;
+            padding-bottom: 80px !important;
+            margin-left: calc(50% - 50vw) !important;
+            margin-right: calc(50% - 50vw) !important;
+            width: 100vw !important;
+            max-width: 100vw !important;
+            position: relative;
+            overflow: visible;
+        }
+        .section-wrapper .sticky-scroll-parent { background: #0a0a0c !important; }
+        .section-wrapper .other-features-section { background: #0a0a0c !important; }
+        .section-wrapper .other-features-title {
+            color: #8a8a90 !important;
+            -webkit-text-fill-color: #8a8a90 !important;
+            font-size: 13px !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.18em !important;
+            text-transform: uppercase !important;
+            margin: 0 !important;
+        }
+        .section-wrapper .feature-list-title {
+            color: #3a3a3f !important;
+            -webkit-text-fill-color: #3a3a3f !important;
+        }
+        .section-wrapper .feature-list-item.is-active .feature-list-title {
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+        }
+
+
+        /* Updated styles for Other Features section - Add Flexbox for Centering */
+        .other-features-section {
+            background-color: transparent;
+            position: sticky;
+            top: 0;
+            height: 100vh; 
+            /* overflow: hidden; */ /* REMOVE this to allow scrollbar visibility */
+            box-sizing: border-box; 
+            display: flex; 
+            flex-direction: column; /* Stack title/subtitle/container vertically */
+            justify-content: center; /* Vertically center the content */
+            /* --- End Flexbox --- */
+             /* Keep horizontal padding, remove vertical padding */
+             padding: 0 40px; /* Example: Only horizontal padding */
+        }
+
+        /* Ensure title/subtitle position correctly */
+        .other-features-title {
+             font-size: 1.8rem;
+             margin-bottom: 10px;
+             font-weight: 600;
+        }
+
+        .other-features-subtitle {
+            font-size: 0.95rem;
+            color: #555;
+            margin-bottom: 30px;
+            max-width: 800px;
+            line-height: 1.4;
+        }
+
+        /* Container for the grid + phone */
+        .other-features-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr; 
+            gap: 40px; 
+            align-items: center; /* Keep vertical centering for list/phone within grid */
+            width: 100%; 
+        }
+
+        /* Ensure the iPhone preview container can contain the absolutely positioned scrollbar */
+        .iphone-preview {
+            position: relative; /* Needed for absolute positioning of scrollbar */
+            /* Ensure it aligns correctly within the grid cell */
+            display: flex; 
+            justify-content: center; /* Center phone horizontally */
+            align-items: center; /* Center phone vertically if needed */
+        }
+
+        /* NEW: Static Scrollbar Styles */
+        .static-scrollbar {
+            position: absolute;
+            /* Position roughly 1cm (adjust value as needed) to the right of the phone's center */
+            /* We'll calculate based on phone width later if needed, start with percentage */
+            right: -30px; /* Adjust this value for distance from phone */
+            top: 50%; /* Start at vertical center */
+            transform: translateY(-50%); /* Center vertically */
+            /* Match phone height approximately (assuming .iphone-frame height) */
+            height: 600px; /* Adjust to match iphone-frame height */
+            width: 5px; /* Adjust width as needed */
+            background-color: rgba(128, 128, 128, 0.3); /* Dim grey color */
+            border-radius: 3px;
+            z-index: 1; /* Behind the functional scrollbar thumb if it overlaps */
+        }
+
+        /* New List Container for Features */
+        .feature-list {
+            display: flex;
+            flex-direction: column;
+            /* Adjust gap if needed after removing descriptions */
+            gap: 20px; /* Increased gap for larger text */
+            position: relative;
+            /* Align text to the left */
+            align-items: flex-start;
+            /* Center the list vertically within its column if needed */
+            justify-content: center;
+        }
+
+        /* Styling for individual list items */
+        .feature-list-item {
+            display: block;
+            width: 100%;
+            padding: 0;
+            border-radius: 0;
+            background-color: transparent;
+            border: none;
+            cursor: default;
+            transition: color 0.3s ease;
+        }
+
+        /* Inactive title - L12 faint gray */
+        .feature-list-title {
+            font-family: 'Figtree', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 3rem;
+            font-weight: 600;
+            margin: 0;
+            color: #d4d4d8;
+            line-height: 1.1;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            position: relative;
+            transition: color 0.3s ease;
+            text-shadow: none;
+            filter: none;
+            opacity: 1;
+        }
+
+        /* Active title - L12 ink black */
+        .feature-list-item.is-active {
+            background-color: transparent;
+        }
+
+        .feature-list-item.is-active .feature-list-title {
+            color: #0b0b0c;
+            text-shadow: none;
+            filter: none;
+            opacity: 1;
+        }
+
+        /* Remove styles for the old button grid */
+        /* .other-features-grid { ... } */
+
+        /* Fake Scrollbar for Other Features Section - Positioned next to phone */
+        /* This is the track */
+        .fake-scrollbar-container {
+            position: absolute; 
+            /* Position relative to .iphone-preview */
+            right: -25px; /* Adjust distance from phone's edge */
+            top: 50%; 
+            transform: translateY(-50%); 
+            height: 96%; /* Adjust to match your .iphone-frame height */
+            width: 6px; 
+            background-color: rgba(0, 0, 0, 0.08); /* Track color */
+            border-radius: 3px; 
+            z-index: 5; 
+        }
+        
+        /* Thumb styles remain relative to the container */
+        .fake-scrollbar-thumb {
+            position: absolute;
+            width: 100%; 
+            height: 25%; /* Initial/default height */
+            background-color: rgba(0, 0, 0, 0.25); /* Thumb color */
+            border-radius: 3px;
+            transition: top 0.3s ease, height 0.3s ease; 
+            z-index: 6; 
+            top: 0; 
+        }
+
+        /* Message container adjustments */
+        .iphone-screen .message-container {
+            padding-top: 93px; /* Padding for status bar (41px) + nav bar (32px) + extra spacing (20px) */
+            flex-grow: 1;
+            overflow-y: auto;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            /* TEST: Exaggerated padding to allow scrolling past input bar */
+             padding-bottom: 100px; /* FIX: Allow scrolling past input bar */
+            /* ADDED: Symmetrical horizontal padding */
+            /* Adjust '14px' value if needed for desired spacing */
+            padding-left: 14px;
+            padding-right: 14px;
+            /* Ensure padding is included in the element's total width/height */
+            box-sizing: border-box;
+        }
+        .iphone-screen .message-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Ensure message wrappers take full width for alignment */
+        .iphone-screen .message-wrapper {
+            display: flex; /* Should already be set by chat-styles.css */
+            width: 100%;
+            /* Add a small gap between messages vertically if needed */
+            margin-bottom: 12px; /* Space between message bubbles */
+        }
+
+        /* Message header styling */
+        .iphone-screen .message-header {
+            font-size: 10px;
+            margin-bottom: 8px; /* Space between header and message bubble */
+            color: #888;
+        }
+
+        /* Confirm alignment (Should be handled by chat-styles.css) */
+        .iphone-screen .message-wrapper.agent {
+            justify-content: flex-start; 
+        }
+        .iphone-screen .message-wrapper.user {
+            justify-content: flex-end; 
+        }
+
+        /* Message bubble styles - remove potentially conflicting margins */
+        .iphone-screen .agent-message,
+        .iphone-screen .user-message {
+            /* Let justify-content handle alignment, remove specific margins */
+            margin-left: 0;
+            margin-right: 0;
+            max-width: 85%;
+            line-height: 1.4;
+            font-size: 14px;
+            /* Ensure long words break correctly */
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        /* Assistant message styling - Dark Mode */
+        .iphone-screen .agent-message {
+            background-color: #ffffff; /* systemGrey6 dark mode */
+            color: #0b0b0c;
+            border: 1px solid #e6e6e8;
+            border-radius: 12px 12px 12px 8px; /* Asymmetric bottom-left corner */
+            padding: 8px 12px; /* Increased top/bottom padding from 4px to 8px */
+        }
+
+        /* User message styling - Dark Mode */
+        .iphone-screen .user-message {
+            background-color: #f4f4f5;
+            color: #0b0b0c;
+            border: 1px solid #e6e6e8;
+            border-radius: 12px 12px 8px 12px; /* Asymmetric bottom-right corner */
+            padding: 8px 12px;
+        }
+
+        .iphone-screen .integration-message {
+            background-color: #f4f4f5;
+            color: #0b0b0c;
+            border: 1px solid #e6e6e8;
+            border-radius: 12px 12px 8px 12px;
+            padding: 8px 12px 8px 16px; /* Increased left padding to move everything right */
+            max-width: 85%;
+            line-height: 1.4;
+            font-size: 14px;
+        }
+
+        .iphone-screen .integration-message .integration-title {
+            margin-left: 2px; /* Move title slightly more to the right */
+        }
+
+        .iphone-screen .integration-message .integration-content {
+            margin-left: 0px; /* Reset, follows the padding */
+        }
+
+        /* ... existing styles ... */
+
+        /* Responsive adjustments for Actions card - REMOVED: Duplicate media queries that conflict with flex layout above */
+
+
+        .example-goals-title {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .example-goals-title {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #aaa;
+            margin-bottom: 10px;
+        }
+
+        .example-goals-buttons {
+            gap: 8px; 
+            justify-content: flex-start; 
+        }
+
+        /* Style the icon container */
+        .ios-feature-icon {
+            width: 56px; 
+            height: 56px;
+            flex-shrink: 0; /* Prevent shrinking */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #00ff41; /* Apple system blue background */
+            border-radius: 10px; /* Adjust for desired roundness */
+            padding: 8px; /* Add padding around the image */
+            box-sizing: border-box; /* Include padding in width/height */
+        }
+
+        /* Style the image inside the icon container */
+        .ios-feature-icon img {
+            width: 100%; /* Fill the padded container */
+            height: 100%; 
+            object-fit: contain;
+            /* Use filter to make the SVG blue. This is a common trick. */
+            /* Breakdown:
+                invert(39%) makes it a shade of yellow/orange
+                sepia(95%) shifts towards brown/red
+                saturate(2749%) boosts saturation significantly
+                hue-rotate(195deg) rotates hue towards blue
+                brightness(100%) adjusts brightness (can tweak)
+                contrast(104%) adjusts contrast (can tweak) 
+                Adjust these values if the blue isn't quite right.
+            */
+            filter: brightness(0) invert(1);
+        }
+
+        /* Style the icon container - Lighter Background */
+        .ios-feature-icon {
+            width: 56px; 
+            height: 56px;
+            flex-shrink: 0; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /* Change to a lighter blue - semi-transparent system blue */
+            background-color: rgba(0, 122, 255, 0.15); /* Lighter blue */
+            border-radius: 10px; 
+            padding: 8px; 
+            box-sizing: border-box; 
+        }
+
+        /* Style the image inside the icon container */
+        /* ... (filter remains the same to keep the icon graphic blue) ... */
+        .ios-feature-icon img {
+            width: 100%; 
+            height: 100%; 
+            object-fit: contain;
+            filter: brightness(0) invert(1);
+        }
+
+        /* Footer Styling */
+        footer {
+            text-align: center;
+            margin-top: 20px; /* Space above footer */
+            padding-top: 20px; /* Space within footer */
+            border-top: 1px solid rgba(0, 0, 0, 0.1); /* Subtle separator line */
+            font-size: 0.85rem;
+            color: #666; /* Grey text */
+        }
+
+        footer p {
+            margin-bottom: 8px; /* Space below copyright text */
+        }
+
+        footer a {
+            color: #555; /* Slightly darker grey for links */
+            text-decoration: none;
+            margin: 0 8px; /* Space around links */
+            transition: color 0.2s ease;
+        }
+
+        footer a:hover {
+            color: #000; /* Black on hover */
+        }
+
+        /* New iPhone Input Area Styling */
+        /* .iphone-input-area { ... } */
+        /* .iphone-input-field { ... } */
+
+        /* Optional: Style for placeholder text if needed */
+        /* .iphone-input-field::placeholder { color: #8e8e93; } */
+
+        /* New Styling for Coming Soon Badge */
+        .integration-logo {
+            position: relative; /* Needed for absolute positioning of badge */
+            /* ... existing styles ... */
+        }
+
+        .coming-soon-badge {
+            position: absolute;
+            top: 5px; /* Adjust position as needed */
+            right: 5px; /* Adjust position as needed */
+            background-color: #ff9500; /* Orange badge */
+            color: #0b0b0c;
+            font-size: 0.6rem;
+            font-weight: 600;
+            padding: 2px 5px;
+            border-radius: 4px;
+            line-height: 1;
+        }
+
+        /* Round the corners of the images within integration logo containers */
+        /* Removed duplicate - already defined earlier with filter */
+
+        /* NEW Email Capture Form */
+        .email-capture-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .email-capture-form input[type="email"] {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .email-capture-form button[type="submit"] {
+            background-color: #4CAF50;
+            color: #0b0b0c;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .email-capture-form button[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        /* Removed duplicate mobile media query - handled at line 1200 */
+
+        /* NEW Styles for Email Capture Form */
+        .email-capture-form {
+            display: flex; /* Align input and button horizontally */
+            border-radius: 12px; /* Match download button rounding */
+            overflow: hidden; /* Clip children to rounded corners */
+            /* Mimic .download-button flex behavior */
+            flex-grow: 1; 
+            min-width: 280px; /* Adjust as needed, wider than single button */
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05); /* Subtle shadow */
+        }
+
+        .email-capture-form input[type="email"] {
+            flex-grow: 1; /* Input takes available space */
+            padding: 12px 18px; /* Consistent padding */
+            border: none; /* Remove default border */
+            background-color: #f2f2f7; /* kSystemGrey6 */
+            color: #0b0b0c; /* Dark text for input */
+            font-size: 1rem; /* Slightly smaller for placeholder to fit nicely */
+            outline: none; /* Remove focus outline */
+            line-height: normal; /* Ensure proper vertical alignment */
+        }
+
+        .email-capture-form input[type="email"]::placeholder {
+            color: #8e8e93; /* KSystemGrey for placeholder */
+            opacity: 1; /* Ensure placeholder is visible */
+        }
+
+        .email-capture-form button[type="submit"] {
+            padding: 12px 18px; /* Consistent padding */
+            border: none; /* Remove default border */
+            background-color: #f2f2f7; /* kSystemGrey6 */
+            color: #00ff41; /* kSystemBlue */
+            font-size: 1.1rem; /* Match download button text size */
+            font-weight: 500; /* Match download button font weight */
+            cursor: pointer;
+            outline: none; /* Remove focus outline */
+            /* Add a subtle separator from the input field */
+            border-left: 1px solid #d1d1d6; /* kSystemGrey4 or similar */
+            white-space: nowrap; /* Prevent button text from wrapping */
+        }
+        /* END NEW Styles for Email Capture Form */
+
+        /* Removed duplicate mobile media query - handled at line 1200 */
+
+        /* Styles for Email Capture Form (Updated for compactness) */
+        .email-capture-form {
+            display: flex; /* Align input and button horizontally */
+            border-radius: 12px; /* Match download button rounding */
+            overflow: hidden; /* Clip children to rounded corners */
+            flex-grow: 1; 
+            min-width: 220px; /* Reduced min-width */
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05); /* Subtle shadow */
+        }
+
+        .email-capture-form input[type="email"] {
+            flex-grow: 1; /* Input takes available space */
+            padding: 12px 16px; /* Adjusted padding */
+            border: none; /* Remove default border */
+            background-color: #f2f2f7; /* kSystemGrey6 */
+            color: #0b0b0c; /* Dark text for input */
+            font-size: 0.9rem; /* Slightly smaller font for placeholder */
+            outline: none; /* Remove focus outline */
+            line-height: normal; /* Ensure proper vertical alignment */
+        }
+
+        .email-capture-form input[type="email"]::placeholder {
+            color: #8e8e93; /* KSystemGrey for placeholder */
+            opacity: 1; /* Ensure placeholder is visible */
+        }
+
+        .email-capture-form button[type="submit"] {
+            padding: 12px 16px; /* Adjusted padding */
+            border: none; /* Remove default border */
+            background-color: #f2f2f7; /* kSystemGrey6 */
+            color: #00ff41; /* kSystemBlue */
+            font-size: 1rem; /* Adjusted font size */
+            font-weight: 500; /* Match download button font weight */
+            cursor: pointer;
+            outline: none; /* Remove focus outline */
+            border-left: 1px solid #d1d1d6; /* kSystemGrey4 or similar */
+            white-space: nowrap; /* Prevent button text from wrapping */
+        }
+        /* END Styles for Email Capture Form */
+
+        /* NEW: Modal Styles */
+        .modal {
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.5); /* Black w/ opacity for overlay */
+            display: flex; /* Used to center modal content (initially none, set by JS) */
+            align-items: center; /* Vertically center */
+            justify-content: center; /* Horizontally center */
+            font-family: 'AirbnbCereal', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .modal-content {
+            background-color: #ffffff; /* Dark background */
+            margin: auto; /* Auto margins for centering */
+            /* Adjusted padding to be a bit tighter, closer to the image */
+            padding: 25px 30px;
+            border-radius: 16px; /* Rounded corners */
+            width: 90%; /* Responsive width */
+            max-width: 400px; /* Slightly reduced max-width for a more compact feel like the image */
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            text-align: center; /* Center text elements */
+            position: relative; /* For positioning the close button */
+        }
+
+        .modal-content h2 {
+            font-family: 'AirbnbCerealBold', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 1.8rem;
+            margin-top: 0;
+            margin-bottom: 10px; /* Reduced margin for a tighter look */
+            color: #0b0b0c;
+        }
+
+        .modal-content p {
+            font-family: 'AirbnbCereal', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 0.95rem; /* Slightly smaller to match image's visual weight */
+            color: #b0b0b0;
+            margin-bottom: 20px; /* Adjusted margin */
+            line-height: 1.5;
+        }
+
+        .close-button {
+            color: #8e8e93; /* kSystemGrey, to match image's X color */
+            position: absolute;
+            top: 15px; /* Adjusted for better visual balance */
+            right: 15px; /* Adjusted for better visual balance */
+            font-size: 24px; /* Slightly smaller X */
+            font-weight: normal; /* Less bold X */
+            line-height: 1;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: #0b0b0c;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .modal-content input[type="email"] {
+            width: 100%;
+            padding: 12px 15px;
+            margin-bottom: 15px; /* Reduced margin */
+            border: 1px solid #333;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1rem;
+            font-family: 'AirbnbCereal', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #fafafa;
+            color: #0b0b0c;
+        }
+         .modal-content input[type="email"]::placeholder {
+            color: #8e8e93; /* kSystemGrey */
+            opacity: 1;
+        }
+
+        /* MODIFIED: Consent Checkbox Styles */
+        .consent-area {
+            display: flex;
+            align-items: center; /* Vertically center checkbox with the label text */
+            margin-bottom: 20px; 
+            text-align: left; 
+        }
+
+        .consent-area input[type="checkbox"] {
+            /* margin-top: 3px; */ /* Removed, align-items:center on parent handles it */
+            margin-right: 10px; /* Slightly more space */
+            flex-shrink: 0; 
+            accent-color: #00ff41; /* kSystemBlue for the checkmark */
+            width: 16px; /* Standard checkbox size */
+            height: 16px; /* Standard checkbox size */
+            cursor: pointer; /* Make checkbox itself also appear clickable */
+        }
+
+        .consent-area label {
+            font-size: 0.8rem; /* Made label text a bit smaller */
+            color: #b0b0b0; /* Light grey for dark mode */
+            line-height: 1.4;
+            cursor: pointer;
+            font-family: 'AirbnbCereal', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        /* END MODIFIED: Consent Checkbox Styles */
+
+        .modal-content button#modalSubmitButton { /* Targeting specifically the submit button */
+            background-color: #fafafa; /* Dark background */
+            color: #00ff41; /* Green accent color */
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'AirbnbCereal', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 1rem;
+            font-weight: 500; /* Medium weight */
+            width: 100%;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .modal-content button#modalSubmitButton:hover {
+            background-color: #f4f4f5; /* Lighter dark on hover */
+        }
+        /* END NEW: Modal Styles */
+
+        /* Base styles for the feature list and its items */
+        .feature-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px; 
+            position: relative; 
+            align-items: flex-start; 
+            justify-content: center; 
+        }
+
+        .feature-list-item {
+            display: block; 
+            width: 100%;
+            padding: 0; 
+            border-radius: 0; 
+            background-color: transparent; 
+            border: none; 
+            cursor: default; 
+            transition: color 0.3s ease; 
+        }
+
+        /* DUPLICATE BLOCK REMOVED - Using styles from line 3270 instead */
+
+
+        /* --- NOW THE MEDIA QUERIES --- */
+
+        /* Responsive adjustments for Other Features section (and feature-list-title within them) */
+        @media (max-width: 992px) {
+            .other-features-section {
+                padding: 0 20px; 
+            }
+            .sticky-scroll-parent {
+                height: 700vh;
+            }
+            .other-features-container {
+                grid-template-columns: 1fr; 
+                gap: 30px; 
+                max-width: 600px; 
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .feature-list {
+                align-items: center; 
+                text-align: center; 
+            }
+            .feature-list-title { /* This will now override the base 3rem */
+                font-size: 2rem; 
+            }
+            .iphone-preview {
+                margin: 0 auto; 
+            }
+            .fake-scrollbar-container {
+                display: none; 
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sticky-scroll-parent {
+                height: 700vh; /* Increased to allow all 6 items to show */
+            }
+            .feature-list-title { /* This will now override the 2rem and the base 3rem */
+                font-size: 1.5rem; 
+            }
+            .other-features-container {
+                gap: 25px; 
+                max-width: 90%; 
+            }
+        }
+
+        @media (max-width: 480px) {
+            .other-features-section {
+                padding: 0 10px; 
+            }
+            .sticky-scroll-parent {
+                height: 700vh; /* Increased to allow all 6 items to show */
+            }
+            .feature-list-title { /* This will now override the 1.5rem and the base 3rem */
+                font-size: 1.3rem; /* Let's try 1.3rem as 1.0rem was too small */
+                line-height: 1.2;  /* Adjusted line height */
+            }
+            .feature-list {
+                gap: 8px; 
+            }
+            .other-features-container {
+                gap: 10px; 
+            }
+            .other-features-container .iphone-preview {
+                width: 100%;
+                max-width: 240px;
+            }
+        }
+
+        /* Stable viewport units keep Safari toolbar movement from resizing
+           the scroll track or the pinned panel during a gesture. */
+        @media (max-width: 992px) {
+            .sticky-scroll-parent { height: 700svh; }
+            .other-features-section { height: 100svh; }
+        }
+
+        /* iOS Control Section Styling - mirrors integrations and actions sections */
+        .ios-control-section {
+            padding: 80px 0;
+            background-color: transparent;
+            position: relative;
+            overflow-x: visible;
+        }
+
+        .ios-control-label {
+            display: inline-block;
+            font-family: 'Figtree', monospace;
+            font-size: 0.8rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 8px 19px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            color: #0b0b0c;
+            width: auto;
+            max-width: fit-content;
+        }
+
+        .ios-control-title {
+            font-family: 'Figtree', serif;
+            font-size: 3rem;
+            margin-bottom: 0px;
+            font-weight: 600;
+            text-align: left;
+            margin-top: 0;
+            color: #0b0b0c;
+            letter-spacing: normal;
+            position: relative;
+            line-height: 0.9;
+        }
+
+
+        /* Scanlines over ios-control title - DISABLED */
+
+        .ios-control-subtitle {
+            font-size: 1.1rem;
+            color: #aaa;
+            margin-top: 8px;
+            margin-bottom: 0;
+            max-width: 800px;
+            text-align: left;
+            line-height: 1.5;
+            font-family: 'AirbnbCereal', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .ios-control-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        .ios-control-left {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ios-control-right {
+            display: flex;
+            justify-content: center;
+        }
+
+        /* iOS Control Grid - Matches actions-grid pattern */
+        .ios-control-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-top: 35px;
+            margin-bottom: 0;
+            position: relative;
+            overflow: visible;
+        }
+
+        .ios-control-button {
+            background: transparent !important;
+            border: 1px solid rgba(200, 200, 200, 0.25);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 4px rgba(200, 200, 200, 0.15), inset 0 0 2px rgba(200, 200, 200, 0.08);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #0b0b0c;
+            position: relative;
+            overflow: visible;
+            z-index: 2;
+        }
+
+        /* Active iOS control button - subtle square brightening */
+        .ios-control-button.active::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.06);
+            mix-blend-mode: screen;
+            border-radius: 16px;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .ios-control-button img,
+        .ios-control-button h3 {
+            position: relative;
+            z-index: 3;
+            opacity: 0.6;
+            transition: opacity 0.3s ease, filter 0.3s ease;
+        }
+
+        .ios-control-button img {
+            margin-bottom: 12px;
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+            filter: brightness(0) invert(1) blur(0.5px);
+            position: relative;
+            z-index: 1;
+        }
+
+        .ios-control-button h3 {
+            filter: blur(0.5px);
+        }
+
+        .ios-control-button h3 {
+            font-size: 1rem;
+            font-weight: 500;
+            margin: 0;
+            color: #0b0b0c;
+            position: relative;
+            z-index: 1;
+        }
+
+        .ios-control-button.active {
+            border-color: rgba(255, 255, 255, 0.6);
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.25), 0 0 12px rgba(255, 255, 255, 0.15), inset 0 0 4px rgba(255, 255, 255, 0.1);
+            z-index: 15;
+        }
+
+        .ios-control-button.active img {
+            opacity: 1;
+            filter: brightness(0) invert(1) blur(0);
+            animation: pipboy-flicker 0.4s ease-out;
+        }
+
+        .ios-control-button.active h3 {
+            opacity: 1;
+            filter: blur(0);
+            animation: pipboy-flicker 0.4s ease-out;
+            text-shadow: 0 0 4px rgba(255, 255, 255, 0.6);
+        }
+
+        .ios-control-button:not(.active):hover {
+            background-color: #ffffff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(255, 255, 255, 0.1);
+        }
+
+        /* OLD STYLES - keeping for backwards compatibility */
+        .ios-features-list {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin-top: 35px;
+            margin-bottom: 30px;
+        }
+
+        .ios-feature-item { /* UPDATED: Dark mode styling */
+            background-color: #ffffff;
+            border: 1px solid white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            border-radius: 16px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #0b0b0c;
+            display: flex;
+            /* flex-direction: column; */ /* OLD */
+            flex-direction: row; /* NEW: Icon and text side-by-side */
+            /* align-items: center; */ /* REMOVED */
+            align-items: center; /* NEW: Vertically center icon and text block */
+            /* border: 2px solid transparent; */ /* REMOVED - will only apply border on active */
+            border: 2px solid transparent; /* Keep transparent border for layout consistency on hover/active */
+            gap: 16px; /* NEW: Add gap between icon and text content */
+        }
+        
+        .ios-feature-item img {
+            border-radius: 10px;
+            /* margin-bottom: 12px; */ /* REMOVED to reduce whitespace below icon */
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+        }
+
+        /* Make iOS feature icons white */
+        .ios-feature-item img[src*="icons/"] {
+            filter: brightness(0) invert(1);
+        }
+
+        .ios-feature-item h3 {
+            font-size: 1rem;
+            font-weight: 500;
+            margin: 0;
+            color: #0b0b0c;
+        }
+
+        /* NEW: Container for the title and subtitle text block */
+        .ios-feature-text-content {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+        }
+
+        /* NEW: CSS for feature item subtitle */
+        .ios-feature-subtitle {
+            font-size: 0.85rem; /* Subtitle font size */
+            color: #5a5a5f;       /* Subtitle color */
+            margin-top: 4px;    /* Space between title and subtitle - reduced slightly */
+            line-height: 1.4;   /* Line height for readability */
+            /* max-width: 90%; */     /* REMOVED: No longer needed as text-align handles it */
+            /* margin-left: auto; */  /* REMOVED: No longer needed */
+            /* margin-right: auto; */ /* REMOVED: No longer needed */
+        }
+
+        .ios-feature-item.active {
+            border-color: #e6e6e8;
+            background: #222;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 255, 0, 0.3);
+        }
+        
+        .ios-feature-item:not(.active):hover {
+            background-color: #ffffff;
+            transform: translateY(-1px);
+            box-shadow: 0 5px 14px rgba(255, 255, 255, 0.1);
+        }
+
+
+        /* Example Goals section styling (remains largely the same for now) */
+        .ios-example-goals {
+            text-align: left;
+            /* margin-top: 10px; */ /* REMOVED: Space now handled by margin-bottom on .ios-features-list */
+             padding-left: 0;
+            margin-left: 0;
+        }
+
+        .example-goals-title {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #aaa;
+            margin-bottom: 10px;
+        }
+
+        /* Mobile Dropdown - hidden by default, shown on mobile */
+        .ios-goals-dropdown {
+            display: none;
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 1rem;
+            background: #2c2c2e;
+            color: #0b0b0c;
+            border: 1px solid #444;
+            border-radius: 8px;
+            font-family: 'AirbnbCereal', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin-top: 10px;
+            cursor: pointer;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='white' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 40px;
+        }
+
+        .segmented-control-wrapper {
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            margin-top: 10px;
+            width: 100%;
+            max-width: 100%;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+        }
+
+        .segmented-control-wrapper::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .segmented-control-wrapper::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+            margin: 4px 0;
+        }
+
+        .segmented-control-wrapper::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        .segmented-control-wrapper::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .segmented-control {
+            display: inline-flex;
+            background: #2c2c2e;
+            border-radius: 10px;
+            padding: 3px;
+            gap: 2px;
+            min-width: max-content;
+            width: fit-content;
+        }
+
+        .segment-item {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #0b0b0c;
+            white-space: nowrap;
+            user-select: none;
+        }
+
+        .segment-item:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .segment-item.active {
+            background: #3a3a3c;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Responsive adjustments for iOS Control Section */
+        @media (max-width: 992px) {
+            .ios-control-container {
+                display: flex;
+                flex-direction: column;
+                gap: 0;
+            }
+
+            /* Flatten to access children for ordering */
+            .ios-control-left {
+                display: contents;
+            }
+
+            /* Order: label → title → subtitle → phone → buttons */
+            .ios-control-label {
+                order: 1;
+                margin-bottom: 8px;
+                align-self: flex-start;
+            }
+
+            .ios-control-title {
+                order: 2;
+                margin-bottom: 2px;
+                margin-top: 0;
+                align-self: flex-start;
+                text-align: left;
+            }
+
+            .ios-control-subtitle {
+                order: 3;
+                margin-bottom: 20px;
+                margin-top: 0;
+                align-self: flex-start;
+                text-align: left;
+            }
+
+            .ios-control-right {
+                order: 4;
+                margin-bottom: -35px;
+                transform: scale(0.9);
+            }
+
+            .ios-control-grid {
+                order: 5;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 12px;
+            }
+
+            /* Make iOS control buttons smaller */
+            .ios-control-button {
+                padding: 12px;
+            }
+
+            .ios-control-button img {
+                width: 45px;
+                height: 45px;
+                margin-bottom: 8px;
+            }
+
+            .ios-control-button h3 {
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .ios-control-section { padding: 60px 0; }
+            .ios-control-title { font-size: 2.2rem; }
+            .ios-control-subtitle { font-size: 1rem; }
+
+            /* iOS Control Grid - 4 columns on tablet */
+            .ios-control-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 10px;
+            }
+
+            /* Make buttons even smaller on smaller screens */
+            .ios-control-button {
+                padding: 10px;
+            }
+
+            .ios-control-button img {
+                width: 40px;
+                height: 40px;
+                margin-bottom: 6px;
+            }
+
+            .ios-control-button h3 {
+                font-size: 0.8rem;
+            }
+        }
+
+         @media (max-width: 480px) {
+             .ios-control-section {
+                 padding: 40px 0;
+             }
+
+             /* .ios-control-card adjustments removed */
+             .ios-control-title { font-size: 2rem; }
+             .ios-control-subtitle { font-size: 0.95rem; margin-bottom: 20px;}
+             .ios-features-list {
+                /* grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); */ /* REMOVED: To maintain single column stack */
+                gap: 10px;
+            }
+            /* NEW: Further adjustments for iOS feature items on mobile */
+            .ios-feature-item {
+                padding: 12px; /* Further reduce padding */
+                gap: 10px; /* Further reduce gap */
+            }
+            .ios-feature-item img {
+                width: 40px; /* Further reduce icon size */
+                height: 40px;
+            }
+            .ios-feature-item h3 {
+                font-size: 0.85rem; /* Further reduce title font size */
+            }
+            .ios-feature-subtitle {
+                font-size: 0.75rem; /* Further reduce subtitle font size */
+                margin-top: 2px; /* Adjust top margin */
+            }
+
+            /* Smaller segmented control on mobile */
+            .segment-item {
+                font-size: 0.75rem;
+                padding: 6px 12px;
+            }
+
+            /* iOS Control grid - 2 rows of 4 buttons */
+            .ios-control-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 8px;
+            }
+            .ios-control-button {
+                padding: 8px;
+            }
+            .ios-control-button img {
+                width: 35px;
+                height: 35px;
+                margin-bottom: 5px;
+            }
+            .ios-control-button h3 {
+                font-size: 0.75rem;
+            }
+         }
+
+        /* REMOVED: Download disclaimer styles */
+        /* .download-disclaimer { ... } */
+
+        /* Hero Download Modal — L12 Variant E (big tile picker) */
+        .download-info-modal {
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .download-info-content {
+            background: #fafafa;
+            border-radius: 16px;
+            max-width: 448px;
+            width: 100%;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+            border: 1px solid #333;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Scoped: Hero modal only — Variant E styling */
+        #heroDownloadModal {
+            background-color: rgba(11, 11, 12, 0.45);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            font-family: 'Figtree', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        #heroDownloadModal .download-info-content {
+            background: #ffffff;
+            border-radius: 20px;
+            max-width: 600px;
+            box-shadow: 0 24px 56px -16px rgba(11, 11, 12, 0.18), 0 4px 12px -4px rgba(11, 11, 12, 0.08);
+            border: 1px solid #e6e6e8;
+            overflow: hidden;
+            padding: 28px 28px 24px;
+        }
+
+        .download-modal-close-btn {
+            position: absolute;
+            top: 18px;
+            right: 18px;
+            background: transparent;
+            border: 1px solid #e6e6e8;
+            color: #5a5a5f;
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s, border-color 0.15s;
+            z-index: 10;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .download-modal-close-btn:hover {
+            background: #f4f4f5;
+            color: #0b0b0c;
+            border-color: #8a8a90;
+        }
+
+        .download-modal-eyebrow {
+            font-family: 'Figtree', system-ui, -apple-system, sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            color: #8a8a90;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .download-modal-title {
+            font-family: 'Figtree', system-ui, -apple-system, sans-serif;
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            color: #0b0b0c;
+            margin: 0 0 10px;
+            line-height: 1.08;
+        }
+
+        .download-modal-sub {
+            font-size: 14.5px;
+            line-height: 1.55;
+            color: #5a5a5f;
+            margin: 0 0 22px;
+        }
+
+        .download-modal-tiles {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 22px;
+        }
+
+        .download-modal-tile {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 22px 10px;
+            background: #ffffff;
+            border: 1.5px solid #e6e6e8;
+            border-radius: 14px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+        }
+
+        .download-modal-tile:hover {
+            border-color: #8a8a90;
+        }
+
+        .download-modal-tile.sel {
+            border-color: #2f5bff;
+            box-shadow: 0 0 0 3px rgba(47, 91, 255, 0.12);
+            background: #ffffff;
+        }
+
+        .download-modal-tile-icn {
+            width: 52px;
+            height: 52px;
+            border-radius: 12px;
+            background: #f4f4f5;
+            border: 1px solid #e6e6e8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0b0b0c;
+            transition: background 0.15s, border-color 0.15s, color 0.15s;
+        }
+
+        .download-modal-tile.sel .download-modal-tile-icn {
+            background: #ffffff;
+            border-color: #2f5bff;
+            color: #2f5bff;
+        }
+
+        .download-modal-tile-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: #0b0b0c;
+        }
+
+        .download-modal-tile-meta {
+            font-size: 12px;
+            color: #5a5a5f;
+        }
+
+        .download-modal-cta {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            height: 50px;
+            background: #0b0b0c;
+            color: #ffffff;
+            border-radius: 12px;
+            font-size: 14.5px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            border: 1px solid #0b0b0c;
+            transition: background 0.15s;
+        }
+
+        .download-modal-cta:hover {
+            background: #1c1c1e;
+        }
+
+        .download-modal-cta-arrow {
+            transition: transform 0.15s;
+        }
+
+        .download-modal-cta:hover .download-modal-cta-arrow {
+            transform: translateX(3px);
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 600px) {
+            #heroDownloadModal .download-info-content {
+                padding: 24px 20px 20px;
+                border-radius: 16px;
+            }
+
+            .download-modal-title {
+                font-size: 24px;
+            }
+
+            .download-modal-tiles {
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 8px;
+            }
+
+            .download-modal-tile {
+                padding: 16px 6px;
+            }
+
+            .download-modal-tile-icn {
+                width: 44px;
+                height: 44px;
+            }
+
+            .download-modal-tile-icn svg {
+                width: 28px;
+                height: 28px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #heroDownloadModal .download-info-content {
+                margin: 0;
+                padding: 22px 18px 18px;
+            }
+
+            .download-modal-title {
+                font-size: 22px;
+            }
+
+            .download-modal-sub {
+                font-size: 13.5px;
+                margin-bottom: 18px;
+            }
+
+            .download-modal-tile {
+                padding: 14px 4px;
+                gap: 6px;
+            }
+
+            .download-modal-tile-icn {
+                width: 38px;
+                height: 38px;
+            }
+
+            .download-modal-tile-icn svg {
+                width: 24px;
+                height: 24px;
+            }
+
+            .download-modal-tile-name {
+                font-size: 13px;
+            }
+
+            .download-modal-tile-meta {
+                font-size: 11px;
+            }
+        }
+        /* END Hero Download Modal styles */
+
+        .download-button img.white-icon {
+            filter: brightness(0) invert(1);
+        }
+
+        /* ========================================== */
+        /* TESTIMONIALS SECTIONS - ALL STYLES */
+        /* ========================================== */
+
+        /* Common Testimonials Styles */
+        .testimonials-section {
+            padding: 80px 24px;
+            margin: 0 auto;
+        }
+
+        .testimonials-title {
+            font-family: 'Figtree', monospace;
+            font-size: 2.5rem;
+            color: #0b0b0c;
+            text-align: center;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .testimonials-subtitle {
+            font-family: 'Figtree', monospace;
+            font-size: 1rem;
+            color: #888;
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        /* Terminal-Style Testimonials */
+        .testimonials-terminal .testimonials-subtitle {
+            font-family: 'Figtree', monospace;
+            color: #00ff41;
+        }
+
+        .testimonials-terminal-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .terminal-window {
+            background: #0d0d0d;
+            border: 1px solid #333;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .terminal-header {
+            background: #fafafa;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid #333;
+        }
+
+        .terminal-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .terminal-dot.red { background: #ff5f56; }
+        .terminal-dot.yellow { background: #ffbd2e; }
+        .terminal-dot.green { background: #27ca40; }
+
+        .terminal-title {
+            font-family: 'Figtree', monospace;
+            font-size: 0.85rem;
+            color: #888;
+            margin-left: auto;
+        }
+
+        .terminal-body {
+            padding: 24px;
+            font-family: 'Figtree', monospace;
+            font-size: 0.9rem;
+            line-height: 1.8;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .terminal-line {
+            margin-top: 16px;
+        }
+
+        .terminal-line:first-child {
+            margin-top: 0;
+        }
+
+        .terminal-timestamp {
+            color: #666;
+        }
+
+        .terminal-user {
+            color: #00ff41;
+            margin-left: 8px;
+        }
+
+        .terminal-role {
+            color: #888;
+            margin-left: 4px;
+        }
+
+        .terminal-quote {
+            color: #0b0b0c;
+            margin-left: 0;
+            margin-bottom: 16px;
+            padding-left: 16px;
+            border-left: 2px solid #333;
+        }
+
+        .terminal-cursor {
+            color: #00ff41;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .testimonials-title {
+                font-size: 1.8rem;
+            }
+
+            .terminal-body {
+                font-size: 0.8rem;
+                padding: 16px;
+            }
+        }
+
+    

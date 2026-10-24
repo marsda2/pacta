@@ -22,6 +22,8 @@ const messages: Record<string, string> = {
   deadline_passed: 'The deadline has already passed.',
   not_in_review: 'This pact isn’t waiting for a verdict.',
   not_appealable: 'This proof can’t be appealed right now.',
+  too_many_photos: 'You can add up to 2 extra photos.',
+  bad_image: 'One of the photos couldn’t be read.',
   appeal_requires_pass: 'Human appeals are included in the High-Yield Pass.',
   no_more_attempts: 'You’ve already used your second try for this pact.',
   review_expired: 'The time to retry this proof has run out.',

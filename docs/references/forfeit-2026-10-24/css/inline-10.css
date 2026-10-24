@@ -1,0 +1,40 @@
+
+        @media (max-width: 768px) {
+            .other-features-section {
+                padding-top: 64px;
+                padding-bottom: 16px;
+                transform: none !important;
+                opacity: 1 !important;
+                transition: none !important;
+            }
+            /* This is a page-scroll demo, not an independently scrollable chat.
+               Let swipes over the phone continue moving the outer page. */
+            .other-features-section .ol-phone-content .message-container {
+                overflow-y: hidden !important;
+            }
+            /* All titles share a reserved row below the label. Hidden titles
+               still size the row, so changing examples never shifts the phone. */
+            .other-features-section .feature-list {
+                display: grid !important;
+                grid-template-columns: minmax(0, 1fr);
+                grid-template-rows: auto auto;
+                gap: 16px !important;
+                min-height: 0;
+            }
+            .other-features-section .other-features-title {
+                grid-area: 1 / 1;
+                margin: 0 !important;
+            }
+            .other-features-section .feature-list-item {
+                grid-area: 2 / 1;
+                position: relative;
+                bottom: auto;
+                transform: none;
+                align-self: center;
+            }
+            .other-features-section .iphone-preview.ol-phone {
+                width: 300px !important;
+                zoom: var(--feature-phone-scale, 1);
+            }
+        }
+        
