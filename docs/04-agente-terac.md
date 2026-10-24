@@ -39,7 +39,15 @@ Dos maneras de conectarse (elige la que Terac soporte):
 - **A. Cliente MCP en el servidor:** `lib/server/terac.ts` abre una sesión MCP (`@modelcontextprotocol/sdk`) contra la URL del servidor MCP de Terac con `TERAC_API_KEY` y llama directamente a la tool de crear tarea. Es determinista: recomendada para el flujo de dinero.
 - **B. Conector MCP de la API de Claude:** se le pasa el servidor MCP de Terac al agente y es Claude quien decide crear la tarea. Luce más "autónomo", pero es menos predecible. Úsala solo para la generación de micro-tareas, si sobra tiempo.
 
-**Tarea que se crea** **[verificar] la forma exacta**:
+**Verificado en la doc de Terac (oct 2026, API v2 beta):**
+
+- MCP: `https://terac.com/api/mcp` (HTTP streamable, OAuth al conectar, sin API key). Configurado en `.mcp.json`; se autentica con `/mcp`.
+- Tools del MCP: `terac_request_feasibility` → `terac_get_feasibility_request` (hasta `PRICED`, da `cpi_usd`) → `terac_launch_draft_opportunity`; después `terac_get_submissions`, `terac_get_context`, `terac_pause_opportunity`, `terac_list_opportunities`.
+- REST (para el servidor en Vercel): base `https://terac.com/api/external/v2`, `Authorization: Bearer <API key>`. Spec: `https://terac.com/docs/developers/openapi.json`.
+- **Terac no tiene "tarea con foto + opciones".** Contrata personas (`opportunity`) y estas hacen una `task`: `interview` con `task_url` (una página tuya donde el humano ve la foto y vota), o `file_upload`. Por tanto, PACTA debe alojar una página de jurado (`/jury/[id]`) y usar `review_type: "manual_review"`; el veredicto lo guarda la propia app y se aprueba la submission con `POST /submissions/{id}/approve`. Terac añade `submissionId`/`teracSubmissionId`/`taskId` a la URL.
+- Webhooks: eventos `submission.status.change` y `submission.approved`; firma `base64(HMAC-SHA256(secret, X-Terac-Request-Timestamp + cuerpo))`. Hay sandbox (`POST /opportunities/{id}/test-submissions`) para probarlos sin pagar.
+
+**Tarea que se crea** (la forma de abajo es el diseño original; adáptala a lo anterior):
 
 ```
 title:        "Audit proof for pact #<id>"
