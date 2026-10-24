@@ -5,6 +5,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { PactaLogo } from '@/components/brand/PactaLogo';
 import { Pax, type PaxExpression } from '@/components/companion/Pax';
 import { Button, Icon, Screen, Text, type IconName } from '@/components/ui';
+import { apiFetch } from '@/lib/api/client';
 import { routes } from '@/lib/routes';
 import { colors, radii } from '@/lib/theme';
 
@@ -61,6 +62,21 @@ export default function Onboarding() {
   const [index, setIndex] = useState(0);
   const step = steps[index];
   const last = index === steps.length - 1;
+  const [trying, setTrying] = useState(false);
+
+  // Pacto de ejemplo sin dinero: arriesgas 30 puntos de reputación y ves cómo funciona.
+  const tryExample = async () => {
+    setTrying(true);
+    try {
+      const { pact } = await apiFetch<{ pact: { id: string } }>('/api/pacts', {
+        method: 'POST',
+        body: { title: 'Example: read 10 pages', stakeCents: 0, dueAt: Date.now() + 60 * 60_000, methods: ['photo'], reputationOnly: true },
+      });
+      router.replace(routes.pact(pact.id));
+    } catch {
+      router.replace(routes.newPact);
+    }
+  };
 
   return (
     <Screen contentStyle={styles.content}>
@@ -102,6 +118,7 @@ export default function Onboarding() {
       {last ? (
         <View style={styles.actions}>
           <Button label="Create my first pact" icon="arrowRight" onPress={() => router.replace(routes.newPact)} />
+          <Button label="Try a free example pact" variant="outline" disabled={trying} onPress={tryExample} />
           <Button label="Maybe later" variant="link" onPress={() => router.replace(routes.home)} />
         </View>
       ) : (
