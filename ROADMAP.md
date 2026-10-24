@@ -91,7 +91,8 @@ La app ya lee y escribe en Supabase (esquema `pacta`) a través de `/api/*`.
 - ✅ `POST /api/webhooks/whop`: firma, idempotencia en `webhook_events`, `payment.succeeded` → ACTIVE. Probado en local con eventos firmados (pago, duplicado, firma falsa → 401).
 - ✅ Reembolso al aprobar (IA, testigo o jurado) con `payments.refund`; stake al Vault al fallar.
 - ✅ **High-Yield Pass**: producto `prod_QdKfivmFTDf6L` en Whop y plan recurrente de $9 cada 30 días creado al vuelo (Whop exige producto para los planes recurrentes). `POST /api/vault/pass` → checkout con `metadata.user_id`; el webhook sube o baja el nivel con `membership.activated` / `membership.deactivated` (y el primer pago del Pass). Las membresías de un stake se ignoran. Probado en local con eventos firmados.
-- ⬜ **Registrar el webhook en producción**: `npm run whop:webhook` (crea el webhook y sube `WHOP_WEBHOOK_SECRET` a Vercel sin mostrarlo) y redesplegar. Sin esto, producción responde 401 a Whop y ningún pacto pagado se activa.
+- ⬜ **Webhook en producción**: hay uno creado a las 15:08 (`hook_M5C8XZ9HjmaQq`, todos los eventos) cuyo secreto no se guardó, así que producción responde 401 a Whop y ningún pacto pagado se activa. `npm run whop:webhook -- --replace` lo sustituye, sube `WHOP_WEBHOOK_SECRET` a Vercel sin mostrarlo y redespliega.
+- ✅ App de Whop `app_3r1c2LEetOyasW`: `WHOP_APP_ID` y `EXPO_PUBLIC_WHOP_APP_ID` en Vercel (production).
 - ⬜ Un pago real de $5 de punta a punta (pago → webhook → ACTIVE → prueba → reembolso) y reembolsar al terminar. Lo hace una persona con su tarjeta (ver [docs/09 §1](docs/09-demo-y-entrega.md)).
 
 ## Fase 5 · Agente auditor y jurado Terac 🟡

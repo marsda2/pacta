@@ -8,7 +8,7 @@ Estos pasos tocan dinero, secretos o la cuenta de Whop, así que los haces tú. 
 
 | # | Qué | Cómo | Hecho cuando… |
 |---|---|---|---|
-| 1 | Webhook de Whop en producción | `npm run whop:webhook` (crea el webhook, guarda el secreto en `.env.local` y lo sube a Vercel) y después redespliega | `whop webhooks list` muestra la URL `…/api/webhooks/whop` |
+| 1 | Webhook de Whop en producción | `npm run whop:webhook -- --replace`: borra el webhook de las 15:08 (su secreto no se guardó), crea uno nuevo, guarda el secreto en `.env.local`, lo sube a Vercel y redespliega | Producción deja de responder 401 a Whop |
 | 2 | App de Whop | Dashboard → Developer → app **PACTA** → *Hosting*: base URL `https://pacta-theta.vercel.app`, *Experience view* `/experiences/[experienceId]` | Instalada en el negocio `pacta` y visible en la barra lateral |
 | 3 | Id de la app en Vercel | `WHOP_APP_ID` y `EXPO_PUBLIC_WHOP_APP_ID` = `app_…` (production) y redesplegar | Dentro de Whop, "Confirm pact" abre el modal de pago de Whop sin salir |
 | 4 | Pago real de prueba | Desde la app **dentro de Whop**: pacto de $5 → pagar con tu tarjeta | El pacto pasa a *In progress* sin recargar (el webhook lo activó) |
