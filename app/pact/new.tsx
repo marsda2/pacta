@@ -21,6 +21,7 @@ export default function NewPact() {
   const [stake, setStake] = useState<number>(STAKE_PRESETS_CENTS[1]);
   const [methods, setMethods] = useState<ProofMethod[]>(['photo']);
   const [agreed, setAgreed] = useState(true);
+  const [freeMode, setFreeMode] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<unknown>(null);
 
@@ -30,7 +31,7 @@ export default function NewPact() {
     setSaving(true);
     setError(null);
     try {
-      const pact = await createPact({ title: task.trim(), stakeCents: stake, dueAt: deadline.dueAt, methods });
+      const pact = await createPact({ title: task.trim(), stakeCents: stake, dueAt: deadline.dueAt, methods, reputationOnly: freeMode });
       // El stake se paga en Whop; al volver, Whop redirige al pacto y el webhook lo deja ACTIVE.
       if (pact.checkoutUrl) await Linking.openURL(pact.checkoutUrl);
       router.replace(routes.pact(pact.id));
@@ -53,22 +54,33 @@ export default function NewPact() {
           onChange={(label) => setDeadline(options.find((o) => o.label === label) ?? options[0])}
         />
 
-        <View style={styles.group}>
-          <SectionLabel>Stake</SectionLabel>
-          <StakeChips presets={STAKE_PRESETS_CENTS} cents={stake} onChange={setStake} />
-        </View>
+        <Checkbox
+          checked={freeMode}
+          onChange={setFreeMode}
+          label="No money: risk only reputation."
+          caption="Nothing is charged. Miss the deadline and you lose 30 reputation points."
+        />
+
+        {freeMode ? null : (
+          <View style={styles.group}>
+            <SectionLabel>Stake</SectionLabel>
+            <StakeChips presets={STAKE_PRESETS_CENTS} cents={stake} onChange={setStake} />
+          </View>
+        )}
 
         <View style={styles.group}>
           <SectionLabel>Proof method</SectionLabel>
           <ProofMethodPicker value={methods} onChange={setMethods} />
         </View>
 
-        <Checkbox
-          checked={agreed}
-          onChange={setAgreed}
-          label={`Lock ${formatUsd(stake)} in my Vault if I miss the deadline.`}
-          caption={`Proof must be approved by ${formatClockTime(deadline.dueAt)}. Your money isn’t lost.`}
-        />
+        {freeMode ? null : (
+          <Checkbox
+            checked={agreed}
+            onChange={setAgreed}
+            label={`Lock ${formatUsd(stake)} in my Vault if I miss the deadline.`}
+            caption={`Proof must be approved by ${formatClockTime(deadline.dueAt)}. Your money isn’t lost.`}
+          />
+        )}
 
         {error ? <ErrorBanner error={error} /> : null}
         <Button label={saving ? 'Creating…' : 'Confirm pact'} icon="arrowRight" disabled={!canConfirm} onPress={confirm} />
