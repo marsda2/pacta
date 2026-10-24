@@ -27,7 +27,7 @@ function Navigator() {
     <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }}>
       <Stack.Screen name="onboarding" />
       <Stack.Screen name="auth/callback" />
-      <Stack.Protected guard={!!user}>
+      <Stack.Protected guard={!!user} redirectTo="/onboarding">
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="pact" />
         <Stack.Screen name="vault" />

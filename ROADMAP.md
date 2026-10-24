@@ -203,3 +203,9 @@ npm run build:web        # export estático a dist/
 - La entrada sin sesión sigue siendo la bienvenida de Whop; la landing nueva vive en `/landing` y su botón respeta la sesión.
 - Validación: 27 casos de autenticación + 20 de saldo/Vault/testigo/apelaciones; base real con QA borrada, OAuth simulado, sin cobros ni estudios pagados. Typecheck, lint y export web antes de publicar.
 - La publicación se hace al integrar el PR en `main`; Vercel tiene `main` configurada como rama de producción. El estado final se comprueba en GitHub/Vercel.
+
+## Publicación y QR · 2026-10-24
+
+El PR [#1](https://github.com/marsda2/pacta/pull/1) quedó fusionado en `main` (`5906ba5`) y Vercel completó automáticamente la publicación de producción. Las dos carpetas y la rama remota de diseño se sincronizaron. El webhook real `hook_P3VdUdEXp0xdk` aceptó un evento de prueba firmado de Whop: **HTTP 200, success=true**, sin cobro. El secreto está almacenado como Secret en Vercel.
+
+La comprobación visual detectó que el redirect por defecto de Expo SDK 58 elegía `/kit` al denegar la raíz privada. Corrección: `Stack.Protected` especifica `redirectTo="/onboarding"`; además, ambos QR apuntan directamente a `/onboarding`. La galería solo se abre al visitar `/kit` expresamente. Este ajuste se publica como commit posterior al merge.

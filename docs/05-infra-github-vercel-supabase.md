@@ -62,3 +62,7 @@ Los secretos nunca llevan prefijo `EXPO_PUBLIC_`. Los scripts leen `.env.local` 
 `npm run whop:auth` registra callbacks de producción, `pacta://auth/callback` y localhost/127.0.0.1 en 8081/8082. El cliente Whop es public con PKCE y no requiere un secreto nuevo. Para OAuth nativo se usa un development build con scheme `pacta` y SecureStore. En web se conserva la sesión al recargar la pestaña con sessionStorage; en nativo se usa SecureStore.
 
 `npm run check:auth` y `npm run check:release` comprueban login, aislamiento de usuarios y el dinero de la integración. Los testigos usan invitaciones firmadas de 48 h; las rutas de invitados comparten la función de pactos existente. La API rechaza simulaciones de veredictos en producción.
+
+### Despliegue comprobado · 2026-10-24
+
+PR #1 fusionado en `main` (`5906ba5`), despliegue Git de producción READY y webhook de Whop probado con firma real (HTTP 200). La verificación visual añadió la redirección explícita de las pantallas privadas a `/onboarding` y el QR enlaza esa ruta directamente. Ambos checkouts se sincronizan desde `origin/main`; QA temporal se conserva ignorada en `.local-qa/`.

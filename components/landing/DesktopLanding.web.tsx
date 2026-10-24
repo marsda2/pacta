@@ -190,7 +190,7 @@ function Vault({ motion }: { motion: boolean }) {
 export function DesktopLanding({ onPreview }: { onPreview: () => void }) {
   const root = useRef<HTMLDivElement>(null);
   const motion = useMotion();
-  const [url] = useState(() => typeof window === 'undefined' ? 'https://pacta-theta.vercel.app' : window.location.origin);
+  const [url] = useState(() => `${typeof window === 'undefined' ? 'https://pacta-theta.vercel.app' : window.location.origin}/onboarding`);
   useEffect(() => {
     const previousTitle = document.title;
     document.title = 'PACTA — Good intentions. Meet follow-through.';

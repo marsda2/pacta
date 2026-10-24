@@ -18,7 +18,7 @@ interface DesktopLandingProps {
 
 // Landing para escritorio: la app se usa en el móvil, así que aquí se explica y se lleva al teléfono.
 export function DesktopLanding({ onPreview }: DesktopLandingProps) {
-  const url = typeof window !== 'undefined' ? window.location.origin : 'https://pacta-theta.vercel.app';
+  const url = `${typeof window !== 'undefined' ? window.location.origin : 'https://pacta-theta.vercel.app'}/onboarding`;
 
   return (
     <ScrollView style={styles.root} contentContainerStyle={styles.content}>
