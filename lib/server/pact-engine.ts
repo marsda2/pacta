@@ -15,10 +15,10 @@ import {
   WITHDRAWAL_LOCK_DAYS_AFTER_CHEAT,
   type JuryVote,
 } from '../shared/rules';
-import type { PactDto, PactReviewDto, PactUiStatus, ProofMethod, UserSummary } from '../shared/types';
+import type { CheckoutLinkDto, PactDto, PactReviewDto, PactUiStatus, ProofMethod, UserSummary } from '../shared/types';
 import { query, withTransaction, type Queryable } from './db';
 import { HttpError } from './http';
-import { createStakeCheckout, refundStakePayment, stakeCheckoutUrl } from './whop';
+import { createStakeCheckout, refundStakePayment, stakeCheckoutLink } from './whop';
 import { auditProof } from './vision-agent';
 
 // Máquina de estados del pacto (docs/02). Todas las transiciones de dinero y de Trust viven
@@ -114,7 +114,7 @@ function reviewOf(row: PactRow): PactReviewDto | undefined {
 }
 
 // --- Usuario ---------------------------------------------------------------------------------
-// Identidad de demo hasta que llegue el token de Whop (fase 8).
+// Usuario de demo: quien abre la URL de Vercel fuera de Whop (dentro de Whop, ver identity.ts).
 export async function demoUserId(): Promise<string> {
   const { rows } = await query<{ id: string }>(
     `insert into pacta.users (whop_user_id, email) values ($1, 'demo@pacta.app')
@@ -128,7 +128,7 @@ export async function demoUserId(): Promise<string> {
 export async function userSummary(userId: string): Promise<UserSummary> {
   const { rows } = await query<{ trust_score: number; verified_streak: number; vault_cents: string }>(
     `select u.trust_score, u.verified_streak,
-            coalesce((select sum(case type when 'lock' then amount_cents else -amount_cents end)
+            coalesce((select sum(case type when 'lock' then amount_cents when 'yield' then 0 else -amount_cents end)
                         from pacta.vault_ledger where user_id = u.id), 0) as vault_cents
        from pacta.users u where u.id = $1`,
     [userId],
@@ -271,18 +271,18 @@ export async function createPact(userId: string, input: NewPact): Promise<PactDt
      values ($1, $2, $3, $4, to_timestamp($5 / 1000.0), $6, 'AWAITING_PAYMENT', $7, $8)`,
     [pactId, userId, title, stake, dueAt, dayCode, methods, checkout.checkoutId],
   );
-  return { ...(await getPact(userId, pactId)), checkoutUrl: checkout.purchaseUrl };
+  return { ...(await getPact(userId, pactId)), checkout };
 }
 
 // Enlace para pagar un pacto que sigue AWAITING_PAYMENT (el checkout se cerró sin pagar).
-export async function pactCheckoutUrl(userId: string, pactId: string): Promise<string> {
+export async function pactCheckoutLink(userId: string, pactId: string): Promise<CheckoutLinkDto> {
   const { rows } = await query<{ status: string; whop_checkout_id: string | null }>(
     'select status, whop_checkout_id from pacta.pacts where id = $1 and user_id = $2',
     [pactId, userId],
   );
   if (!rows[0]) throw new HttpError(404, 'not_found');
   if (rows[0].status !== 'AWAITING_PAYMENT' || !rows[0].whop_checkout_id) throw new HttpError(409, 'not_awaiting_payment');
-  return stakeCheckoutUrl(rows[0].whop_checkout_id);
+  return stakeCheckoutLink(rows[0].whop_checkout_id);
 }
 
 // AWAITING_PAYMENT → ACTIVE cuando Whop confirma el cobro (webhook payment.succeeded).

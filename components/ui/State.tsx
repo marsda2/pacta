@@ -27,6 +27,13 @@ const messages: Record<string, string> = {
   review_expired: 'The time to retry this proof has run out.',
   image_too_large: 'That photo is too large. Try again.',
   unsupported_image: 'That image format isn’t supported.',
+  vault_locked: 'This tranche isn’t unlocked yet.',
+  withdrawals_locked: 'Withdrawals are paused for 7 days after a confirmed cheat.',
+  payout_failed: 'Whop couldn’t send the refund. Try again later.',
+  already_pass: 'Your High-Yield Pass is already active.',
+  payments_not_configured: 'Payments aren’t set up yet.',
+  bad_user_token: 'Your Whop session expired. Reopen PACTA from Whop.',
+  whop_login_required: 'Open PACTA from Whop to continue.',
 };
 
 export function errorMessage(error: unknown): string {

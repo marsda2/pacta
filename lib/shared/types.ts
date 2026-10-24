@@ -38,8 +38,16 @@ export interface PactDto {
   completedAt?: number;
   // Solo mientras el pacto espera un veredicto.
   review?: PactReviewDto;
-  // Solo en la respuesta de creación: URL de Whop donde se paga el stake.
-  checkoutUrl?: string;
+  // Solo en la respuesta de creación: dónde se paga el stake en Whop.
+  checkout?: CheckoutLinkDto;
+}
+
+// Enlace de pago de Whop. Fuera de Whop la app abre `url`; dentro del iframe de Whop abre el
+// modal de pago con `checkoutId` + `planId` (inAppPurchase del iframe SDK).
+export interface CheckoutLinkDto {
+  url: string;
+  checkoutId: string;
+  planId?: string;
 }
 
 export interface UserSummary {
@@ -57,4 +65,46 @@ export interface PactsResponse {
 export interface Pact extends PactDto {
   focusRemainingSec: number;
   proofUri?: string;
+}
+
+// Redemption Vault tal y como lo devuelve /api/vault/summary.
+export interface VaultEntryDto {
+  id: string;
+  type: 'lock' | 'unlock' | 'fee' | 'yield';
+  amountCents: number;
+  at: number;
+  pactTitle?: string;
+  // Reembolso de Whop que devolvió el dinero; sin él, el movimiento solo está en el ledger.
+  whopRef?: string;
+}
+
+export interface VaultDto {
+  balanceCents: number;
+  // Rendimiento simulado acumulado (céntimos con decimales) y lo que añade al día.
+  yieldCents: number;
+  dailyYieldCents: number;
+  apy: number;
+  tier: 'free' | 'high_yield';
+  trustScore: number;
+  verifiedSinceReset: number;
+  unlock: {
+    eligible: boolean;
+    trancheCents: number;
+    payoutCents: number;
+    feeCents: number;
+    yieldCents: number;
+    trustNeeded: number;
+    pactsNeeded: number;
+    lockedUntil?: number;
+  };
+  entries: VaultEntryDto[];
+}
+
+export interface RedeemResultDto {
+  vault: VaultDto;
+  payoutCents: number;
+  feeCents: number;
+  yieldCents: number;
+  // 'whop': reembolso real de los stakes fallados; 'ledger': stakes sin pago (datos de demo).
+  method: 'whop' | 'ledger';
 }

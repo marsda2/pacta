@@ -69,6 +69,8 @@ export function PactsProvider({ children }: { children: ReactNode }) {
         };
       });
       client.invalidateQueries({ queryKey: ['pacts'] });
+      // Un veredicto puede mover el stake al Vault o completar la racha que lo desbloquea.
+      client.invalidateQueries({ queryKey: ['vault'] });
     },
     [client],
   );

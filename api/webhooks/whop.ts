@@ -3,6 +3,7 @@ import { unwrapWebhook, WebhookVerificationError } from '@whop/sdk/helpers';
 
 import { withTransaction } from '../../lib/server/db';
 import { activatePaidPact } from '../../lib/server/pact-engine';
+import { setPassMembership } from '../../lib/server/vault';
 
 // Cuerpo sin parsear: la firma cubre los bytes exactos que envía Whop.
 async function rawBody(req: VercelRequest) {
@@ -19,8 +20,12 @@ const header = (req: VercelRequest, name: string) => {
 interface WhopEvent {
   id: string;
   type: string;
-  data?: { id?: string; metadata?: { pact_id?: unknown } | null };
+  // Pago o membresía. La metadata del checkout se copia a ambos (lib/server/whop.ts).
+  data?: { id?: string; user_id?: string | null; metadata?: { kind?: unknown; pact_id?: unknown; user_id?: unknown } | null };
 }
+
+// payment.succeeded activa el pacto pagado o el Pass; membership.* sube o baja el nivel del Pass.
+const HANDLED = ['payment.succeeded', 'membership.activated', 'membership.deactivated'];
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -48,12 +53,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(401).json({ error: 'bad_signature' });
   }
 
-  // Solo payment.succeeded cambia el estado del pacto. Lo demás se acepta y se ignora.
-  if (!eventId || event.type !== 'payment.succeeded') return res.status(200).json({ ok: true, ignored: true });
+  if (!eventId || !HANDLED.includes(event.type)) return res.status(200).json({ ok: true, ignored: true });
 
-  const pactId = event.data?.metadata?.pact_id;
+  const metadata = event.data?.metadata ?? {};
+  const pactId = metadata.pact_id;
   const paymentId = event.data?.id;
-  if (typeof pactId !== 'string' || !UUID.test(pactId) || typeof paymentId !== 'string') {
+  const userId = typeof metadata.user_id === 'string' && UUID.test(metadata.user_id) ? metadata.user_id : null;
+  const isPass = metadata.kind === 'high_yield_pass';
+
+  // Un stake de pago único también crea una membresía en Whop: solo cuentan las del Pass.
+  if (event.type !== 'payment.succeeded' && !isPass) return res.status(200).json({ ok: true, ignored: true });
+  if (event.type === 'payment.succeeded' && !isPass && (typeof pactId !== 'string' || !UUID.test(pactId) || typeof paymentId !== 'string')) {
     console.warn('whop webhook: payment.succeeded sin metadata.pact_id válido; payment:', paymentId);
     return res.status(200).json({ ok: true, ignored: true });
   }
@@ -65,7 +75,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       [eventId, body],
     );
     if (fresh.rowCount === 0) return 'duplicate';
-    return (await activatePaidPact(q, pactId, paymentId)) ? 'activated' : 'no_pending_pact';
+    if (event.type === 'payment.succeeded' && !isPass) {
+      return (await activatePaidPact(q, pactId as string, paymentId as string)) ? 'activated' : 'no_pending_pact';
+    }
+    // El Pass: el primer pago o la membresía activa lo encienden; la membresía desactivada lo apaga.
+    const active = event.type !== 'membership.deactivated';
+    return (await setPassMembership(q, { userId, whopUserId: event.data?.user_id ?? null }, active)) ? (active ? 'pass_on' : 'pass_off') : 'no_user';
   });
 
   res.status(200).json({ ok: true, outcome });

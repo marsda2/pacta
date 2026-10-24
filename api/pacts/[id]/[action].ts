@@ -1,17 +1,18 @@
 import { allow, api, HttpError, uuidParam } from '../../../lib/server/http';
-import { appealPact, demoUserId, pactCheckoutUrl, resolvePact, submitProof, userSummary, type NewProof } from '../../../lib/server/pact-engine';
+import { requestUserId } from '../../../lib/server/identity';
+import { appealPact, pactCheckoutLink, resolvePact, submitProof, userSummary, type NewProof } from '../../../lib/server/pact-engine';
 
 // POST /api/pacts/:id/proof    → sube la prueba y abre la revisión (también el reintento tras una duda).
 // POST /api/pacts/:id/appeal   → pide un juez humano de Terac tras la duda de la IA.
 // POST /api/pacts/:id/resolve  → veredicto manual {kept: boolean, source: 'witness' | 'demo'}.
-// POST /api/pacts/:id/checkout → enlace de pago de un pacto AWAITING_PAYMENT → { url }.
+// POST /api/pacts/:id/checkout → enlace de pago de un pacto AWAITING_PAYMENT → { url, checkoutId, planId }.
 export default api(async (req, res) => {
   allow(req, 'POST');
-  const userId = await demoUserId();
+  const userId = await requestUserId(req);
   const pactId = uuidParam(req.query.id);
   const body = (req.body ?? {}) as Record<string, unknown>;
 
-  if (req.query.action === 'checkout') return res.status(200).json({ url: await pactCheckoutUrl(userId, pactId) });
+  if (req.query.action === 'checkout') return res.status(200).json(await pactCheckoutLink(userId, pactId));
 
   let pact;
   switch (req.query.action) {

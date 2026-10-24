@@ -8,6 +8,7 @@ import { DesktopLanding } from '@/components/landing/DesktopLanding';
 import { isDesktopPath, useIsDesktopWeb } from '@/lib/device';
 import { PactsProvider } from '@/lib/store/pacts';
 import { colors } from '@/lib/theme';
+import { insideWhop } from '@/lib/whop';
 
 const PREVIEW_KEY = 'pacta.desktop-preview';
 
@@ -34,7 +35,8 @@ export default function RootLayout() {
     setPreview(true);
   };
 
-  const showLanding = desktop && !preview && !isDesktopPath(pathname);
+  // Dentro de Whop (iframe en escritorio) siempre se muestra la app, nunca la landing.
+  const showLanding = desktop && !preview && !isDesktopPath(pathname) && !insideWhop();
   if (showLanding) return <DesktopLanding onPreview={startPreview} />;
 
   const stack = <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }} />;

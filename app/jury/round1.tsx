@@ -95,7 +95,7 @@ export default function JuryRound1() {
               </Text>
               {c.overwhelmed ? (
                 <Text variant="body" color="muted">
-                  The user says they feel overwhelmed. If you answer "Not done", suggest a 10-minute task they could do instead.
+                  The user says they feel overwhelmed. If you answer “Not done”, suggest a 10-minute task they could do instead.
                 </Text>
               ) : null}
               <View style={styles.photo}>

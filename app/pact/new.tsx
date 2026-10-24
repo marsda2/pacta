@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Linking, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { ProofMethodPicker } from '@/components/pact/ProofMethodPicker';
 import { Button, Card, Checkbox, ErrorBanner, Screen, ScreenTitle, SectionLabel, SelectField, StakeChips, Text, TextField } from '@/components/ui';
@@ -9,6 +9,7 @@ import { formatUsd, STAKE_PRESETS_CENTS } from '@/lib/shared/rules';
 import { buildDeadlineOptions, formatClockTime } from '@/lib/shared/time';
 import type { ProofMethod } from '@/lib/shared/types';
 import { usePacts } from '@/lib/store/pacts';
+import { openCheckout } from '@/lib/whop';
 
 // Flujo 01 · Create a pact
 export default function NewPact() {
@@ -31,8 +32,8 @@ export default function NewPact() {
     setError(null);
     try {
       const pact = await createPact({ title: task.trim(), stakeCents: stake, dueAt: deadline.dueAt, methods });
-      // El stake se paga en Whop; al volver, Whop redirige al pacto y el webhook lo deja ACTIVE.
-      if (pact.checkoutUrl) await Linking.openURL(pact.checkoutUrl);
+      // El stake se paga en Whop (dentro de Whop, en su modal); el webhook deja el pacto ACTIVE.
+      if (pact.checkout) await openCheckout(pact.checkout);
       router.replace(routes.pact(pact.id));
     } catch (e) {
       setError(e);

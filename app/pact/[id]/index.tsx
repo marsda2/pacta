@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useRef } from 'react';
-import { Linking, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { PaxSays } from '@/components/companion/Pax';
 import { FocusSessionCard } from '@/components/pact/FocusSessionCard';
@@ -10,7 +10,9 @@ import { Banner, Button, Icon, LoadingBlock, Screen, ScreenTitle, StepTracker, T
 import { apiFetch } from '@/lib/api/client';
 import { routes } from '@/lib/routes';
 import { formatDeadline } from '@/lib/shared/time';
+import type { CheckoutLinkDto } from '@/lib/shared/types';
 import { usePacts } from '@/lib/store/pacts';
+import { openCheckout } from '@/lib/whop';
 
 const STEPS = ['Outline', 'Draft', 'Review'] as const;
 
@@ -18,7 +20,7 @@ const STEPS = ['Outline', 'Draft', 'Review'] as const;
 export default function ActivePact() {
   const router = useRouter();
   const { id, autostart } = useLocalSearchParams<{ id: string; autostart?: string }>();
-  const { getPact, setFocusRemaining, loading } = usePacts();
+  const { getPact, setFocusRemaining, loading, refetch } = usePacts();
   const pact = getPact(id);
 
   const timer = useCountdown(pact?.focusRemainingSec ?? 0, (remaining) => {
@@ -60,9 +62,10 @@ export default function ActivePact() {
   const finished = pact.status === 'verified' || pact.status === 'missed';
 
   // El checkout se cerró sin pagar: pedimos un enlace nuevo al servidor y lo abrimos.
+  // Dentro de Whop se paga en su modal y al cerrarlo el webhook ya puede haber activado el pacto.
   const payStake = async () => {
-    const { url } = await apiFetch<{ url: string }>(`/api/pacts/${pact.id}/checkout`, { method: 'POST' });
-    await Linking.openURL(url);
+    const link = await apiFetch<CheckoutLinkDto>(`/api/pacts/${pact.id}/checkout`, { method: 'POST' });
+    if ((await openCheckout(link)) === 'paid') refetch();
   };
 
   return (

@@ -1,7 +1,11 @@
+import { Platform } from 'react-native';
+
 // Cliente HTTP de la API de PACTA (rutas /api/* de Vercel).
-// EXPO_PUBLIC_API_URL: en desarrollo apunta a `npm run dev:api` (http://localhost:3000);
-// en producción es el dominio de Vercel. Vacío = mismo origen.
+// En la web publicada la API está en el mismo origen y se llama con rutas relativas: dentro del
+// iframe de Whop solo así llega la cabecera x-whop-user-token (docs/03 §2).
+// EXPO_PUBLIC_API_URL sirve al móvil y al desarrollo (`npm run dev:api`, http://localhost:3000).
 export function apiBase(): string {
+  if (Platform.OS === 'web' && !__DEV__) return '';
   return (process.env.EXPO_PUBLIC_API_URL ?? '').replace(/\/$/, '');
 }
 

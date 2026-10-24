@@ -6,15 +6,17 @@ import { CopilotCard } from '@/components/copilot/CopilotCard';
 import { AppHeader } from '@/components/nav/AppHeader';
 import { FocusSessionCard } from '@/components/pact/FocusSessionCard';
 import { Button, Card, ErrorBanner, GlassCard, LoadingBlock, Screen, SectionLabel, Text } from '@/components/ui';
+import { VaultCard } from '@/components/vault/VaultCard';
 import { routes } from '@/lib/routes';
-import { formatUsd, VAULT_APY_SIMULATED } from '@/lib/shared/rules';
 import { formatDeadline } from '@/lib/shared/time';
 import { usePacts } from '@/lib/store/pacts';
+import { useVault } from '@/lib/store/vault';
 import { colors } from '@/lib/theme';
 
 export default function Home() {
   const router = useRouter();
   const { pacts, summary, loading, error, refetch } = usePacts();
+  const { vault } = useVault();
   const active = pacts.find((pact) => pact.status === 'progress' || pact.status === 'pending');
 
   return (
@@ -53,11 +55,12 @@ export default function Home() {
           <Text variant="title">{summary.trustScore}<Text variant="small" color="muted"> / 100</Text></Text>
         </Card>
         <Card style={styles.stat} padding={16}>
-          <Text variant="caption" color="muted">Frozen Vault</Text>
-          <Text variant="title">{formatUsd(summary.vaultCents)}</Text>
-          <Text variant="caption" color="muted">{(VAULT_APY_SIMULATED * 100).toFixed(2)}% APY simulated</Text>
+          <Text variant="caption" color="muted">Verified streak</Text>
+          <Text variant="title">{summary.verifiedStreak}<Text variant="small" color="muted"> in a row</Text></Text>
         </Card>
       </View>
+
+      <VaultCard vault={vault} fallbackCents={summary.vaultCents} onPress={() => router.push(routes.vault)} />
 
       <CopilotCard onStartFocus={() => router.push(routes.copilot)} />
     </Screen>
