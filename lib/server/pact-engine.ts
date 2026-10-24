@@ -1,6 +1,11 @@
 import { randomInt, randomUUID } from 'node:crypto';
 
 import {
+  AI_REVIEW_FALLBACK_HOURS,
+  APPEALS_PER_MONTH_PASS,
+  HUMAN_REVIEW_MIN_STAKE_CENTS,
+  MAX_PROOFS_PER_PACT,
+  needsHumanReview,
   shouldAutoApprove,
   STAKE_MAX_CENTS,
   STAKE_MIN_CENTS,
@@ -10,10 +15,10 @@ import {
   WITHDRAWAL_LOCK_DAYS_AFTER_CHEAT,
   type JuryVote,
 } from '../shared/rules';
-import type { PactDto, PactUiStatus, ProofMethod, UserSummary } from '../shared/types';
+import type { PactDto, PactReviewDto, PactUiStatus, ProofMethod, UserSummary } from '../shared/types';
 import { query, withTransaction, type Queryable } from './db';
 import { HttpError } from './http';
-import { createStakeCheckout } from './whop';
+import { createStakeCheckout, refundStakePayment, stakeCheckoutUrl } from './whop';
 import { auditProof } from './vision-agent';
 
 // Máquina de estados del pacto (docs/02). Todas las transiciones de dinero y de Trust viven
@@ -57,11 +62,17 @@ interface PactRow {
   proof_id: string | null;
   storage_path: string | null;
   proof_at: Date | null;
+  proof_count: string;
+  ai_reviewed: boolean | null;
+  jury_open: boolean;
 }
 
 const PACT_SELECT = `
   select p.id, p.title, p.stake_cents, p.deadline, p.status, p.proof_methods, p.created_at, p.resolved_at,
-         pr.id as proof_id, pr.storage_path, pr.created_at as proof_at
+         pr.id as proof_id, pr.storage_path, pr.created_at as proof_at,
+         (select count(*) from pacta.proofs where pact_id = p.id) as proof_count,
+         (select bool_or(ai_verdict is not null) from pacta.proofs where pact_id = p.id) as ai_reviewed,
+         exists (select 1 from pacta.jury_tasks j join pacta.proofs x on x.id = j.proof_id where x.pact_id = p.id) as jury_open
     from pacta.pacts p
     left join lateral (
       select id, storage_path, created_at from pacta.proofs where pact_id = p.id order by created_at desc limit 1
@@ -83,6 +94,22 @@ function toDto(row: PactRow): PactDto {
     proofImagePath: row.proof_id && row.storage_path?.startsWith('db:') ? `/api/proofs/${row.proof_id}/image` : undefined,
     proofAt: row.proof_at?.getTime(),
     completedAt: row.resolved_at && status === 'verified' ? row.resolved_at.getTime() : undefined,
+    review: reviewOf(row),
+  };
+}
+
+// Mismas reglas que submitProof y appealPact, para que la app solo ofrezca lo que el servidor acepta.
+function reviewOf(row: PactRow): PactReviewDto | undefined {
+  if (row.status !== 'AI_REVIEW' && row.status !== 'JURY_PENDING') return undefined;
+  const aiReviewed = row.ai_reviewed === true;
+  const open = row.status === 'AI_REVIEW' && aiReviewed && !row.jury_open;
+  const expiresAt = row.proof_at ? row.proof_at.getTime() + AI_REVIEW_FALLBACK_HOURS * 3600_000 : 0;
+  return {
+    aiReviewed,
+    juryOpen: row.jury_open,
+    canRetry: open && Number(row.proof_count) < MAX_PROOFS_PER_PACT && expiresAt > Date.now(),
+    canAppeal: open,
+    hoursLeft: open ? Math.max(0, Math.ceil((expiresAt - Date.now()) / 3600_000)) : undefined,
   };
 }
 
@@ -122,11 +149,12 @@ interface LockedPact {
   stake_cents: number;
   status: string;
   deadline: Date;
+  whop_payment_id: string | null;
 }
 
 async function lockPact(q: Queryable, userId: string, pactId: string): Promise<LockedPact> {
   const { rows } = await q<LockedPact>(
-    'select id, user_id, stake_cents, status, deadline from pacta.pacts where id = $1 and user_id = $2 for update',
+    'select id, user_id, stake_cents, status, deadline, whop_payment_id from pacta.pacts where id = $1 and user_id = $2 for update',
     [pactId, userId],
   );
   if (!rows[0]) throw new HttpError(404, 'not_found');
@@ -136,13 +164,18 @@ async function lockPact(q: Queryable, userId: string, pactId: string): Promise<L
 // FAILED → VAULTED: el stake no se pierde, pasa al Redemption Vault.
 async function vaultPact(q: Queryable, pact: LockedPact, reason: string, trustDelta: number = TRUST_DELTA.failedOrExpired) {
   await q("update pacta.pacts set status = 'VAULTED', resolved_at = now() where id = $1", [pact.id]);
-  await q("insert into pacta.vault_ledger (user_id, type, amount_cents, pact_id) values ($1, 'lock', $2, $3)", [pact.user_id, pact.stake_cents, pact.id]);
+  // Un pacto sin dinero (stake 0) no mueve el Vault: solo cuenta en la reputación.
+  if (pact.stake_cents > 0) {
+    await q("insert into pacta.vault_ledger (user_id, type, amount_cents, pact_id) values ($1, 'lock', $2, $3)", [pact.user_id, pact.stake_cents, pact.id]);
+  }
   await addTrust(q, pact.user_id, trustDelta, reason, pact.id);
   await q('update pacta.users set verified_streak = 0 where id = $1', [pact.user_id]);
 }
 
-// APPROVED → REFUNDED. El reembolso real con Whop llega en la fase 4; aquí solo se registra.
+// APPROVED → REFUNDED. Primero se devuelve el stake en Whop; si Whop falla, el pacto no cambia de estado.
+// Los pactos sin pago (datos de demo) no tienen whop_payment_id y solo se registran.
 async function refundPact(q: Queryable, pact: LockedPact, points: number, reason: string) {
+  if (pact.whop_payment_id) await refundStakePayment(pact.whop_payment_id);
   await q("update pacta.pacts set status = 'REFUNDED', resolved_at = now() where id = $1", [pact.id]);
   await addTrust(q, pact.user_id, points, reason, pact.id);
   await q('update pacta.users set verified_streak = verified_streak + 1 where id = $1', [pact.user_id]);
@@ -158,6 +191,24 @@ async function expireOverdue(userId: string) {
     await withTransaction(async (q) => {
       const pact = await lockPact(q, userId, id);
       if (pact.status === 'ACTIVE') await vaultPact(q, pact, 'deadline_missed');
+    });
+  }
+
+  // Duda de la IA sin humano de por medio (stake bajo): si nadie la resuelve (segunda prueba,
+  // testigo o apelación) en AI_REVIEW_FALLBACK_HOURS, el stake va al Vault. Solo cuenta si la IA
+  // llegó a opinar: una caída del proveedor no es una duda y no penaliza al usuario.
+  const stale = await query<{ id: string }>(
+    `select p.id from pacta.pacts p
+      where p.user_id = $1 and p.status = 'AI_REVIEW'
+        and exists (select 1 from pacta.proofs r where r.pact_id = p.id and r.ai_verdict is not null)
+        and not exists (select 1 from pacta.jury_tasks j join pacta.proofs r on r.id = j.proof_id where r.pact_id = p.id)
+        and (select max(created_at) from pacta.proofs where pact_id = p.id) < now() - make_interval(hours => $2)`,
+    [userId, AI_REVIEW_FALLBACK_HOURS],
+  );
+  for (const { id } of stale.rows) {
+    await withTransaction(async (q) => {
+      const pact = await lockPact(q, userId, id);
+      if (pact.status === 'AI_REVIEW') await vaultPact(q, pact, 'unverified_after_ai_doubt');
     });
   }
 }
@@ -180,14 +231,17 @@ export interface NewPact {
   stakeCents: unknown;
   dueAt: unknown;
   methods: unknown;
+  reputationOnly?: unknown;
 }
 
 export async function createPact(userId: string, input: NewPact): Promise<PactDto> {
   const title = typeof input.title === 'string' ? input.title.trim() : '';
   if (title.length < 1 || title.length > 80) throw new HttpError(400, 'bad_title');
 
-  const stake = input.stakeCents;
-  if (!Number.isInteger(stake) || (stake as number) < STAKE_MIN_CENTS || (stake as number) > STAKE_MAX_CENTS) {
+  // Pacto sin dinero (onboarding y demo): solo se arriesga reputación y no pasa por Whop.
+  const reputationOnly = input.reputationOnly === true;
+  const stake = reputationOnly ? 0 : input.stakeCents;
+  if (!reputationOnly && (!Number.isInteger(stake) || (stake as number) < STAKE_MIN_CENTS || (stake as number) > STAKE_MAX_CENTS)) {
     throw new HttpError(400, 'bad_stake');
   }
 
@@ -199,6 +253,15 @@ export async function createPact(userId: string, input: NewPact): Promise<PactDt
   const methods = METHODS.filter((m) => m === 'photo' || requested.includes(m));
 
   const dayCode = Array.from({ length: 4 }, () => CODE_ALPHABET[randomInt(CODE_ALPHABET.length)]).join('');
+  if (reputationOnly) {
+    const freeId = randomUUID();
+    await query(
+      `insert into pacta.pacts (id, user_id, title, stake_cents, deadline, day_code, status, proof_methods)
+       values ($1, $2, $3, 0, to_timestamp($4 / 1000.0), $5, 'ACTIVE', $6)`,
+      [freeId, userId, title, dueAt, dayCode, methods],
+    );
+    return getPact(userId, freeId);
+  }
   // El id se genera antes para que Whop lo reciba en metadata.pact_id. Si Whop falla, no se crea nada.
   // El pacto nace AWAITING_PAYMENT y pasa a ACTIVE cuando llega payment.succeeded (api/webhooks/whop.ts).
   const pactId = randomUUID();
@@ -209,6 +272,17 @@ export async function createPact(userId: string, input: NewPact): Promise<PactDt
     [pactId, userId, title, stake, dueAt, dayCode, methods, checkout.checkoutId],
   );
   return { ...(await getPact(userId, pactId)), checkoutUrl: checkout.purchaseUrl };
+}
+
+// Enlace para pagar un pacto que sigue AWAITING_PAYMENT (el checkout se cerró sin pagar).
+export async function pactCheckoutUrl(userId: string, pactId: string): Promise<string> {
+  const { rows } = await query<{ status: string; whop_checkout_id: string | null }>(
+    'select status, whop_checkout_id from pacta.pacts where id = $1 and user_id = $2',
+    [pactId, userId],
+  );
+  if (!rows[0]) throw new HttpError(404, 'not_found');
+  if (rows[0].status !== 'AWAITING_PAYMENT' || !rows[0].whop_checkout_id) throw new HttpError(409, 'not_awaiting_payment');
+  return stakeCheckoutUrl(rows[0].whop_checkout_id);
 }
 
 // AWAITING_PAYMENT → ACTIVE cuando Whop confirma el cobro (webhook payment.succeeded).
@@ -249,8 +323,23 @@ export async function submitProof(userId: string, pactId: string, input: NewProo
   const proofId = randomUUID();
   await withTransaction(async (q) => {
     const pact = await lockPact(q, userId, pactId);
-    if (pact.status !== 'ACTIVE') throw new HttpError(409, 'not_active');
-    if (pact.deadline.getTime() < Date.now()) throw new HttpError(409, 'deadline_passed');
+    if (pact.status === 'AI_REVIEW') {
+      // Reintento tras la duda de la IA (stake bajo): una segunda prueba, antes de que venza el
+      // plazo de resolución y sin un humano ya asignado.
+      const prior = await q<{ n: string; last: Date; assigned: boolean; reviewed: boolean }>(
+        `select count(*) as n, max(created_at) as last, bool_or(ai_verdict is not null) as reviewed,
+                exists (select 1 from pacta.jury_tasks j join pacta.proofs r on r.id = j.proof_id where r.pact_id = $1) as assigned
+           from pacta.proofs where pact_id = $1`,
+        [pactId],
+      );
+      const { n, last, assigned, reviewed } = prior.rows[0];
+      if (!reviewed || assigned) throw new HttpError(409, 'not_active');
+      if (Number(n) >= MAX_PROOFS_PER_PACT) throw new HttpError(409, 'no_more_attempts');
+      if (last.getTime() < Date.now() - AI_REVIEW_FALLBACK_HOURS * 3600_000) throw new HttpError(409, 'review_expired');
+    } else {
+      if (pact.status !== 'ACTIVE') throw new HttpError(409, 'not_active');
+      if (pact.deadline.getTime() < Date.now()) throw new HttpError(409, 'deadline_passed');
+    }
 
     await q(
       `insert into pacta.proofs (id, pact_id, storage_path, captured_live, emotional_state)
@@ -293,10 +382,57 @@ async function reviewProof(
       await refundPact(q, pact, TRUST_DELTA.aiApproved, 'ai_approved');
       return;
     }
-    await q("update pacta.pacts set status = 'JURY_PENDING' where id = $1", [pactId]);
-    // Estudio de Terac que atiende los casos; sin él, el caso espera y no acepta votos.
-    await q('insert into pacta.jury_tasks (proof_id, terac_task_id) values ($1, $2)', [proofId, process.env.TERAC_JURY_OPPORTUNITY_ID ?? null]);
+    // Un humano cuesta más que la comisión de un pacto pequeño: con stake bajo la duda se queda
+    // en AI_REVIEW (segunda prueba, testigo o apelación) y caduca hacia el Vault.
+    const minStake = Number(process.env.HUMAN_REVIEW_MIN_STAKE_CENTS) || HUMAN_REVIEW_MIN_STAKE_CENTS;
+    if (!needsHumanReview(pact.stake_cents, false, minStake)) return;
+    await openJuryCase(q, pactId, proofId, false);
   });
+}
+
+// AI_REVIEW → JURY_PENDING con un caso para el jurado de Terac. Sin TERAC_JURY_OPPORTUNITY_ID
+// el caso espera y no acepta votos.
+async function openJuryCase(q: Queryable, pactId: string, proofId: string, appeal: boolean) {
+  await q("update pacta.pacts set status = 'JURY_PENDING' where id = $1", [pactId]);
+  await q('insert into pacta.jury_tasks (proof_id, terac_task_id, raw) values ($1, $2, $3)', [
+    proofId,
+    process.env.TERAC_JURY_OPPORTUNITY_ID ?? null,
+    JSON.stringify({ appeal }),
+  ]);
+}
+
+// Apelación: el usuario pide un juez humano tras la duda o el rechazo de la IA. Incluida en el
+// High-Yield Pass (APPEALS_PER_MONTH_PASS al mes); en Free requerirá pago con Whop (fase 4), y
+// mientras tanto solo se admite con FREE_APPEALS=true (demo).
+export async function appealPact(userId: string, pactId: string): Promise<PactDto> {
+  await withTransaction(async (q) => {
+    const pact = await lockPact(q, userId, pactId);
+    if (pact.status !== 'AI_REVIEW') throw new HttpError(409, 'not_appealable');
+
+    const { rows } = await q<{ proof_id: string; assigned: boolean }>(
+      `select r.id as proof_id,
+              exists (select 1 from pacta.jury_tasks j join pacta.proofs x on x.id = j.proof_id where x.pact_id = $1) as assigned
+         from pacta.proofs r where r.pact_id = $1 and r.ai_verdict is not null
+        order by r.created_at desc limit 1`,
+      [pactId],
+    );
+    if (!rows[0] || rows[0].assigned) throw new HttpError(409, 'not_appealable');
+
+    const user = await q<{ tier: string; used: string }>(
+      `select u.tier,
+              (select count(*) from pacta.jury_tasks j
+                 join pacta.proofs r on r.id = j.proof_id join pacta.pacts pc on pc.id = r.pact_id
+                where pc.user_id = u.id and j.raw ->> 'appeal' = 'true'
+                  and j.created_at >= date_trunc('month', now())) as used
+         from pacta.users u where u.id = $1`,
+      [userId],
+    );
+    const covered = user.rows[0].tier === 'high_yield' && Number(user.rows[0].used) < APPEALS_PER_MONTH_PASS;
+    if (!covered && process.env.FREE_APPEALS !== 'true') throw new HttpError(402, 'appeal_requires_pass');
+
+    await openJuryCase(q, pactId, rows[0].proof_id, true);
+  });
+  return getPact(userId, pactId);
 }
 
 export async function proofImage(proofId: string): Promise<{ mime: string; data: Buffer } | undefined> {

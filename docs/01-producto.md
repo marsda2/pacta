@@ -62,3 +62,5 @@ Pantallas secundarias: Nuevo pacto, Entregar prueba (cámara), Estado del jurado
 - Inversión real del dinero (Treasury o fondos): solo simulación.
 - KYC y cumplimiento financiero.
 - Botes competitivos entre usuarios (el que falla paga al que cumple). Los retos en grupo se hacen como **Pact Circles** cooperativos, sin dinero entre usuarios (ver [07-pact-circles.md](07-pact-circles.md)).
+
+**Revisión humana (ver docs/04 §7).** Un juez de Terac solo interviene cuando la IA duda *y* el stake es alto, o cuando el usuario apela. El High-Yield Pass incluye 2 apelaciones al mes.

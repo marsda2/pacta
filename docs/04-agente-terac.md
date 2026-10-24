@@ -23,14 +23,14 @@ Los nombres de las tools, campos y callbacks de Terac están marcados con **[ver
 
 **Regla de oro (en `pact-engine`, no en el prompt):**
 - `verdict = APPROVE` **y** `confidence ≥ 0.88` **y** `cheat_signals = ["none"]` **y** `emotional_state != overwhelmed` → aprobado por el agente.
-- En cualquier otro caso → **Terac**.
+- En cualquier otro caso → **duda**, y quién la resuelve depende del stake (sección 7). **No va siempre a Terac.**
 - El umbral (0.88) es una constante en `lib/shared/rules.ts`.
 
 **Prompts versionados** en la tabla `agent_prompts`:
 - `v1-baseline`: instrucciones genéricas. A propósito, se deja engañar por fotos de una pantalla o por pruebas viejas.
 - `v2-terac`: v1 + reglas aprendidas + ejemplos few-shot sacados de los votos de Terac (sección 4).
 
-Modelo: `claude-sonnet-5-5` para la latencia de la demo; prueba con `claude-opus-5-5` en el set de evaluación si sobra tiempo.
+Modelo: `gemini-3.6-flash` por defecto (≈ $0.002 por foto y ~3 s); se cambia con `AGENT_MODEL` (`gemini-*` usa Google, el resto Anthropic). Compáralos con `npm run eval -- v1-baseline <modelo> <modelo>`.
 
 ## 2. Conexión con Terac MCP
 
@@ -109,3 +109,21 @@ Si se construye Pact Circles (ver 07), los votos del círculo son **etiquetas d�
 ## 6. Micro-tareas de clemencia
 - Ronda 1: las proponen los humanos de Terac.
 - Después de calibrar: el agente genera micro-tareas al estilo de las humanas (few-shot con las propuestas de Terac), y Terac solo revisa la prueba de la micro-tarea si hay dudas.
+
+## 7. Cuándo interviene un humano (coste)
+
+Un juez de Terac cuesta más que la comisión de un pacto pequeño: el incentivo mínimo por estudio es $5 y Terac añade un 50% (≈ $7.50 por estudio). Con **lotes** el coste por caso baja a $1–2: la ronda 1 son 12 fotos por $16.50 (≈ $1.38 por foto).
+
+| Situación | Quién decide | Dónde vive |
+|---|---|---|
+| La IA está segura (`shouldAutoApprove`) | La IA, gratis | `rules.ts` |
+| Duda y stake **< `HUMAN_REVIEW_MIN_STAKE_CENTS`** | Sin humano: **segunda prueba** (máx. 2), **testigo** o apelación. Si en 48 h nadie lo resuelve → Vault (−30 de Trust, no −50) | `reviewProof`, `submitProof`, `expireOverdue` |
+| Duda y stake **≥ umbral** | Jurado de Terac (caso abierto al instante) | `reviewProof` → `openJuryCase` |
+| **Apelación** del usuario | Jurado de Terac | `POST /api/pacts/:id/appeal` |
+| Trampa | Solo se castiga (−50 y 7 días sin retiros) si el jurado vota `CHEAT`; la sospecha de la IA sola nunca lo hace | `closeJuryTask` |
+
+- Equivocarse con un stake bajo sale barato: el dinero no se pierde, pasa al Vault y se recupera reconstruyendo el Trust.
+- El umbral por defecto es **$20** (el stake máximo actual, por la falta de sandbox en Whop). En producción súbelo a $30–40 con `HUMAN_REVIEW_MIN_STAKE_CENTS`. La demo usa apelaciones y trampas para enseñar al jurado.
+- **Apelaciones:** el High-Yield Pass incluye `APPEALS_PER_MONTH_PASS` (2) al mes. En Free una apelación exigirá un pago con Whop (fase 4); hasta entonces responde `402 appeal_requires_pass` salvo con `FREE_APPEALS=true` (demo).
+- La caducidad de 48 h solo cuenta si la IA llegó a opinar: una caída del proveedor no penaliza al usuario.
+- **Lotes (pendiente):** los casos de stake alto abren hoy un `jury_task` individual. Para abaratar, un estudio permanente de Terac debe servir una cola (`/jury/queue`, como la ronda 1) y crearse un estudio nuevo cuando haya N casos pendientes.

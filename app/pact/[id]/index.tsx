@@ -1,12 +1,13 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useRef } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Linking, StyleSheet, View } from 'react-native';
 
 import { PaxSays } from '@/components/companion/Pax';
 import { FocusSessionCard } from '@/components/pact/FocusSessionCard';
 import { PactResultCard } from '@/components/pact/PactResultCard';
 import { useCountdown } from '@/components/pact/useCountdown';
 import { Banner, Button, Icon, LoadingBlock, Screen, ScreenTitle, StepTracker, Text } from '@/components/ui';
+import { apiFetch } from '@/lib/api/client';
 import { routes } from '@/lib/routes';
 import { formatDeadline } from '@/lib/shared/time';
 import { usePacts } from '@/lib/store/pacts';
@@ -58,6 +59,12 @@ export default function ActivePact() {
 
   const finished = pact.status === 'verified' || pact.status === 'missed';
 
+  // El checkout se cerró sin pagar: pedimos un enlace nuevo al servidor y lo abrimos.
+  const payStake = async () => {
+    const { url } = await apiFetch<{ url: string }>(`/api/pacts/${pact.id}/checkout`, { method: 'POST' });
+    await Linking.openURL(url);
+  };
+
   return (
     <Screen>
       <ScreenTitle title={finished ? 'Pact closed.' : 'You’re in.'} subtitle={pact.title} onBack={() => router.back()} />
@@ -77,6 +84,10 @@ export default function ActivePact() {
           />
 
           <StepTracker steps={STEPS} current={pact.stepIndex} />
+
+          {pact.rawStatus === 'AWAITING_PAYMENT' ? (
+            <Button label="Pay stake" icon="arrowRight" onPress={payStake} />
+          ) : null}
 
           {pact.status === 'pending' ? (
             <Banner title="Proof uploaded" subtitle="We’re reviewing it now." />

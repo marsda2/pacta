@@ -27,6 +27,20 @@ export function shouldAutoApprove(audit: AgentAudit, emotionalState: 'normal' | 
   );
 }
 
+// Cuándo interviene un humano (docs/04 §7). Un juez cuesta más que la comisión de un pacto
+// pequeño, así que la duda con stake bajo se resuelve sin Terac: segunda prueba, testigo o,
+// al caducar, el Vault (equivocarse sale barato porque el dinero no se pierde).
+// Hoy el stake máximo es $20; en producción súbelo a $30–40 con HUMAN_REVIEW_MIN_STAKE_CENTS.
+export const HUMAN_REVIEW_MIN_STAKE_CENTS = 2000;
+export const APPEALS_PER_MONTH_PASS = 2; // apelaciones incluidas en el High-Yield Pass
+export const MAX_PROOFS_PER_PACT = 2; // la prueba inicial y un reintento
+export const AI_REVIEW_FALLBACK_HOURS = 48; // sin resolver tras la duda de la IA → Vault
+
+// ¿Debe revisar un humano una prueba que la IA no aprobó? Las apelaciones siempre pasan.
+export function needsHumanReview(stakeCents: number, appeal = false, minStakeCents = HUMAN_REVIEW_MIN_STAKE_CENTS) {
+  return appeal || stakeCents >= minStakeCents;
+}
+
 // Jurado humano (Terac): votos necesarios para cerrar un caso. Con un stake de $5–$20 y
 // ~$6 por juez, un solo voto es lo que sale a cuenta; súbelo solo para medir acuerdo.
 export const JURY_QUORUM = 1;

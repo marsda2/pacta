@@ -21,6 +21,10 @@ const messages: Record<string, string> = {
   not_active: 'This pact is no longer active.',
   deadline_passed: 'The deadline has already passed.',
   not_in_review: 'This pact isn’t waiting for a verdict.',
+  not_appealable: 'This proof can’t be appealed right now.',
+  appeal_requires_pass: 'Human appeals are included in the High-Yield Pass.',
+  no_more_attempts: 'You’ve already used your second try for this pact.',
+  review_expired: 'The time to retry this proof has run out.',
   image_too_large: 'That photo is too large. Try again.',
   unsupported_image: 'That image format isn’t supported.',
 };

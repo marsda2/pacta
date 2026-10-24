@@ -40,3 +40,15 @@ export async function createStakeCheckout(pactId: string, stakeCents: number, ti
   if (!checkout.purchase_url) throw new HttpError(502, 'checkout_without_url');
   return { checkoutId: checkout.id, purchaseUrl: checkout.purchase_url };
 }
+
+// Devolución del stake: Whop devuelve el importe completo del pago (no hay coste extra por reembolsar).
+export async function refundStakePayment(paymentId: string): Promise<void> {
+  await whop().payments.refund({ id: paymentId });
+}
+
+// Enlace de pago de un checkout ya creado, para reintentar el cobro de un pacto AWAITING_PAYMENT.
+export async function stakeCheckoutUrl(checkoutId: string): Promise<string> {
+  const checkout = await whop().checkoutConfigurations.retrieve({ id: checkoutId });
+  if (!checkout.purchase_url) throw new HttpError(502, 'checkout_without_url');
+  return checkout.purchase_url;
+}

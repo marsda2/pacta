@@ -12,10 +12,22 @@ import { usePacts } from '@/lib/store/pacts';
 export default function PactResult() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { getPact, resolvePact, loading } = usePacts();
+  const { getPact, resolvePact, appealPact, loading } = usePacts();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<unknown>(null);
   const pact = getPact(id);
+
+  const appeal = async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      await appealPact(id);
+    } catch (e) {
+      setError(e);
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const decide = async (kept: boolean) => {
     setBusy(true);
@@ -46,6 +58,14 @@ export default function PactResult() {
   }
 
   const reviewing = pact.status === 'pending' || pact.status === 'progress' || pact.status === 'scheduled';
+  // La IA dudó (o el stake es bajo y no se abrió jurado): el usuario decide cómo seguir.
+  const review = pact.review;
+  const doubt = !!review && review.aiReviewed && !review.juryOpen;
+  const paxMessage = review?.juryOpen
+    ? 'A human reviewer from the Terac jury is looking at your proof.'
+    : doubt
+      ? 'I’m not sure about this photo. You can retake it, ask a witness, or appeal to a human.'
+      : 'Hang tight. A witness or the Terac jury will take a look.';
 
   return (
     <Screen>
@@ -53,14 +73,28 @@ export default function PactResult() {
 
       {reviewing ? (
         <>
-          <PaxSays message="Hang tight. A witness or the Terac jury will take a look." expression="talking" />
+          <PaxSays message={paxMessage} expression={doubt ? 'worried' : 'talking'} />
+          {doubt ? (
+            <Card style={styles.demo}>
+              <SectionLabel>Your options</SectionLabel>
+              <Text variant="small" color="muted">
+                {review.hoursLeft !== undefined
+                  ? `If nothing changes in ${review.hoursLeft}h, your stake moves to your Vault. You don’t lose it.`
+                  : 'Pick how to continue.'}
+              </Text>
+              {review.canRetry ? <Button label="Retake the photo" icon="camera" onPress={() => router.push(routes.proof(pact.id))} /> : null}
+              <Button label="Ask a witness" icon="arrowRight" variant="mint" onPress={() => router.push(routes.witness(pact.id))} />
+              {review.canAppeal ? <Button label={busy ? 'Sending…' : 'Appeal to a human reviewer'} variant="outline" disabled={busy} onPress={appeal} /> : null}
+              {error ? <ErrorBanner error={error} /> : null}
+            </Card>
+          ) : null}
           <Card style={styles.demo}>
             <SectionLabel>Prototype controls</SectionLabel>
             <Text variant="small" color="muted">
               Verdicts will come from the AI auditor and the Terac jury (roadmap phase 5). For now, pick an outcome.
             </Text>
-            <Button label="Ask a witness" icon="arrowRight" variant="mint" onPress={() => router.push(routes.witness(pact.id))} />
-            {error ? <ErrorBanner error={error} /> : null}
+            {doubt ? null : <Button label="Ask a witness" icon="arrowRight" variant="mint" onPress={() => router.push(routes.witness(pact.id))} />}
+            {doubt ? null : error ? <ErrorBanner error={error} /> : null}
             <Button label="Simulate: pact kept" variant="outline" disabled={busy} onPress={() => decide(true)} />
             <Button label="Simulate: deadline missed" variant="outline" disabled={busy} onPress={() => decide(false)} />
           </Card>

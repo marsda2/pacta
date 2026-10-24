@@ -11,6 +11,8 @@ export interface NewPactInput {
   stakeCents: number;
   dueAt: number;
   methods: ProofMethod[];
+  // Pacto sin dinero: se arriesga solo reputación (el servidor ignora stakeCents).
+  reputationOnly?: boolean;
 }
 
 interface PactsContextValue {
@@ -26,6 +28,8 @@ interface PactsContextValue {
   // `imageUri` sin valor = captura de demostración (sin foto).
   submitProof: (id: string, imageUri?: string) => Promise<void>;
   resolvePact: (id: string, kept: boolean, source?: 'witness' | 'demo') => Promise<void>;
+  // Pide un juez humano de Terac tras la duda de la IA.
+  appealPact: (id: string) => Promise<void>;
 }
 
 const EMPTY_SUMMARY: UserSummary = { trustScore: TRUST_START_SCORE, vaultCents: 0, verifiedStreak: 0 };
@@ -86,6 +90,11 @@ export function PactsProvider({ children }: { children: ReactNode }) {
     onSuccess: apply,
   });
 
+  const appeal = useMutation({
+    mutationFn: (id: string) => apiFetch<{ pact: PactDto; summary: UserSummary }>(`/api/pacts/${id}/appeal`, { method: 'POST', body: {} }),
+    onSuccess: apply,
+  });
+
   const pacts = useMemo(() => (query.data?.pacts ?? []).map(toPact), [query.data, toPact]);
 
   const value = useMemo<PactsContextValue>(
@@ -100,8 +109,9 @@ export function PactsProvider({ children }: { children: ReactNode }) {
       setFocusRemaining: (id, seconds) => setFocus((prev) => ({ ...prev, [id]: Math.max(0, seconds) })),
       submitProof: async (id, imageUri) => void (await proof.mutateAsync({ id, imageUri })),
       resolvePact: async (id, kept, source = 'demo') => void (await resolve.mutateAsync({ id, kept, source })),
+      appealPact: async (id) => void (await appeal.mutateAsync(id)),
     }),
-    [pacts, query, toPact, create, proof, resolve],
+    [pacts, query, toPact, create, proof, resolve, appeal],
   );
 
   return <PactsContext.Provider value={value}>{children}</PactsContext.Provider>;

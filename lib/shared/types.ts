@@ -4,6 +4,20 @@ export type PactUiStatus = 'scheduled' | 'progress' | 'pending' | 'verified' | '
 
 export type ProofMethod = 'photo' | 'location' | 'witness';
 
+// Qué puede hacer el usuario mientras el pacto espera un veredicto (AI_REVIEW / JURY_PENDING).
+export interface PactReviewDto {
+  // La IA ya opinó y no aprobó (si no, sigue revisando o no está disponible).
+  aiReviewed: boolean;
+  // Un jurado humano de Terac tiene el caso.
+  juryOpen: boolean;
+  // Puede subir una segunda prueba.
+  canRetry: boolean;
+  // Puede pedir un juez humano.
+  canAppeal: boolean;
+  // Horas que quedan antes de que el stake pase al Vault si nadie lo resuelve.
+  hoursLeft?: number;
+}
+
 // Pacto tal y como lo devuelve /api/pacts.
 export interface PactDto {
   id: string;
@@ -22,6 +36,8 @@ export interface PactDto {
   proofImagePath?: string;
   proofAt?: number;
   completedAt?: number;
+  // Solo mientras el pacto espera un veredicto.
+  review?: PactReviewDto;
   // Solo en la respuesta de creación: URL de Whop donde se paga el stake.
   checkoutUrl?: string;
 }

@@ -13,7 +13,7 @@
 | 2 | Pantallas y flujos con datos de prueba | 🟡 |
 | 3 | API y datos reales (Supabase) | ✅ |
 | 4 | Pagos con Whop | ⬜ |
-| 5 | Agente auditor + jurado Terac + antes/después | ⬜ |
+| 5 | Agente auditor + jurado Terac + antes/después | 🟡 |
 | 6 | Copilot con IA y Pax reactivo | ⬜ |
 | 7 | Vault y Trust Score reales | 🟡 |
 | 8 | Embeber en Whop, datos de demo y pulido | ⬜ |
@@ -42,6 +42,8 @@ Tokens, iconos y componentes portados del *UI Component Library* y de *Windows &
 - ✅ Navegación: `AppHeader`, `BottomTabBar` flotante.
 - ✅ **Pax**, el companion: SVG portado a `react-native-svg` con expresiones (`idle`, `happy`, `talking`, `worried`, `sleeping`), saludo, parpadeo y respeto a "reducir movimiento". `PaxSays` (con globo de texto).
 - ✅ Galería de componentes en la ruta `/kit`.
+- ✅ Pax se presenta en su pestaña como una conversación: "Hey, I’m Pax…" → puntos de "escribiendo" → "Tell me what’s in the way…" (`PaxSays` acepta un array de mensajes).
+- ✅ Web de escritorio = landing (`components/landing/DesktopLanding.tsx`, puerta en `app/_layout.tsx`): la app se usa desde el móvil (cámara en vivo, ubicación), así que en ventanas ≥ 900 px con puntero preciso se muestra una landing con QR hacia el móvil. `Preview the app here` abre la app en un marco de móvil. `/witness`, `/jury` y `/kit` siguen abiertas en escritorio.
 - 🟡 Logo: `PactaMark` es una marca provisional; falta el SVG oficial.
 - ⬜ Tipografía final (el kit parece una sans geométrica; ahora se usa la del sistema).
 - ⬜ Modo oscuro completo (por ahora `userInterfaceStyle: light`; solo Focus es oscuro).
@@ -91,12 +93,17 @@ La app ya lee y escribe en Supabase (esquema `pacta`) a través de `/api/*`.
 - 🟡 Checkout en `POST /api/pacts` (`lib/server/whop.ts`): el pacto nace AWAITING_PAYMENT con `checkoutUrl` y la app abre Whop. Probado en local: checkout de $5 creado y pacto guardado; el pago real y el webhook quedan sin probar. Sin desplegar. Falta un botón para volver a pagar un pacto sin pagar.
 - ⬜ Reembolso al aprobar (`whop payments refund`); stake al Vault al fallar.
 
-## Fase 5 · Agente auditor y jurado Terac ⬜
+## Fase 5 · Agente auditor y jurado Terac 🟡
 
-- ⬜ `lib/server/vision-agent.ts` con Claude (prompts `v1-baseline` y `v2-terac`).
-- ⬜ Regla de aprobación en `pact-engine` (confianza ≥ 0.88, sin señales de trampa).
-- ⬜ Cliente MCP de Terac, creación de tareas y recepción del veredicto (webhook o polling).
-- ⬜ Set de evaluación (`eval/set.json`), ronda 1 en Terac, `POST /api/admin/calibrate`, tabla antes/después con números reales.
+- ✅ Agente de visión `lib/server/vision-agent.ts` con Gemini 3.6 Flash (y Claude, por `AGENT_MODEL`), prompts versionados en `agent_prompts` (`v1-baseline` sembrado), reintentos ante 429/5xx.
+- ✅ Regla de aprobación en `pact-engine` (confianza ≥ 0.88, sin señales de trampa, no "agobiado"). Probada con la IA real: foto buena → reembolso; foto dudosa → ver política.
+- ✅ Política de revisión humana por stake ([docs/04 §7](docs/04-agente-terac.md)): segunda prueba, testigo, apelación (`POST /api/pacts/:id/appeal`), caducidad a las 48 h hacia el Vault y jurado de Terac solo con stake alto. 12 comprobaciones contra la base de datos.
+- ✅ Jurado de Terac: `api/jury/[id]`, `api/webhooks/terac` (firma verificada con un ping real), cierre del caso con Trust y Vault.
+- ✅ Set de evaluación de 12 fotos etiquetadas (`eval/`), `npm run eval` por modelo y prompt. `v1-baseline` con Gemini: 83% (10/12), falla la trampa del código digital.
+- 🟡 Ronda 1 en Terac lanzada el 2026-10-24 ($16.50, 1 experto, 12 fotos): esperando el voto.
+- ⬜ `POST /api/admin/calibrate` → `v2-terac` y tabla antes/después con números reales.
+- ⬜ Fotos reales con el móvil para sustituir las generadas con IA (el modelo las marca por ser sintéticas).
+- ⬜ Botón de apelar en la app y lotes de casos de stake alto (`/jury/queue`).
 
 ## Fase 6 · Copilot con IA y Pax reactivo ⬜
 
@@ -120,6 +127,11 @@ La app ya lee y escribe en Supabase (esquema `pacta`) a través de `/api/*`.
 
 - ⬜ Ensayo de la demo (guion en [docs/06](docs/06-plan-8h-y-demo.md)) y vídeo de respaldo.
 - ⬜ Reembolsar los pagos de prueba y enviar repo, URL y vídeo.
+
+## Ideas a futuro
+
+- ⬜ Tiempo de uso del móvil como prueba o señal (p. ej. pactos de "menos pantalla"). No funciona en Expo Go: iOS exige el entitlement de Family Controls (Screen Time API) y Android el permiso `PACKAGE_USAGE_STATS`, ambos con módulo nativo propio y un dev build. Valorar tras la demo.
+- ⬜ QR de la landing apuntando a `/onboarding` para el primer uso (hoy apunta a la raíz).
 
 ## Decisiones abiertas
 
@@ -149,3 +161,5 @@ npm run build:web        # export estático a dist/
 | 2026-10-24 | Subido a `main` y desplegado. Web exportada como SPA para corregir el error de hidratación en enlaces directos. |
 | 2026-10-24 | Fase 3: API `/api/pacts`, motor de estados con Trust y Vault, store con React Query, seed de demo. Contraseña de `pacta_app` rotada. Desplegado y verificado en producción. |
 | 2026-10-24 | Fase 4 (preparación): cuenta Whop `pacta` creada, comandos y eventos del CLI verificados, stake mínimo a $5 por la comisión no reembolsable. `docs/03` corregido (variants en vez de plans, `whop payments refund`). |
+| 2026-10-24 | Pax se presenta en el chat de su pestaña; la web de escritorio muestra una landing con QR en lugar de la app. |
+| 2026-10-24 | Fase 5: agente auditor (Gemini 3.6 Flash), jurado y webhook de Terac, set de evaluación de 12 fotos, ronda 1 lanzada y política de revisión humana por stake. |
