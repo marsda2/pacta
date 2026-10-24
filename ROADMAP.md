@@ -59,7 +59,7 @@ Los seis flujos de *Windows & Flows* funcionan con un store en memoria (`lib/sto
 - ✅ Pestañas: Home, Pacts (Today/Upcoming/Completed), Copilot, Progress.
 - ✅ Verificado en el navegador (ancho móvil): crear pacto → pacto activo → prueba (modo demo) → revisión → testigo → "Pact kept". Typecheck limpio y `expo export -p web` genera las 16 rutas.
 - 🟡 Revisión visual en móvil real (Expo Go) y en distintos anchos. La cámara real solo se ha probado hasta el estado "sin cámara" (modo demo).
-- 🟡 Enlaces directos en Vercel (`/pact/<id>`, `/kit`): el `vercel.json` los reescribe a `index.html` y el router los resuelve en cliente; falta comprobarlo ya desplegado.
+- ✅ Enlaces directos en Vercel verificados en https://pacta-theta.vercel.app (`/kit`, `/pacts`, `/pact/new`, `/pact/<id>`, `/pact/<id>/proof`, `/witness/<id>`, `/api/health`). La web se exporta como SPA (`web.output: "single"`): con pre-renderizado, Vercel servía el HTML de la home en los enlaces directos y React lanzaba el error de hidratación #418.
 - ⬜ Estados vacíos y de error más pulidos; accesibilidad (lector de pantalla, foco).
 
 ## Fase 3 · API y datos reales ⬜
@@ -131,3 +131,4 @@ npm run build:web        # export estático a dist/
 |---|---|
 | 2026-10-24 | Entorno, GitHub, Vercel y Supabase (esquema `pacta`, bucket, rol y `DATABASE_URL`) listos. |
 | 2026-10-24 | Sistema de diseño, Pax y los seis flujos con datos de prueba. Galería en `/kit`. Este roadmap. |
+| 2026-10-24 | Subido a `main` y desplegado. Web exportada como SPA para corregir el error de hidratación en enlaces directos. |
