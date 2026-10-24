@@ -8,7 +8,7 @@ En apps tipo Forfeit, si fallas pierdes el dinero para siempre, te enfadas y bor
 
 ### Pacto
 - Título del hábito o tarea ("Ir al gimnasio", "Escribir 500 palabras").
-- **Stake**: importe en juego. En la demo, **$1–$5** (la CLI de Whop no tiene sandbox, así que todo es dinero real; ver 03-whop.md).
+- **Stake**: importe en juego, de **$5 a $20** (mínimo $5 porque Whop no devuelve su comisión al reembolsar; la CLI de Whop no tiene sandbox, así que todo es dinero real; ver 03-whop.md). También hay pactos sin dinero, que solo arriesgan reputación.
 - **Deadline**: fecha límite para entregar la prueba.
 - **Tipo de prueba**: foto en vivo (obligatoria) y, opcionalmente, un tap en un chip NFC.
 

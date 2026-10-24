@@ -12,12 +12,12 @@
 | 1 | Sistema de diseño y companion Pax | ✅ (falta comparar con el kit final) |
 | 2 | Pantallas y flujos con datos de prueba | 🟡 |
 | 3 | API y datos reales (Supabase) | ✅ |
-| 4 | Pagos con Whop | ⬜ |
+| 4 | Pagos con Whop | 🟡 (código y pruebas listos; faltan webhook en producción y un pago real) |
 | 5 | Agente auditor + jurado Terac + antes/después | 🟡 |
 | 6 | Copilot con IA y Pax reactivo | ⬜ |
-| 7 | Vault y Trust Score reales | 🟡 |
-| 8 | Embeber en Whop, datos de demo y pulido | ⬜ |
-| 9 | Demo y entrega | ⬜ |
+| 7 | Vault y Trust Score reales | ✅ (falta la micro-tarea de clemencia) |
+| 8 | Embeber en Whop, datos de demo y pulido | 🟡 (código listo; falta crear la app en Whop) |
+| 9 | Demo y entrega | 🟡 (guion y checklist en docs/09) |
 | Extra | Pact Circles (opcional, solo si el flujo central es estable) | ⬜ |
 
 ## Fase 0 · Entorno e infraestructura ✅
@@ -80,18 +80,19 @@ La app ya lee y escribe en Supabase (esquema `pacta`) a través de `/api/*`.
 - 🟡 Fotos en Postgres (`proof_images`) en vez del bucket `proofs`: falta `SUPABASE_SERVICE_ROLE_KEY` para firmar URLs de Storage. `proofs.storage_path` vale `db:<proof_id>`; el jurado (`api/jury/[id].ts`) usa `signedProofUrl` y hay que adaptarlo a esa ruta o mover las fotos a Storage cuando exista la clave.
 - ✅ Desplegado en Vercel (`8e16177`) y verificado en producción: las 24 comprobaciones de la API pasan contra https://pacta-theta.vercel.app, Home y un enlace directo `/pact/<uuid>` cargan datos reales sin errores de consola.
 
-## Fase 4 · Pagos con Whop ⬜
+## Fase 4 · Pagos con Whop 🟡
 
 - ✅ Cuenta de negocio `pacta` en Whop (`biz_3luEKKKfUOfpk8`) creada con `whop quickstart`; CLI con sesión OAuth.
 - ✅ Verificado con el CLI y la doc: checkout con `--plan` y `metadata`, eventos del webhook, firma (`webhook-signature`, `unwrapWebhook` de `@whop/sdk`), reembolso con `whop payments refund`.
 - ✅ Stake mínimo fijado en **$5**: Whop no devuelve su comisión (2,7 % + $0,30) al reembolsar, así que con $1 cada pacto cumplido costaba ≈ 33 %. Ver [docs/03](docs/03-whop.md) sección 6.
-- ⬜ Verificar la ventana de reembolso y el nombre del campo de URL del iframe (**[verificar]** en docs/03).
-- ⬜ API key con permisos mínimos y `WHOP_COMPANY_ID` en `.env.local` y en Vercel.
-- ⬜ Producto "PACTA Stake" y plan "High-Yield Pass" en Whop.
-- ⬜ Checkout por pacto desde `POST /api/pacts` (devuelve `checkout_url`; pacto → `AWAITING_PAYMENT`).
-- 🟡 `POST /api/webhooks/whop` escrito (`api/webhooks/whop.ts`): firma con `unwrapWebhook` (verificada en local con firma de prueba), idempotencia en `webhook_events` y `payment.succeeded` → ACTIVE. Sin desplegar; el registro en Whop va después del despliegue.
-- 🟡 Checkout en `POST /api/pacts` (`lib/server/whop.ts`): el pacto nace AWAITING_PAYMENT con `checkoutUrl` y la app abre Whop. Probado en local: checkout de $5 creado y pacto guardado; el pago real y el webhook quedan sin probar. Sin desplegar. Falta un botón para volver a pagar un pacto sin pagar.
-- ⬜ Reembolso al aprobar (`whop payments refund`); stake al Vault al fallar.
+- ✅ URL del iframe y token de usuario verificados en la doc (pasan a la fase 8). La ventana de reembolso sigue sin documentar: se verá con el primer stake fallado real.
+- ✅ `WHOP_API_KEY` y `WHOP_COMPANY_ID` en `.env.local` y en Vercel (production).
+- ✅ Checkout por pacto en `POST /api/pacts`: el pacto nace AWAITING_PAYMENT y la respuesta trae `checkout` (`url`, `checkoutId`, `planId`). Botón "Pay stake" para reintentar un pacto sin pagar (`POST /api/pacts/:id/checkout`). Verificado contra Whop: checkout de $5 creado con su plan.
+- ✅ `POST /api/webhooks/whop`: firma, idempotencia en `webhook_events`, `payment.succeeded` → ACTIVE. Probado en local con eventos firmados (pago, duplicado, firma falsa → 401).
+- ✅ Reembolso al aprobar (IA, testigo o jurado) con `payments.refund`; stake al Vault al fallar.
+- ✅ **High-Yield Pass**: producto `prod_QdKfivmFTDf6L` en Whop y plan recurrente de $9 cada 30 días creado al vuelo (Whop exige producto para los planes recurrentes). `POST /api/vault/pass` → checkout con `metadata.user_id`; el webhook sube o baja el nivel con `membership.activated` / `membership.deactivated` (y el primer pago del Pass). Las membresías de un stake se ignoran. Probado en local con eventos firmados.
+- ⬜ **Registrar el webhook en producción**: `npm run whop:webhook` (crea el webhook y sube `WHOP_WEBHOOK_SECRET` a Vercel sin mostrarlo) y redesplegar. Sin esto, producción responde 401 a Whop y ningún pacto pagado se activa.
+- ⬜ Un pago real de $5 de punta a punta (pago → webhook → ACTIVE → prueba → reembolso) y reembolsar al terminar. Lo hace una persona con su tarjeta (ver [docs/09 §1](docs/09-demo-y-entrega.md)).
 
 ## Fase 5 · Agente auditor y jurado Terac 🟡
 
@@ -110,28 +111,37 @@ La app ya lee y escribe en Supabase (esquema `pacta`) a través de `/api/*`.
 - ⬜ Micro-pasos generados por el agente a partir del bloqueo ("Too big", "Distracted", "Need clarity"). Hoy son pasos fijos de ejemplo.
 - ⬜ Pax cambia de expresión según el estado real (preocupado cerca de la fecha límite, contento al cumplir, dormido sin pactos).
 
-## Fase 7 · Vault y Trust Score reales ⬜
+## Fase 7 · Vault y Trust Score reales ✅
 
 - ✅ El motor escribe `trust_events` y `vault_ledger` (fallo: −30 de Trust y stake al Vault; cumplido: +15 y racha). El Trust y el Vault de Home y Progress salen del servidor.
-- ⬜ Trampa confirmada: −50 y bloqueo de retiros 7 días; micro-tarea de clemencia (+5).
-- ⬜ Rendimiento simulado (4.85% APY) y desbloqueo por tramos ([docs/01](docs/01-producto.md)).
-- ⬜ Pantalla de Vault con historial y rescate.
+- ✅ Trampa confirmada por el jurado: −50 y bloqueo de retiros 7 días (`closeJuryTask`); el rescate lo respeta.
+- ✅ Rendimiento simulado (4.85 % APY) calculado sobre el ledger (`lib/shared/vault.ts`): APY × ∫ saldo dt, con el saldo constante entre movimientos. Se muestra siempre como "simulado".
+- ✅ Desbloqueo por tramos (`POST /api/vault/redeem`, `lib/server/vault.ts`): Trust ≥ 70, 3 pactos verificados seguidos desde el último fallo o rescate y sin bloqueo → tramo de min($20, saldo). Free recupera el 90 % (10 % de comisión, `fee`); el Pass, el 100 % más el rendimiento del tramo (`yield`, migración `pacta_vault_yield`). El dinero vuelve con reembolsos parciales de los stakes fallados; los stakes sin pago solo se registran.
+- ✅ Pantalla del Vault (`/vault`): saldo, rendimiento, progreso del tramo, botón de rescate, Free frente a Pass e historial. Tarjeta del Vault en Home y Progress con "te faltan N pactos y M puntos".
+- ✅ Verificado contra la base real con un usuario QA (borrado después): 17 comprobaciones (bloqueo antes de tiempo, rescate Free $18 + $2, racha nueva por tramo, doble rescate rechazado, Pass al 100 % con rendimiento, bloqueo por trampa) y en el navegador (Home → Vault).
+- ⬜ Micro-tarea de clemencia (+5): depende del veredicto `MICRO_TASK` del jurado (fase 5).
 
-## Fase 8 · Embeber en Whop y pulido ⬜
+## Fase 8 · Embeber en Whop y pulido 🟡
 
-- ⬜ URL del iframe + verificación del token de usuario de Whop.
-- 🟡 Datos de demo sembrados (`npm run seed`: un pacto cumplido, uno fallado con $10 en el Vault y uno activo). Falta el historial de Trust más largo para la demo.
+- ✅ Identidad de Whop (`lib/server/identity.ts`): verifica `x-whop-user-token` (ES256 con el JWKS de Whop, emisor `urn:whopcom:exp-proxy`, audiencia `WHOP_APP_ID`) porque `@whop/sdk` 2.x ya no trae `verifyUserToken`. Cada usuario de Whop tiene su fila en `users`; sin token, usuario de demo. Todas las rutas de pactos y del Vault la usan. Probado: token válido, caducado, de otro emisor, de otra app, firma alterada y un token falso contra el JWKS real de Whop (401).
+- ✅ La web publicada llama a la API con rutas relativas, así el iframe de Whop adjunta el token.
+- ✅ Entrada `/experiences/[experienceId]`: al onboarding si el usuario no tiene pactos, a Home si los tiene. Dentro del iframe nunca sale la landing de escritorio (verificado con un iframe de 1200 px).
+- ✅ Pago dentro de Whop con `@whop/iframe` (`inAppPurchase`) para el stake y el Pass; fuera de Whop, la página del checkout.
+- ✅ Datos de demo (`npm run seed`, o `npm run seed -- user_XXXX` para una cuenta de Whop): dos semanas de historial, Trust 55, racha 2 y $60 en el Vault; un pacto cumplido en directo desbloquea el primer tramo.
+- ⬜ Crear la app en el dashboard de Whop (Hosting: base URL y *Experience view* `/experiences/[experienceId]`), instalarla en `pacta` y poner `WHOP_APP_ID` y `EXPO_PUBLIC_WHOP_APP_ID` en Vercel.
+- ⬜ Comprobar dentro de Whop que llega el token y que el modal de pago se abre.
 - ⬜ Pase de pulido: rendimiento, textos, estados de carga.
 
-## Fase 9 · Demo y entrega ⬜
+## Fase 9 · Demo y entrega 🟡
 
-- ⬜ Ensayo de la demo (guion en [docs/06](docs/06-plan-8h-y-demo.md)) y vídeo de respaldo.
+- ✅ Pasos manuales previos, guion de 2 minutos con plan B, lista de planos del vídeo y entrega en [docs/09](docs/09-demo-y-entrega.md).
+- ⬜ Tres ensayos cronometrados y grabar el vídeo de respaldo.
 - ⬜ Reembolsar los pagos de prueba y enviar repo, URL y vídeo.
 
 ## Ideas a futuro
 
 - ⬜ Tiempo de uso del móvil como prueba o señal (p. ej. pactos de "menos pantalla"). No funciona en Expo Go: iOS exige el entitlement de Family Controls (Screen Time API) y Android el permiso `PACKAGE_USAGE_STATS`, ambos con módulo nativo propio y un dev build. Valorar tras la demo.
-- ⬜ QR de la landing apuntando a `/onboarding` para el primer uso (hoy apunta a la raíz).
+- ⬜ QR de la landing apuntando a `/onboarding` para el primer uso (hoy apunta a la raíz). Dentro de Whop ya se entra al onboarding si no hay pactos.
 
 ## Decisiones abiertas
 
@@ -163,3 +173,4 @@ npm run build:web        # export estático a dist/
 | 2026-10-24 | Fase 4 (preparación): cuenta Whop `pacta` creada, comandos y eventos del CLI verificados, stake mínimo a $5 por la comisión no reembolsable. `docs/03` corregido (variants en vez de plans, `whop payments refund`). |
 | 2026-10-24 | Pax se presenta en el chat de su pestaña; la web de escritorio muestra una landing con QR en lugar de la app. |
 | 2026-10-24 | Fase 5: agente auditor (Gemini 3.6 Flash), jurado y webhook de Terac, set de evaluación de 12 fotos, ronda 1 lanzada y política de revisión humana por stake. |
+| 2026-10-24 | Fases 4, 7 y 8: High-Yield Pass en Whop y webhook de membresías, Vault con rendimiento simulado y rescate por tramos, identidad con el token de Whop y pago en el iframe, seed de dos semanas. Guion de la demo en docs/09. |

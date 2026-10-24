@@ -18,8 +18,9 @@ whop --help                # ver todos los grupos de comandos
 
 1. Dashboard de Whop → **Developer** → crear una app "PACTA".
 2. Anotar: `WHOP_APP_ID`, `WHOP_COMPANY_ID` (`biz_3luEKKKfUOfpk8`) y crear una **API key** con los permisos mínimos: productos, variantes, checkout, pagos, reembolsos, webhooks y memberships. Lee https://docs.whop.com/developer/guides/auth-scoping.md antes de dar la key al agente.
-3. Configurar la **URL de la experiencia/iframe** de la app → `https://pacta.vercel.app` (la URL de Vercel). Así PACTA se abre dentro de Whop. **[verificar]** el nombre exacto del campo en la configuración de la app.
-4. Dentro del iframe, Whop envía un token del usuario en una cabecera; el servidor lo verifica con el SDK y obtiene el `whop_user_id`. Esa es nuestra autenticación: no hace falta un login propio. **[verificar]** el nombre de la cabecera del token de usuario y de la función de verificación (distinto del webhook, ver sección 5).
+3. En la sección **Hosting** de la app (verificado en la doc *App Views*): base URL `https://pacta-theta.vercel.app` y *Experience view* con la ruta `/experiences/[experienceId]`. Esa ruta existe en la app (`app/experiences/[experienceId].tsx`) y lleva al onboarding o a Home. Así PACTA se abre dentro de Whop.
+4. Dentro del iframe, Whop envía el JWT del usuario en la cabecera **`x-whop-user-token`**, solo en peticiones al mismo origen (por eso la web publicada llama a la API con rutas relativas, `lib/api/client.ts`). **`@whop/sdk` 2.x ya no trae `verifyUserToken`**, así que `lib/server/identity.ts` lo verifica como los SDK oficiales de Python y Ruby: ES256 con las claves de `https://api.whop.com/.well-known/jwks.json`, emisor `urn:whopcom:exp-proxy` y audiencia = `WHOP_APP_ID`. El `sub` es el `whop_user_id`. Sin cabecera (la URL de Vercel fuera de Whop) se usa el usuario de demo, salvo `WHOP_REQUIRE_USER_TOKEN=true`.
+5. Pago dentro de Whop: `@whop/iframe` (`inAppPurchase({ planId, id })`) abre el modal de pago sin salir del iframe (`lib/whop.ts`). Necesita `EXPO_PUBLIC_WHOP_APP_ID`. Fuera de Whop se abre la página del checkout.
 
 ### ¿Vercel o `whop apps deploy`?
 La CLI puede alojar la app (`whop apps deploy`, `whop apps logs`). **Plan por defecto: Vercel**, porque sabemos que sirve Expo web + funciones serverless. A las 10:45, revisa `whop apps deploy --help`: si soporta nuestro stack, alojar en Whop suma puntos con los jueces de Whop. Decídelo en 10 minutos como máximo y no cambies después.
@@ -31,7 +32,7 @@ En la CLI actual no existe el grupo `plans`: los planes son **variants** de un p
 | Producto | Plan | Uso |
 |---|---|---|
 | **PACTA Stake** | Pago único con precio **dinámico** por pacto ($5–$20) | El depósito del pacto |
-| **High-Yield Pass** | Recurrente, $9/mes | Nivel premium (recuperación del 100% + rendimiento) |
+| **High-Yield Pass** (`prod_QdKfivmFTDf6L`, creado el 2026-10-24) | Recurrente, $9 cada 30 días, creado al vuelo en el checkout (`plan_type: renewal`; Whop exige un producto para los planes recurrentes) | Nivel premium (recuperación del 100% + rendimiento) |
 
 Opciones para el stake con importe variable (elige una):
 - **A (preferida):** crear una *checkout configuration* por pacto con `--plan` (precio, moneda y `metadata`) y `metadata.pact_id`. **Verificado:** `whop checkout-configurations create` acepta `--plan` inline y `--metadata`, y la doc dice que el metadata se copia a los pagos.
@@ -62,6 +63,7 @@ Whop ──webhook payment.succeeded──► /api/webhooks/whop
 - **URL a registrar:** `https://pacta-theta.vercel.app/api/webhooks/whop` (producción actual; `pacta.vercel.app` está ocupado). Whop rechaza `localhost` y redes privadas.
 - **Crear el webhook solo cuando el endpoint esté desplegado.** La doc no dice que Whop pruebe la URL al crear el webhook; el envío de prueba es manual (`whop webhooks test`). Si el endpoint no existe, los eventos fallan y Whop los reintenta.
 - Tras crearlo, copiar el **Secret** (`ws_…`) a `WHOP_WEBHOOK_SECRET` en `.env.local` y en Vercel. La API lo muestra una sola vez.
+- **Atajo:** `npm run whop:webhook` (`scripts/whop-webhook.ts`) lo crea con la API key de `.env.local` para `payment.succeeded`, `membership.activated` y `membership.deactivated`, guarda el secreto en `.env.local` y lo sube a Vercel sin mostrarlo. La CLI con sesión OAuth no puede: pide `whop login --api-key`.
 - Eventos (verificados en `whop webhooks create --schema`): `payment.succeeded`, `payment.failed`, `payment.pending`, `payment.requires_action`, `refund.created`, `refund.updated`, `membership.activated` y `membership.deactivated` (High-Yield Pass).
 - **Firma (verificada en la doc):** cabeceras `webhook-id`, `webhook-timestamp` y `webhook-signature` (`v1,<firma>`). HMAC-SHA256 con el secreto `ws_…`, que solo se muestra una vez al crear el webhook. Se guarda como `WHOP_WEBHOOK_SECRET`, sin base64. Para verificar usa `unwrapWebhook` de `@whop/sdk/helpers` (ya está en `package.json`); rechaza timestamps de más de 5 minutos.
 - Responder **200 rápido** y procesar dentro de la misma función (los tiempos del hackathon lo permiten).
@@ -94,8 +96,11 @@ Un reembolso normalmente solo es posible dentro de una **ventana de tiempo** y p
 
 Para la demo basta con que **un** rescate funcione de verdad en vivo; el resto puede mostrarse con el ledger.
 
+**Implementado (opción 1):** `POST /api/vault/redeem` reparte el tramo entre los stakes fallados, del más antiguo al más reciente, y hace un reembolso parcial (`partial_amount`) de cada pago original. Si Whop rechaza uno (p. ej. fuera de plazo), se para y solo se registra lo devuelto. Los stakes sin pago (datos de demo) se registran en el ledger. La ventana de reembolso sigue **[verificar]** con un stake fallado real.
+
 ## 8. High-Yield Pass
-- El webhook `membership.activated` → `users.tier = 'high_yield'`; `deactivated` → `free`.
+- `POST /api/vault/pass` crea el checkout con `metadata.user_id`; Whop copia esa metadata a la membresía y a sus pagos.
+- El webhook `membership.activated` (o el primer `payment.succeeded` del Pass) → `users.tier = 'high_yield'`; `deactivated` → `free`. Solo cuentan las membresías con `metadata.kind = 'high_yield_pass'`: un stake de pago único también crea una membresía.
 - Sirve además como prueba de "monetización recurrente en Whop" para los jueces.
 
 ## 9. Variables de entorno de Whop
@@ -105,8 +110,11 @@ WHOP_API_KEY=            # solo servidor
 WHOP_APP_ID=
 WHOP_COMPANY_ID=         # biz_3luEKKKfUOfpk8
 WHOP_WEBHOOK_SECRET=     # solo servidor, ws_…
-WHOP_STAKE_PRODUCT_ID=
-WHOP_PASS_PLAN_ID=
+WHOP_STAKE_PRODUCT_ID=   # opcional: el stake funciona sin producto
+WHOP_PASS_PRODUCT_ID=    # prod_QdKfivmFTDf6L (High-Yield Pass)
+WHOP_PASS_PLAN_ID=       # opcional: reutilizar un plan ya creado
+EXPO_PUBLIC_WHOP_APP_ID= # el mismo app_… que WHOP_APP_ID, para el modal de pago del iframe
+WHOP_REQUIRE_USER_TOKEN= # true = la API exige el token de Whop
 ```
 
 ## 10. Limpieza después de la demo

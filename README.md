@@ -2,7 +2,7 @@
 
 > Fondo de disciplina sin empleados: apuestas dinero a un hábito, una IA audita tu prueba, un jurado humano de **Terac** decide en la zona gris, y si fallas tu dinero no desaparece: queda congelado en el **Redemption Vault** hasta que recuperes tu Trust Score.
 
-Este repositorio, por ahora, **solo contiene planificación**. No hay código todavía.
+La app está en producción en https://pacta-theta.vercel.app (Expo web + API en Vercel + Supabase). El avance real fase a fase está en el [ROADMAP](ROADMAP.md); el plan original, en [docs/](docs/).
 
 > Nota: "Whoop" en este plan significa **Whop** (la plataforma anfitriona del hackathon, whop.com), no la pulsera WHOOP.
 
@@ -33,6 +33,7 @@ Este repositorio, por ahora, **solo contiene planificación**. No hay código to
 5. [docs/05-infra-github-vercel-supabase.md](docs/05-infra-github-vercel-supabase.md): GitHub, Vercel, Supabase y variables de entorno
 6. [docs/06-plan-8h-y-demo.md](docs/06-plan-8h-y-demo.md): cronograma de 8 horas, recortes, riesgos y guion de la demo
 7. [docs/07-pact-circles.md](docs/07-pact-circles.md): retos en grupo cooperativos (gym, foco), amigos como testigos y roadmap
+8. [docs/09-demo-y-entrega.md](docs/09-demo-y-entrega.md): pasos manuales previos, guion de 2 minutos, vídeo de respaldo y entrega
 
 ## Flujo en una imagen
 
