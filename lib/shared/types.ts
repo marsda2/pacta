@@ -18,6 +18,8 @@ export interface PactReviewDto {
   appealBondCents?: number;
   // Horas que quedan antes de que el stake pase al Vault si nadie lo resuelve.
   hoursLeft?: number;
+  // Motivo devuelto por la IA cuando tuvo dudas al revisar la foto.
+  aiReason?: string;
 }
 
 // Pacto tal y como lo devuelve /api/pacts.
@@ -34,6 +36,13 @@ export interface PactDto {
   focusTotalSec: number;
   // Índice del paso: 0 Outline, 1 Draft, 2 Review.
   stepIndex: number;
+  // Código de 4 caracteres que debe escribirse a mano en la foto en vivo.
+  dayCode?: string;
+  // Hábitos semanales: días objetivo (1 = pacto único, 2–7 = hábito semanal) y días ya verificados.
+  targetDays?: number;
+  completedDays?: number;
+  // Lugar asociado cuando se activa la verificación por ubicación (ej. "SmartFit Gym").
+  locationName?: string;
   // Ruta relativa a la imagen de la prueba y cuándo se subió, si la hay.
   proofImagePath?: string;
   proofAt?: number;

@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import { ProofMethodPicker } from '@/components/pact/ProofMethodPicker';
 import {
@@ -20,19 +20,28 @@ import {
 } from '@/components/ui';
 import { routes } from '@/lib/routes';
 import { checkLevel, CREDIT_STAKE_MIN_CENTS, CREDIT_STAKE_PRESETS_CENTS, formatUsd, STAKE_PRESETS_CENTS, type CheckLevel } from '@/lib/shared/rules';
-import { buildDeadlineOptions, formatClockTime } from '@/lib/shared/time';
+import { buildDayOptions, buildTimeSlotOptions, combineDayAndTime, defaultTimeSlot, formatDeadline } from '@/lib/shared/time';
 import type { ProofMethod } from '@/lib/shared/types';
 import { usePacts } from '@/lib/store/pacts';
 import { useWallet } from '@/lib/store/wallet';
+import { colors, radii } from '@/lib/theme';
 import { openCheckout } from '@/lib/whop';
 
 type PayWith = 'credit' | 'card' | 'none';
+type FrequencyMode = 'once' | 'weekly';
 
 const payOptions: SegmentOption<PayWith>[] = [
   { value: 'credit', label: 'Balance' },
   { value: 'card', label: 'Card' },
   { value: 'none', label: 'No money' },
 ];
+
+const freqOptions: SegmentOption<FrequencyMode>[] = [
+  { value: 'once', label: 'One-time' },
+  { value: 'weekly', label: 'Weekly habit' },
+];
+
+const WEEKLY_DAYS = [2, 3, 4, 5, 6, 7] as const;
 
 // Cuánto se verifica según lo que hay en juego (rules.ts, checkLevel).
 const checkCopy: Record<CheckLevel, string> = {
@@ -46,16 +55,26 @@ export default function NewPact() {
   const router = useRouter();
   const { createPact } = usePacts();
   const { wallet } = useWallet();
-  const options = useMemo(() => buildDeadlineOptions(), []);
+  const dayOptions = useMemo(() => buildDayOptions(), []);
+  const timeSlots = useMemo(() => buildTimeSlotOptions(), []);
+  const defaultSlot = useMemo(() => defaultTimeSlot(timeSlots), [timeSlots]);
 
   const [task, setTask] = useState('');
-  const [deadline, setDeadline] = useState(options[0]);
+  const [freq, setFreq] = useState<FrequencyMode>('once');
+  const [weeklyDays, setWeeklyDays] = useState<number>(4);
+  const [dayChoice, setDayChoice] = useState(dayOptions[0]);
+  const [timeChoice, setTimeChoice] = useState(defaultSlot);
   const [payChoice, setPayWith] = useState<PayWith | null>(null);
   const [stakeChoice, setStake] = useState<number | null>(null);
   const [methods, setMethods] = useState<ProofMethod[]>(['photo']);
+  const [locationName, setLocationName] = useState('');
   const [agreed, setAgreed] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<unknown>(null);
+
+  const effectiveDayOffset = freq === 'weekly' ? 7 : dayChoice.offset;
+  const dueAt = combineDayAndTime(effectiveDayOffset, timeChoice.hour, timeChoice.minute);
+  const targetDays = freq === 'weekly' ? weeklyDays : 1;
 
   // Con saldo suficiente se paga con él por defecto; si no, con tarjeta.
   const balance = wallet?.balanceCents ?? 0;
@@ -74,8 +93,10 @@ export default function NewPact() {
       const pact = await createPact({
         title: task.trim(),
         stakeCents: stake,
-        dueAt: deadline.dueAt,
+        dueAt,
         methods,
+        targetDays,
+        locationName: methods.includes('location') && locationName.trim() ? locationName.trim() : undefined,
         reputationOnly: !money,
         payWith: payWith === 'credit' ? 'credit' : 'card',
       });
@@ -90,16 +111,49 @@ export default function NewPact() {
 
   return (
     <Screen>
-      <ScreenTitle title="Make it concrete." subtitle="One task. One deadline." onBack={() => router.back()} />
+      <ScreenTitle title="Make it concrete." subtitle="Choose your task, frequency, and proof." onBack={() => router.back()} />
 
       <Card style={styles.form}>
-        <TextField label="Task" value={task} onChangeText={setTask} placeholder="Finish the proposal" />
-        <SelectField
-          label="Deadline"
-          value={deadline.label}
-          options={options.map((o) => o.label)}
-          onChange={(label) => setDeadline(options.find((o) => o.label === label) ?? options[0])}
-        />
+        <TextField label="Task" value={task} onChangeText={setTask} placeholder="Go to the gym / Finish proposal" />
+
+        <View style={styles.group}>
+          <SectionLabel>Frequency</SectionLabel>
+          <Segmented options={freqOptions} value={freq} onChange={setFreq} />
+          {freq === 'weekly' ? (
+            <View style={styles.group}>
+              <Text variant="small" color="muted">How many days this week?</Text>
+              <View style={styles.daysRow}>
+                {WEEKLY_DAYS.map((d) => (
+                  <Pressable
+                    key={d}
+                    accessibilityRole="button"
+                    onPress={() => setWeeklyDays(d)}
+                    style={[styles.dayChip, weeklyDays === d && styles.dayChipOn]}
+                  >
+                    <Text variant="bodyStrong" color={weeklyDays === d ? 'white' : 'text'}>{d}x</Text>
+                  </Pressable>
+                ))}
+              </View>
+              <Text variant="caption" color="muted">
+                Check in {weeklyDays} days over the next 7 days (until {formatDeadline(dueAt)}).
+              </Text>
+            </View>
+          ) : (
+            <SelectField
+              label="Day"
+              value={dayChoice.label}
+              options={dayOptions.map((o) => o.label)}
+              onChange={(label) => setDayChoice(dayOptions.find((o) => o.label === label) ?? dayOptions[0])}
+            />
+          )}
+          <SelectField
+            label={freq === 'weekly' ? 'Weekly cutoff time' : 'Time'}
+            icon="timer"
+            value={timeChoice.label}
+            options={timeSlots.map((s) => s.label)}
+            onChange={(label) => setTimeChoice(timeSlots.find((s) => s.label === label) ?? defaultSlot)}
+          />
+        </View>
 
         <View style={styles.group}>
           <SectionLabel>Pay with</SectionLabel>
@@ -129,6 +183,14 @@ export default function NewPact() {
         <View style={styles.group}>
           <SectionLabel>Proof method</SectionLabel>
           <ProofMethodPicker value={methods} onChange={setMethods} />
+          {methods.includes('location') ? (
+            <TextField
+              label="Place / Location name"
+              value={locationName}
+              onChangeText={setLocationName}
+              placeholder="e.g. SmartFit Gym, Library, Office"
+            />
+          ) : null}
         </View>
 
         {money ? (
@@ -136,7 +198,7 @@ export default function NewPact() {
             checked={agreed}
             onChange={setAgreed}
             label={`Lock ${formatUsd(stake)} in my Vault if I miss the deadline.`}
-            caption={`Proof must be approved by ${formatClockTime(deadline.dueAt)}. Your money isn’t lost.`}
+            caption={`Proof must be approved by ${formatDeadline(dueAt)}. Your money isn’t lost.`}
           />
         ) : null}
 
@@ -153,5 +215,17 @@ const styles = StyleSheet.create({
   group: { gap: 8 },
   flex: { flex: 1 },
   balanceRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  daysRow: { flexDirection: 'row', gap: 8 },
+  dayChip: {
+    flex: 1,
+    minHeight: 42,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: radii.md,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  dayChipOn: { backgroundColor: colors.forest, borderColor: colors.forest },
   hint: { textAlign: 'center', marginTop: -6 },
 });

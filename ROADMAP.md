@@ -209,3 +209,10 @@ npm run build:web        # export estático a dist/
 El PR [#1](https://github.com/marsda2/pacta/pull/1) quedó fusionado en `main` (`5906ba5`) y Vercel completó automáticamente la publicación de producción. Las dos carpetas y la rama remota de diseño se sincronizaron. El webhook real `hook_P3VdUdEXp0xdk` aceptó un evento de prueba firmado de Whop: **HTTP 200, success=true**, sin cobro. El secreto está almacenado como Secret en Vercel.
 
 La comprobación visual detectó que el redirect por defecto de Expo SDK 58 elegía `/kit` al denegar la raíz privada. Corrección: `Stack.Protected` especifica `redirectTo="/onboarding"`; además, ambos QR apuntan directamente a `/onboarding`. La galería solo se abre al visitar `/kit` expresamente. Este ajuste se publica como commit posterior al merge.
+
+## Hábitos semanales, ubicación, Pomodoro opcional y revisión Light · 2026-10-24
+
+- ✅ Selector de frecuencia en `/pact/new`: pacto único (día y hora exactos) o hábito semanal (`2x`–`7x` días/semana) con seguimiento de progreso `completedDays / targetDays`.
+- ✅ Ubicación (`locationName`) al activar `Location` y verificación GPS en `/pact/:id/proof`.
+- ✅ Tarjeta de resumen real del pacto en Home y `/pact/:id` con temporizador Pomodoro / Focus opcional, código diario visible y motivo de la IA (`aiReason`) visible en `/pact/:id/result`.
+- ✅ En `light` check (`stake < $5` o sin dinero), `shouldAutoApprove` aprueba cuando `taskMatch` es válido (`confidence >= 0.6`) sin exigir código escrito a mano ni rechazar capturas de pantalla en tareas digitales.

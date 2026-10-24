@@ -42,6 +42,25 @@ export function PactCard({ pact, onPress }: PactCardProps) {
         </View>
       </View>
 
+      {(pact.targetDays && pact.targetDays > 1) || pact.locationName ? (
+        <View style={styles.badges}>
+          {pact.targetDays && pact.targetDays > 1 ? (
+            <View style={styles.badge}>
+              <Icon name="calendar" size={14} color={colors.forest} />
+              <Text variant="caption" color="forest">
+                {pact.completedDays ?? 0}/{pact.targetDays} days this week
+              </Text>
+            </View>
+          ) : null}
+          {pact.locationName ? (
+            <View style={styles.badge}>
+              <Icon name="location" size={14} color={colors.forest} />
+              <Text variant="caption" color="forest">{pact.locationName}</Text>
+            </View>
+          ) : null}
+        </View>
+      ) : null}
+
       <View style={styles.methods}>
         {pact.methods.map((method, index) => (
           <Fragment key={method}>
@@ -78,6 +97,16 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.subtle,
   },
   row: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  badges: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  badge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: radii.pill,
+    backgroundColor: colors.mintSoft,
+  },
   methods: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around' },
   method: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   divider: { width: 1, height: 18, backgroundColor: colors.border },

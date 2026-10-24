@@ -7,11 +7,19 @@ import { prepareProofImage } from '@/lib/api/image';
 import { TRUST_START_SCORE } from '@/lib/shared/rules';
 import type { Pact, PactDto, PactsResponse, ProofMethod, UserSummary } from '@/lib/shared/types';
 
+export interface GpsCheckin {
+  lat: number;
+  lng: number;
+  accuracy?: number;
+}
+
 export interface NewPactInput {
   title: string;
   stakeCents: number;
   dueAt: number;
   methods: ProofMethod[];
+  targetDays?: number;
+  locationName?: string;
   // Pacto sin dinero: se arriesga solo reputación (el servidor ignora stakeCents).
   reputationOnly?: boolean;
   // 'credit': se paga con el saldo prepagado (desde $1); si no, con tarjeta en Whop.
@@ -29,7 +37,7 @@ interface PactsContextValue {
   // La sesión de foco es local al dispositivo: no se guarda en el servidor.
   setFocusRemaining: (id: string, seconds: number) => void;
   // `imageUri` sin valor = captura de demostración (sin foto).
-  submitProof: (id: string, imageUri?: string) => Promise<void>;
+  submitProof: (id: string, imageUri?: string, gps?: GpsCheckin) => Promise<void>;
   resolvePact: (id: string, kept: boolean, source?: 'witness' | 'demo') => Promise<void>;
   // Apelación con fianza: panel de jueces humanos de Terac, con hasta 2 fotos extra y una nota.
   appealPact: (id: string, input?: { note?: string; imageUris?: string[] }) => Promise<void>;
@@ -87,9 +95,9 @@ export function PactsProvider({ children }: { children: ReactNode }) {
     onSuccess: apply,
   });
   const proof = useMutation({
-    mutationFn: async ({ id, imageUri }: { id: string; imageUri?: string }) => {
+    mutationFn: async ({ id, imageUri, gps }: { id: string; imageUri?: string; gps?: GpsCheckin }) => {
       const imageBase64 = imageUri ? await prepareProofImage(imageUri) : undefined;
-      return apiFetch<{ pact: PactDto; summary: UserSummary }>(`/api/pacts/${id}/proof`, { method: 'POST', body: { imageBase64 } });
+      return apiFetch<{ pact: PactDto; summary: UserSummary }>(`/api/pacts/${id}/proof`, { method: 'POST', body: { imageBase64, gps } });
     },
     onSuccess: apply,
   });
@@ -119,7 +127,7 @@ export function PactsProvider({ children }: { children: ReactNode }) {
       getPact: (id) => pacts.find((pact) => pact.id === id),
       createPact: async (input) => toPact((await create.mutateAsync(input)).pact),
       setFocusRemaining: (id, seconds) => setFocus((prev) => ({ ...prev, [id]: Math.max(0, seconds) })),
-      submitProof: async (id, imageUri) => void (await proof.mutateAsync({ id, imageUri })),
+      submitProof: async (id, imageUri, gps) => void (await proof.mutateAsync({ id, imageUri, gps })),
       resolvePact: async (id, kept, source = 'demo') => void (await resolve.mutateAsync({ id, kept, source })),
       appealPact: async (id, input) => void (await appeal.mutateAsync({ id, ...input })),
     }),

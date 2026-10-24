@@ -34,10 +34,12 @@ export function checkLevel(stakeCents: number, humanMinCents = HUMAN_REVIEW_MIN_
 // Regla de oro: la decide el código, no el prompt. Cualquier otro caso va al jurado. Sin stake,
 // se aplica la regla estricta (la del set de evaluación).
 export function shouldAutoApprove(audit: AgentAudit, emotionalState: 'normal' | 'overwhelmed', stakeCents = LIGHT_CHECK_BELOW_CENTS): boolean {
-  if (emotionalState === 'overwhelmed' || !audit.cheatSignals.every((signal) => signal === 'none')) return false;
+  if (emotionalState === 'overwhelmed') return false;
   if (checkLevel(stakeCents) === 'light') {
-    return audit.verdict !== 'REJECT' && audit.taskMatch && audit.confidence >= AI_LIGHT_APPROVE_CONFIDENCE;
+    const hardCheat = audit.cheatSignals.some((signal) => signal !== 'none' && signal !== 'screen_photo');
+    return !hardCheat && audit.taskMatch && audit.confidence >= AI_LIGHT_APPROVE_CONFIDENCE;
   }
+  if (!audit.cheatSignals.every((signal) => signal === 'none')) return false;
   return audit.verdict === 'APPROVE' && audit.confidence >= AI_AUTO_APPROVE_CONFIDENCE;
 }
 

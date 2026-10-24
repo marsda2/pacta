@@ -20,7 +20,7 @@ export type GivenVotes = Record<string, { verdict?: unknown; reason?: unknown }>
 // Casos pendientes de un estudio, en un orden fijo pero mezclado (no revela las etiquetas).
 export const casesOf = (opportunityId: string) =>
   query<CaseRow>(
-    `select jt.id, jt.raw, pc.title, pc.day_code, p.id as proof_id, p.emotional_state
+    `select jt.id, jt.raw, pc.title, split_part(pc.day_code, '|', 1) as day_code, p.id as proof_id, p.emotional_state
        from pacta.jury_tasks jt
        join pacta.proofs p on p.id = jt.proof_id
        join pacta.pacts pc on pc.id = p.pact_id

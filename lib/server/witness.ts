@@ -42,7 +42,7 @@ export async function witnessReview(pactId: string, token: unknown) {
   const invitation = readWitnessToken(token, pactId);
   const pact = await getPact(invitation.userId, pactId);
   const { rows } = await query<{ id: string; day_code: string }>(
-    'select r.id, p.day_code from pacta.proofs r join pacta.pacts p on p.id = r.pact_id where p.id = $1 order by r.created_at desc limit 1', [pactId],
+    "select r.id, split_part(p.day_code, '|', 1) as day_code from pacta.proofs r join pacta.pacts p on p.id = r.pact_id where p.id = $1 order by r.created_at desc limit 1", [pactId],
   );
   if (rows[0]?.id !== invitation.proofId) throw new HttpError(404, 'witness_link_invalid');
   return { title: pact.title, dayCode: rows[0].day_code, photoUrl: pact.proofImagePath, closed: pact.rawStatus !== 'AI_REVIEW' };

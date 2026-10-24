@@ -69,6 +69,8 @@ export interface AuditInput {
   title: string;
   dayCode: string;
   emotionalState: 'normal' | 'overwhelmed';
+  locationName?: string;
+  gpsSummary?: string;
   promptVersion?: string;
   model?: string;
 }
@@ -89,7 +91,15 @@ interface ModelCall {
 
 type Photo = AuditInput['image'];
 const userText = (input: AuditInput) =>
-  `Habit: ${input.title}\nExpected handwritten code: ${input.dayCode}\nUser's state: ${input.emotionalState}`;
+  [
+    `Habit: ${input.title}`,
+    input.locationName ? `Expected location/place: ${input.locationName}` : null,
+    input.gpsSummary ? `Device GPS check-in: ${input.gpsSummary}` : null,
+    `Expected handwritten code: ${input.dayCode}`,
+    `User's state: ${input.emotionalState}`,
+  ]
+    .filter(Boolean)
+    .join('\n');
 
 async function callAnthropic(model: string, system: string, photo: Photo, text: string): Promise<ModelCall> {
   const response = await new Anthropic().messages.create({

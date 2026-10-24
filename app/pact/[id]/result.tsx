@@ -40,10 +40,17 @@ export default function PactResult() {
   const reviewing = pact.status === 'pending' || pact.status === 'progress' || pact.status === 'scheduled';
   const review = pact.review;
   const doubt = !!review && review.aiReviewed && !review.juryOpen;
+  const targetDays = pact.targetDays ?? 1;
+  const completedDays = pact.completedDays ?? 0;
   const message = review?.juryOpen
     ? 'Your proof is waiting for the Terac jury. We’ll update your pact when the review is complete.'
-    : doubt ? 'I’m not sure about this photo. You can retake it, ask a witness, or appeal to a human.'
-    : 'Your pact is still in progress. Open its details to see the next step.';
+    : doubt
+      ? review?.aiReason
+        ? `I’m not sure about this photo: "${review.aiReason}" You can retake it, ask a witness, or appeal to a human.`
+        : 'I’m not sure about this photo. You can retake it, ask a witness, or appeal to a human.'
+      : targetDays > 1 && completedDays > 0 && pact.status === 'progress'
+        ? `Day ${completedDays} of ${targetDays} verified! Keep going to complete your weekly pact.`
+        : 'Your pact is still in progress. Open its details to see the next step.';
 
   return (
     <Screen>

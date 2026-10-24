@@ -62,6 +62,7 @@ interface PactRow {
   title: string;
   stake_cents: number;
   deadline: Date;
+  day_code: string;
   status: string;
   proof_methods: string[];
   created_at: Date;
@@ -69,11 +70,41 @@ interface PactRow {
   proof_id: string | null;
   storage_path: string | null;
   proof_at: Date | null;
+  ai_reason: string | null;
   proof_count: string;
   ai_reviewed: boolean | null;
   jury_open: boolean;
   user_tier: string;
   appeals_used: string;
+}
+
+interface DayCodeMeta {
+  code: string;
+  targetDays: number;
+  completedDays: number;
+  locationName?: string;
+}
+
+export function encodeDayCodeMeta(meta: DayCodeMeta): string {
+  const code = meta.code.slice(0, 4);
+  const target = Math.max(1, Math.min(7, Math.floor(meta.targetDays || 1)));
+  const done = Math.max(0, Math.min(target, Math.floor(meta.completedDays || 0)));
+  const loc = (meta.locationName ?? '').replace(/\|/g, ' ').trim().slice(0, 60);
+  if (target === 1 && done === 0 && !loc) return code;
+  return `${code}|${target}|${done}|${loc}`;
+}
+
+export function decodeDayCodeMeta(raw: string): DayCodeMeta {
+  const [code = '', t, d, ...rest] = (raw ?? '').split('|');
+  const targetDays = Math.max(1, Math.min(7, Number.parseInt(t ?? '1', 10) || 1));
+  const completedDays = Math.max(0, Math.min(targetDays, Number.parseInt(d ?? '0', 10) || 0));
+  const loc = rest.join('|').trim();
+  return {
+    code: code.slice(0, 4),
+    targetDays,
+    completedDays,
+    locationName: loc || undefined,
+  };
 }
 
 // Apelaciones que el usuario del pacto ya abrió este mes (cuentan para el cupo del Pass).
@@ -82,8 +113,8 @@ const APPEALS_USED_SQL = `(select count(*) from pacta.jury_tasks j
          where pc.user_id = p.user_id and j.raw ->> 'appeal' = 'true' and j.created_at >= date_trunc('month', now()))`;
 
 const PACT_SELECT = `
-  select p.id, p.title, p.stake_cents, p.deadline, p.status, p.proof_methods, p.created_at, p.resolved_at,
-         pr.id as proof_id, pr.storage_path, pr.created_at as proof_at,
+  select p.id, p.title, p.stake_cents, p.deadline, p.day_code, p.status, p.proof_methods, p.created_at, p.resolved_at,
+         pr.id as proof_id, pr.storage_path, pr.created_at as proof_at, pr.ai_reason,
          (select count(*) from pacta.proofs where pact_id = p.id) as proof_count,
          (select bool_or(ai_verdict is not null) from pacta.proofs where pact_id = p.id) as ai_reviewed,
          exists (select 1 from pacta.jury_tasks j join pacta.proofs x on x.id = j.proof_id where x.pact_id = p.id) as jury_open,
@@ -91,12 +122,13 @@ const PACT_SELECT = `
          ${APPEALS_USED_SQL} as appeals_used
     from pacta.pacts p
     left join lateral (
-      select id, storage_path, created_at from pacta.proofs where pact_id = p.id order by created_at desc limit 1
+      select id, storage_path, created_at, ai_reason from pacta.proofs where pact_id = p.id order by created_at desc limit 1
     ) pr on true`;
 
 function toDto(row: PactRow): PactDto {
   const status = UI_STATUS[row.status] ?? 'scheduled';
   const spanSec = Math.floor((row.deadline.getTime() - row.created_at.getTime()) / 1000);
+  const meta = decodeDayCodeMeta(row.day_code);
   return {
     id: row.id,
     title: row.title,
@@ -107,6 +139,10 @@ function toDto(row: PactRow): PactDto {
     methods: row.proof_methods.filter((m): m is ProofMethod => METHODS.includes(m as ProofMethod)),
     focusTotalSec: Math.min(MAX_FOCUS_SEC, Math.max(MIN_FOCUS_SEC, spanSec)),
     stepIndex: STEP_INDEX[status],
+    dayCode: meta.code,
+    targetDays: meta.targetDays,
+    completedDays: status === 'verified' ? meta.targetDays : meta.completedDays,
+    locationName: meta.locationName,
     proofImagePath: row.proof_id && row.storage_path?.startsWith('db:') ? `/api/proofs/${row.proof_id}/image` : undefined,
     proofAt: row.proof_at?.getTime(),
     completedAt: row.resolved_at && status === 'verified' ? row.resolved_at.getTime() : undefined,
@@ -131,6 +167,7 @@ function reviewOf(row: PactRow): PactReviewDto | undefined {
     canAppeal: open && bond !== null,
     appealBondCents: open && bond !== null ? bond : undefined,
     hoursLeft: open ? Math.max(0, Math.ceil((expiresAt - Date.now()) / 3600_000)) : undefined,
+    aiReason: aiReviewed && row.ai_reason ? row.ai_reason : undefined,
   };
 }
 
@@ -170,13 +207,14 @@ interface LockedPact {
   stake_cents: number;
   status: string;
   deadline: Date;
+  day_code: string;
   whop_payment_id: string | null;
   paid_with_credit: boolean;
 }
 
 async function lockPact(q: Queryable, userId: string, pactId: string): Promise<LockedPact> {
   const { rows } = await q<LockedPact>(
-    'select id, user_id, stake_cents, status, deadline, whop_payment_id, paid_with_credit from pacta.pacts where id = $1 and user_id = $2 for update',
+    'select id, user_id, stake_cents, status, deadline, day_code, whop_payment_id, paid_with_credit from pacta.pacts where id = $1 and user_id = $2 for update',
     [pactId, userId],
   );
   if (!rows[0]) throw new HttpError(404, 'not_found');
@@ -194,12 +232,23 @@ async function vaultPact(q: Queryable, pact: LockedPact, reason: string, trustDe
   await q('update pacta.users set verified_streak = 0 where id = $1', [pact.user_id]);
 }
 
-// APPROVED → REFUNDED. Primero se devuelve el stake en Whop; si Whop falla, el pacto no cambia de estado.
+// APPROVED → REFUNDED (o avanza 1 día en hábitos semanales hasta alcanzar targetDays).
+// Primero se devuelve el stake en Whop; si Whop falla, el pacto no cambia de estado.
 // Pagado con el saldo prepagado, vuelve al saldo. Los pactos sin pago (datos de demo) solo se registran.
 async function refundPact(q: Queryable, pact: LockedPact, points: number, reason: string) {
+  const meta = decodeDayCodeMeta(pact.day_code);
+  const nextDone = meta.completedDays + 1;
+  if (meta.targetDays > 1 && nextDone < meta.targetDays) {
+    const nextCode = Array.from({ length: 4 }, () => CODE_ALPHABET[randomInt(CODE_ALPHABET.length)]).join('');
+    const encoded = encodeDayCodeMeta({ ...meta, code: nextCode, completedDays: nextDone });
+    await q("update pacta.pacts set status = 'ACTIVE', day_code = $2 where id = $1", [pact.id, encoded]);
+    await addTrust(q, pact.user_id, TRUST_DELTA.mercyTaskCompleted, `${reason}_day_${nextDone}_of_${meta.targetDays}`, pact.id);
+    return;
+  }
+  const finalMeta = meta.targetDays > 1 ? encodeDayCodeMeta({ ...meta, completedDays: meta.targetDays }) : pact.day_code;
   if (pact.whop_payment_id) await refundStakePayment(pact.whop_payment_id);
   else if (pact.paid_with_credit && pact.stake_cents > 0) await releaseStake(q, pact.user_id, pact.id, pact.stake_cents);
-  await q("update pacta.pacts set status = 'REFUNDED', resolved_at = now() where id = $1", [pact.id]);
+  await q("update pacta.pacts set status = 'REFUNDED', day_code = $2, resolved_at = now() where id = $1", [pact.id, finalMeta]);
   await addTrust(q, pact.user_id, points, reason, pact.id);
   await q('update pacta.users set verified_streak = verified_streak + 1 where id = $1', [pact.user_id]);
 }
@@ -255,6 +304,8 @@ export interface NewPact {
   stakeCents: unknown;
   dueAt: unknown;
   methods: unknown;
+  targetDays?: unknown;
+  locationName?: unknown;
   reputationOnly?: unknown;
   // 'credit': se paga con el saldo prepagado (desde $1, sin Whop); si no, con tarjeta en Whop.
   payWith?: unknown;
@@ -280,7 +331,10 @@ export async function createPact(userId: string, input: NewPact): Promise<PactDt
   const requested = Array.isArray(input.methods) ? input.methods : [];
   const methods = METHODS.filter((m) => m === 'photo' || requested.includes(m));
 
-  const dayCode = Array.from({ length: 4 }, () => CODE_ALPHABET[randomInt(CODE_ALPHABET.length)]).join('');
+  const targetDays = typeof input.targetDays === 'number' && Number.isInteger(input.targetDays) ? Math.max(1, Math.min(7, input.targetDays)) : 1;
+  const locationName = typeof input.locationName === 'string' && methods.includes('location') ? input.locationName.trim().slice(0, 60) : undefined;
+  const rawCode = Array.from({ length: 4 }, () => CODE_ALPHABET[randomInt(CODE_ALPHABET.length)]).join('');
+  const dayCode = encodeDayCodeMeta({ code: rawCode, targetDays, completedDays: 0, locationName });
   if (reputationOnly) {
     const freeId = randomUUID();
     await query(
@@ -348,10 +402,16 @@ function sniffMime(buf: Buffer): string | undefined {
 export interface NewProof {
   imageBase64?: unknown;
   emotionalState?: unknown;
+  gps?: unknown;
 }
 
 export async function submitProof(userId: string, pactId: string, input: NewProof): Promise<PactDto> {
   const emotional = input.emotionalState === 'overwhelmed' ? 'overwhelmed' : 'normal';
+  const rawGps = input.gps && typeof input.gps === 'object' ? (input.gps as { lat?: unknown; lng?: unknown; accuracy?: unknown }) : undefined;
+  const gpsSummary =
+    rawGps && typeof rawGps.lat === 'number' && typeof rawGps.lng === 'number' && Number.isFinite(rawGps.lat) && Number.isFinite(rawGps.lng)
+      ? `${rawGps.lat.toFixed(5)}, ${rawGps.lng.toFixed(5)}${typeof rawGps.accuracy === 'number' ? ` (±${Math.round(rawGps.accuracy)}m)` : ''}`
+      : undefined;
 
   let image: { data: Buffer; mime: string } | undefined;
   if (typeof input.imageBase64 === 'string' && input.imageBase64.length > 0) {
@@ -395,7 +455,7 @@ export async function submitProof(userId: string, pactId: string, input: NewProo
   // Fuera de la transacción: la llamada a la IA tarda segundos. Si falla (sin clave, caída del
   // proveedor) el pacto se queda en AI_REVIEW y nunca se aprueba por error.
   if (image) {
-    await reviewProof(userId, pactId, proofId, image, emotional).catch((error) => console.error('ai_review_failed', error));
+    await reviewProof(userId, pactId, proofId, image, emotional, gpsSummary).catch((error) => console.error('ai_review_failed', error));
   }
   return getPact(userId, pactId);
 }
@@ -407,9 +467,18 @@ async function reviewProof(
   proofId: string,
   image: { data: Buffer; mime: string },
   emotional: 'normal' | 'overwhelmed',
+  gpsSummary?: string,
 ) {
   const { rows } = await query<{ title: string; day_code: string }>('select title, day_code from pacta.pacts where id = $1', [pactId]);
-  const { audit, promptVersion } = await auditProof({ image, title: rows[0].title, dayCode: rows[0].day_code, emotionalState: emotional });
+  const meta = decodeDayCodeMeta(rows[0].day_code);
+  const { audit, promptVersion } = await auditProof({
+    image,
+    title: rows[0].title,
+    dayCode: meta.code,
+    emotionalState: emotional,
+    locationName: meta.locationName,
+    gpsSummary,
+  });
 
   await withTransaction(async (q) => {
     const pact = await lockPact(q, userId, pactId);

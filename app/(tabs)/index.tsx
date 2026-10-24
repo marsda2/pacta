@@ -4,12 +4,11 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { Pax } from '@/components/companion/Pax';
 import { CopilotCard } from '@/components/copilot/CopilotCard';
 import { AppHeader } from '@/components/nav/AppHeader';
-import { FocusSessionCard } from '@/components/pact/FocusSessionCard';
+import { PactCard } from '@/components/pact/PactCard';
 import { Button, Card, ErrorBanner, GlassCard, LoadingBlock, Screen, SectionLabel, Text } from '@/components/ui';
 import { VaultCard } from '@/components/vault/VaultCard';
 import { routes } from '@/lib/routes';
 import { formatUsd } from '@/lib/shared/rules';
-import { formatDeadline } from '@/lib/shared/time';
 import { usePacts } from '@/lib/store/pacts';
 import { useVault } from '@/lib/store/vault';
 import { useWallet } from '@/lib/store/wallet';
@@ -41,14 +40,11 @@ export default function Home() {
       {active ? (
         <View style={styles.section}>
           <SectionLabel>Up next</SectionLabel>
-          <Text variant="heading">{active.title}</Text>
-          <FocusSessionCard
-            remainingSec={active.focusRemainingSec}
-            stakeCents={active.stakeCents}
-            dueLabel={formatDeadline(active.dueAt)}
-            maxMinutes={60}
-          />
-          <Button label="Open pact" variant="outline" onPress={() => router.push(routes.pact(active.id))} />
+          <PactCard pact={active} onPress={() => router.push(routes.pact(active.id))} />
+          <View style={styles.stats}>
+            <Button label="Submit proof" icon="arrowRight" onPress={() => router.push(routes.proof(active.id))} style={styles.statPress} />
+            <Button label="Pomodoro / Focus" variant="outline" leadingIcon="timer" onPress={() => router.push(routes.pact(active.id, '?autostart=1'))} style={styles.statPress} />
+          </View>
         </View>
       ) : null}
 

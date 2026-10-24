@@ -26,7 +26,7 @@ export default api(async (req, res) => {
   const id = uuidParam(req.query.id);
 
   const { rows } = await query<JuryRow>(
-    `select jt.status, jt.terac_task_id, jt.raw, p.id as proof_id, p.storage_path, pc.title, pc.day_code
+    `select jt.status, jt.terac_task_id, jt.raw, p.id as proof_id, p.storage_path, pc.title, split_part(pc.day_code, '|', 1) as day_code
        from pacta.jury_tasks jt
        join pacta.proofs p on p.id = jt.proof_id
        join pacta.pacts pc on pc.id = p.pact_id

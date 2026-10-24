@@ -269,3 +269,10 @@ Vídeo de pitch de 120 segundos en inglés: [docs/10-video-pitch.md](docs/10-vid
 El PR [#1](https://github.com/marsda2/pacta/pull/1) quedó fusionado en `main` (`5906ba5`) y Vercel completó automáticamente la publicación de producción. Las dos carpetas y la rama remota de diseño se sincronizaron. El webhook real `hook_P3VdUdEXp0xdk` aceptó un evento de prueba firmado de Whop: **HTTP 200, success=true**, sin cobro. El secreto está almacenado como Secret en Vercel.
 
 La comprobación visual detectó que el redirect por defecto de Expo SDK 58 elegía `/kit` al denegar la raíz privada. Corrección: `Stack.Protected` especifica `redirectTo="/onboarding"`; además, ambos QR apuntan directamente a `/onboarding`. La galería solo se abre al visitar `/kit` expresamente. Este ajuste se publica como commit posterior al merge.
+
+## Hábitos semanales, ubicación, Pomodoro opcional y calibración Light · 2026-10-24
+
+- **Frecuencia y plazos:** al crear un pacto (`/pact/new`) se puede elegir entre **pacto único** (cualquier día de las próximas 2 semanas y franja de 30 min) o **hábito semanal** (`2x` a `7x` días por semana). Cada día verificado incrementa `completedDays` (+5 Trust por día intermedio) y devuelve el pacto a `ACTIVE` con un nuevo código diario hasta completar `targetDays`.
+- **Ubicación + GPS:** al marcar `Location`, se guarda el nombre del lugar (ej. `SmartFit Gym`) y en `/pact/:id/proof` se puede adjuntar un check-in GPS del dispositivo que se pasa a la auditoría de visión.
+- **Pomodoro opcional:** Home y la vista del pacto activo muestran primero el resumen real del pacto (plazo, stake, progreso semanal, lugar y código de 4 letras) y ofrecen un botón opcional para abrir el temporizador Pomodoro / Focus Session.
+- **Revisión Light y transparencia de la IA:** el código de 4 letras se muestra ahora en `/pact/:id` y `/pact/:id/proof`, y en `/pact/:id/result` se muestra `aiReason` cuando la IA duda. Además, en `light` (`stake < $5` o sin dinero) `shouldAutoApprove` aprueba cuando `taskMatch` es verdadero y `confidence >= 0.6` aunque no se haya escrito el código a mano o sea una foto de pantalla (tareas digitales).
