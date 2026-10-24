@@ -1,0 +1,112 @@
+
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How does Forfeit work?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "You set a task, a deadline, and how much money is on the line. Submit proof (a photo, a video, or automatic data) before the deadline. If you don't, we charge your card (or text your friend, email your dad, block your apps, etc)."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is Overlord?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Overlord is the AI accountability partner inside the Forfeit app. It chats with you 24/7, watches your habits, sends reminders before deadlines, and adapts to how you behave. Tune its personality from gentle nudges to brutal honesty."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How are forfeits verified? Can I cheat?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Depending on the goal: Apple Health, GPS, Screen Time, or Mac activity. For photo and video proof, either a real person on our team or an AI reviews the evidence before you're charged. Each forfeit uses the verification that fits the goal, so there's no easy way around it."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What if I have a valid reason for missing a goal?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "You can appeal. Tell us what happened and a real person on our team reviews every appeal within 12 hours. Each goal has its own appeal instructions that you write when you set it up. Write lenient instructions (\"accept all appeals with a valid excuse\") and genuine circumstances get a fair review. Write strict instructions (\"accept no appeals\") and there's no way out, by design."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What if my evidence is judged incorrectly?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "We ask for clarification before charging you. Fewer than 5% of failures come down to an evidence issue, and you can appeal where your leniency mode allows."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What platforms does Forfeit support?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "iOS/iPad, Android, Mac, and web. The Mac app is for Mac blocking, and the web app is mainly for Overlord."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How does the Mac app work?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "It runs as a native macOS app alongside your phone, with its own always-on agent. Beyond blocking distracting websites and apps in real time, it learns the archetypes you keep falling into (NSFW spirals, doing-it-again loops, fake productivity, late-night scrolling, dodging the hard part) and intercepts the moment you drift back. Each block gives you contextual options like \"I'll go for a walk\", \"Bring me back online in 20 min\", or \"Lock me out for the hour\", whatever the bot thinks fits the goal. It also watches your screen to verify work goals: confirming Pomodoros, flagging trigger words on sites like YouTube, tracking which apps you actually spent the last hour in, and granting temporary unblocks when you ask. If you keep ignoring it, it can escalate and call your phone to talk you off the distraction. Download it from the settings screen in the mobile app."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How does screen-time blocking work?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "On iOS it uses Apple's Screen Time framework. On Mac, our native app does the blocking. Disconnecting the tracking counts as a failure, so you can't just revoke the screen time permissions."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How are my card details stored?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Stripe handles all payment processing. Forfeit never stores your card data or your passwords."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "When are my photos and timelapses deleted?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Immediately after verification. Only the Forfeit team views your files, and only during review. Mac activity data stays on your machine: only goal status (pass or fail) is reported to our server."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Where does forfeited money go?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "For now it is retained by Forfeit. We are building an option to send forfeited money to friends or your own savings."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Why are you building Forfeit?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Self-control used to be an unsolvable problem. AI changes that. We think it's now possible to enforce intentions minute by minute, not just track them, and that the right consequences (money on the line, friends notified, apps blocked) close the gap between what people say they want and what they actually do."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I get help setting up?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. In-app chat support can help you set up forfeits that actually stick, and usually replies within hours. For paying users we can also jump on a quick call or video to walk you through it."
+          }
+        }
+      ]
+    }
+    

@@ -1,0 +1,49 @@
+
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "@id": "https://www.forfeit.app/#app",
+      "name": "Forfeit",
+      "alternateName": "Forfeit: Habit Contracts",
+      "applicationCategory": "ProductivityApplication",
+      "operatingSystem": ["iOS", "Android", "macOS"],
+      "description": "Forfeit lets you put real money on your habits. Send evidence before the deadline, or we take your money.",
+      "url": "https://www.forfeit.app",
+      "downloadUrl": [
+        "https://apps.apple.com/us/app/forfeit-habit-contracts/id1633125787",
+        "https://play.google.com/store/apps/details?id=app.forfeit.forfeit"
+      ],
+      "publisher": { "@id": "https://www.forfeit.app/#org" },
+      "offers": [
+        {
+          "@type": "Offer",
+          "name": "Free download",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        {
+          "@type": "Offer",
+          "name": "Subscription",
+          "price": "10.99",
+          "priceCurrency": "USD",
+          "priceSpecification": {
+            "@type": "UnitPriceSpecification",
+            "price": "10.99",
+            "priceCurrency": "USD",
+            "billingDuration": "P1M"
+          }
+        }
+      ],
+      "screenshot": "https://www.forfeit.app/og-image.png",
+      "featureList": [
+        "AI Accountability Partner",
+        "Screen Time Blocking",
+        "Habit Tracking",
+        "Smart Integrations",
+        "Real-time Monitoring",
+        "Automatic Penalties",
+        "iOS Control",
+        "Mac Integration"
+      ]
+    }
+    

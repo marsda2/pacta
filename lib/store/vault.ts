@@ -1,16 +1,19 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { apiFetch } from '@/lib/api/client';
+import { useAuth } from '@/lib/auth/session';
 import type { CheckoutLinkDto, RedeemResultDto, VaultDto } from '@/lib/shared/types';
 import { openCheckout } from '@/lib/whop';
 
 // Redemption Vault desde /api/vault/*. Los pactos (lib/store/pacts.tsx) invalidan esta consulta
 // cuando un veredicto mueve dinero al Vault.
 export function useVault() {
+  const { user } = useAuth();
   const client = useQueryClient();
   const query = useQuery({
     queryKey: ['vault'],
     queryFn: () => apiFetch<VaultDto>('/api/vault/summary'),
+    enabled: !!user,
     refetchInterval: 30_000,
   });
 
@@ -19,6 +22,7 @@ export function useVault() {
     onSuccess: (result) => {
       client.setQueryData(['vault'], result.vault);
       client.invalidateQueries({ queryKey: ['pacts'] });
+      client.invalidateQueries({ queryKey: ['wallet'] });
     },
   });
 

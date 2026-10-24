@@ -3,36 +3,83 @@ import { useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { ProofMethodPicker } from '@/components/pact/ProofMethodPicker';
-import { Button, Card, Checkbox, ErrorBanner, Screen, ScreenTitle, SectionLabel, SelectField, StakeChips, Text, TextField } from '@/components/ui';
+import {
+  Button,
+  Card,
+  Checkbox,
+  ErrorBanner,
+  Screen,
+  ScreenTitle,
+  SectionLabel,
+  Segmented,
+  SelectField,
+  StakeChips,
+  Text,
+  TextField,
+  type SegmentOption,
+} from '@/components/ui';
 import { routes } from '@/lib/routes';
-import { formatUsd, STAKE_PRESETS_CENTS } from '@/lib/shared/rules';
+import { checkLevel, CREDIT_STAKE_MIN_CENTS, CREDIT_STAKE_PRESETS_CENTS, formatUsd, STAKE_PRESETS_CENTS, type CheckLevel } from '@/lib/shared/rules';
 import { buildDeadlineOptions, formatClockTime } from '@/lib/shared/time';
 import type { ProofMethod } from '@/lib/shared/types';
 import { usePacts } from '@/lib/store/pacts';
+import { useWallet } from '@/lib/store/wallet';
 import { openCheckout } from '@/lib/whop';
+
+type PayWith = 'credit' | 'card' | 'none';
+
+const payOptions: SegmentOption<PayWith>[] = [
+  { value: 'credit', label: 'Balance' },
+  { value: 'card', label: 'Card' },
+  { value: 'none', label: 'No money' },
+];
+
+// Cuánto se verifica según lo que hay en juego (rules.ts, checkLevel).
+const checkCopy: Record<CheckLevel, string> = {
+  light: 'Light check: a believable live photo is enough.',
+  standard: 'Strict AI check. If it doubts, retake the photo or ask a witness.',
+  human: 'Big stake: if the AI doubts, a human Terac juror decides.',
+};
 
 // Flujo 01 · Create a pact
 export default function NewPact() {
   const router = useRouter();
   const { createPact } = usePacts();
+  const { wallet } = useWallet();
   const options = useMemo(() => buildDeadlineOptions(), []);
 
   const [task, setTask] = useState('');
   const [deadline, setDeadline] = useState(options[0]);
-  const [stake, setStake] = useState<number>(STAKE_PRESETS_CENTS[1]);
+  const [payChoice, setPayWith] = useState<PayWith | null>(null);
+  const [stakeChoice, setStake] = useState<number | null>(null);
   const [methods, setMethods] = useState<ProofMethod[]>(['photo']);
   const [agreed, setAgreed] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<unknown>(null);
 
-  const canConfirm = task.trim().length > 0 && agreed && !saving;
+  // Con saldo suficiente se paga con él por defecto; si no, con tarjeta.
+  const balance = wallet?.balanceCents ?? 0;
+  const payWith: PayWith = payChoice ?? (balance >= CREDIT_STAKE_MIN_CENTS ? 'credit' : 'card');
+  const presets: readonly number[] = payWith === 'credit' ? CREDIT_STAKE_PRESETS_CENTS : STAKE_PRESETS_CENTS;
+  const stake = stakeChoice !== null && presets.includes(stakeChoice) ? stakeChoice : presets[1];
+  const short = payWith === 'credit' && stake > balance;
+  const money = payWith !== 'none';
+
+  const canConfirm = task.trim().length > 0 && (!money || agreed) && !short && !saving;
 
   const confirm = async () => {
     setSaving(true);
     setError(null);
     try {
-      const pact = await createPact({ title: task.trim(), stakeCents: stake, dueAt: deadline.dueAt, methods });
-      // El stake se paga en Whop (dentro de Whop, en su modal); el webhook deja el pacto ACTIVE.
+      const pact = await createPact({
+        title: task.trim(),
+        stakeCents: stake,
+        dueAt: deadline.dueAt,
+        methods,
+        reputationOnly: !money,
+        payWith: payWith === 'credit' ? 'credit' : 'card',
+      });
+      // Con tarjeta el stake se paga en Whop (dentro de Whop, en su modal); el webhook deja el pacto ACTIVE.
       if (pact.checkout) await openCheckout(pact.checkout);
       router.replace(routes.pact(pact.id));
     } catch (e) {
@@ -55,21 +102,43 @@ export default function NewPact() {
         />
 
         <View style={styles.group}>
-          <SectionLabel>Stake</SectionLabel>
-          <StakeChips presets={STAKE_PRESETS_CENTS} cents={stake} onChange={setStake} />
+          <SectionLabel>Pay with</SectionLabel>
+          <Segmented options={payOptions} value={payWith} onChange={setPayWith} />
+          {payWith === 'credit' ? (
+            <View style={styles.balanceRow}>
+              <Text variant="small" color={short ? 'danger' : 'muted'} style={styles.flex}>
+                {short ? `Not enough balance (${formatUsd(balance)}) for this stake.` : `Balance ${formatUsd(balance)}. No fee per pact.`}
+              </Text>
+              <Button label="Add funds" variant="link" fullWidth={false} onPress={() => router.push(routes.wallet)} />
+            </View>
+          ) : null}
+          {payWith === 'card' ? <Text variant="small" color="muted">Paid in Whop. Kept pacts are refunded to your card.</Text> : null}
+          {payWith === 'none' ? (
+            <Text variant="small" color="muted">Nothing is charged. Miss the deadline and you lose 30 reputation points.</Text>
+          ) : null}
         </View>
+
+        {money ? (
+          <View style={styles.group}>
+            <SectionLabel>Stake</SectionLabel>
+            <StakeChips presets={presets} cents={stake} onChange={setStake} />
+          </View>
+        ) : null}
+        <Text variant="caption" color="muted">{checkCopy[checkLevel(money ? stake : 0)]}</Text>
 
         <View style={styles.group}>
           <SectionLabel>Proof method</SectionLabel>
           <ProofMethodPicker value={methods} onChange={setMethods} />
         </View>
 
-        <Checkbox
-          checked={agreed}
-          onChange={setAgreed}
-          label={`Lock ${formatUsd(stake)} in my Vault if I miss the deadline.`}
-          caption={`Proof must be approved by ${formatClockTime(deadline.dueAt)}. Your money isn’t lost.`}
-        />
+        {money ? (
+          <Checkbox
+            checked={agreed}
+            onChange={setAgreed}
+            label={`Lock ${formatUsd(stake)} in my Vault if I miss the deadline.`}
+            caption={`Proof must be approved by ${formatClockTime(deadline.dueAt)}. Your money isn’t lost.`}
+          />
+        ) : null}
 
         {error ? <ErrorBanner error={error} /> : null}
         <Button label={saving ? 'Creating…' : 'Confirm pact'} icon="arrowRight" disabled={!canConfirm} onPress={confirm} />
@@ -82,5 +151,7 @@ export default function NewPact() {
 const styles = StyleSheet.create({
   form: { gap: 18 },
   group: { gap: 8 },
+  flex: { flex: 1 },
+  balanceRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   hint: { textAlign: 'center', marginTop: -6 },
 });

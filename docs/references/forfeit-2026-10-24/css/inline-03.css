@@ -1,0 +1,82 @@
+
+        /* === L11 base override layer (added on 2026-05-05) ============
+           Strips CRT/glitch/ASCII/glow theme. Reversible: delete this block. */
+        body {
+            background-color: #ffffff !important;
+            color: #0b0b0c !important;
+        }
+        /* Kill all CRT phosphor glows / chromatic aberration shadows on titles */
+        *, *::before, *::after {
+            text-shadow: none !important;
+        }
+        /* Strip green text colors used for terminal/CRT theme */
+        .title-overlord, .title-watching, .automated-text,
+        .stat-value, .stat-number, .ascii-eye, .ascii-background,
+        [class*="terminal"], [class*="crt"] {
+            color: #0b0b0c !important;
+            -webkit-text-fill-color: #0b0b0c !important;
+        }
+        .stat-label { color: #5a5a5f !important; }
+        /* Star ratings: switch from green CRT to charcoal */
+        .star, .stars, [class*="star"] {
+            color: #0b0b0c !important;
+            fill: #0b0b0c !important;
+        }
+        /* Hide ASCII/matrix/scanline/bracket decorative overlays */
+        .ascii-background, .ascii-eye, .matrix-rain,
+        [class*="ascii-"], .corner-brackets, .corner-brackets-extra,
+        [class*="corner-brackets"], .scanlines, .scanlines-overlay,
+        .crt-overlay, .button-ascii-bg, .crt-text-container::before,
+        .crt-text-container::after {
+            display: none !important;
+        }
+        /* Sections that were dark are now light */
+        section, .section, .hero, [class*="-section"], [class*="section-"],
+        .feature-card, [class*="card"], .testimonial, [class*="testimonial"],
+        .integrations, [class*="integrations"], .discord, [class*="discord"],
+        .faq-section, [class*="faq"], .footer, footer {
+            background-color: #ffffff !important;
+            color: #0b0b0c !important;
+        }
+        /* Restore button visibility now that ascii bg is hidden */
+        .hero-button, .nav-link, [class*="button"]:not(.message-button):not(.send-button) {
+            border: 1px solid #e6e6e8 !important;
+            color: #0b0b0c !important;
+            background: #ffffff !important;
+        }
+        /* Stat row dividers: were white-on-dark, now hairline */
+        .stat-divider, [class*="stat-divider"] {
+            background: #e6e6e8 !important;
+        }
+        /* Flip chat-styles.css CSS variables to light mode */
+        :root {
+            --bg-primary: #ffffff !important;
+            --bg-secondary: #f4f4f5 !important;
+            --text-primary: #0b0b0c !important;
+            --text-secondary: #5a5a5f !important;
+        }
+        /* Chat bubbles + feature/screen cards inside the phone */
+        .chat-message, .chat-message *,
+        .message-bubble, .message-bubble *,
+        .bubble, .bubble *,
+        [class*="message"], [class*="bubble"],
+        [class*="feature-card"], [class*="screen-card"],
+        [class*="snippet"], .ai-message, .user-message {
+            color: #0b0b0c !important;
+        }
+        /* Force any remaining dark inline backgrounds to light */
+        [style*="background-color: #000"],
+        [style*="background-color: #1c1c1e"],
+        [style*="background-color: rgb(28"],
+        [style*="background: #000"],
+        [style*="background: #1c1c1e"] {
+            background-color: #f4f4f5 !important;
+            color: #0b0b0c !important;
+        }
+        /* Phone status bar / chat tab pill */
+        [class*="status-bar"], .phone-status-bar,
+        .chat-tab, [class*="chat-tab"], .tab-pill {
+            background-color: #ffffff !important;
+            color: #0b0b0c !important;
+        }
+    

@@ -1,0 +1,648 @@
+{
+  "source": "https://www.forfeit.app/",
+  "extracted_utc": "2026-10-24T19:51:05.811900+00:00",
+  "html_bytes": 766978,
+  "scripts": [
+    {
+      "tag": "script",
+      "attrs": {
+        "src": "/privacy.js"
+      },
+      "html_line": 4,
+      "bytes": 0
+    },
+    {
+      "tag": "script",
+      "attrs": {},
+      "html_line": 11,
+      "bytes": 324,
+      "file": "js/inline-02.js",
+      "sha256": "627c0b93306f28d5eb7c4ab64180697a95eb016393723104a54cb58d5cf3ecc3"
+    },
+    {
+      "tag": "script",
+      "attrs": {},
+      "html_line": 52,
+      "bytes": 1299,
+      "file": "js/inline-03.js",
+      "sha256": "abb313af2ea29a202b4f6f527a72658e6da8fde2d36f29eb785b2d028a055c90"
+    },
+    {
+      "tag": "script",
+      "attrs": {
+        "type": "text/plain",
+        "data-consent": "marketing"
+      },
+      "html_line": 90,
+      "bytes": 782,
+      "file": "js/inline-04.js",
+      "sha256": "489989358cdd40b47f713a40e1529927ecd792e1b2d147b9edcd18fc6b55abef"
+    },
+    {
+      "tag": "script",
+      "attrs": {
+        "type": "text/plain",
+        "data-consent": "analytics"
+      },
+      "html_line": 111,
+      "bytes": 3027,
+      "file": "js/inline-05.js",
+      "sha256": "b7f8eca4c0c8b2e1d11cb2a2ea23c48a4196d02ea27c59ee452379404e00f187"
+    },
+    {
+      "tag": "script",
+      "attrs": {
+        "type": "application/ld+json"
+      },
+      "html_line": 171,
+      "bytes": 1580,
+      "file": "js/inline-06.json",
+      "sha256": "7cd03a16287e8712f231257b6006dcd4f51ad1a54fa0bb56889a5667bebd93fd"
+    },
+    {
+      "tag": "script",
+      "attrs": {
+        "type": "application/ld+json"
+      },
+      "html_line": 222,
+      "bytes": 598,
+      "file": "js/inline-07.json",
+      "sha256": "bf51289ce81d999943155b47b69255ef8f5dbccb20efbe852b65c55719e28759"
+    },
+    {
+      "tag": "script",
+      "attrs": {
+        "type": "text/plain",
+        "data-consent": "analytics",
+        "async": null,
+        "data-src": "https://www.googletagmanager.com/gtag/js?id=G-NTT286BQ81"
+      },
+      "html_line": 254,
+      "bytes": 0
+    },
+    {
+      "tag": "script",
+      "attrs": {
+        "type": "text/plain",
+        "data-consent": "analytics"
+      },
+      "html_line": 255,
+      "bytes": 310,
+      "file": "js/inline-09.js",
+      "sha256": "22363c65527d2d8989f6404d0c84788a9bc89ee9bf719efebf6f82530c497173"
+    },
+    {
+      "tag": "script",
+      "attrs": {},
+      "html_line": 6946,
+      "bytes": 14853,
+      "file": "js/inline-10.js",
+      "sha256": "c11f428fc92090e32de95f42c0065a29a72b8c48fed1706ee7338a0c91d5efff"
+    },
+    {
+      "tag": "script",
+      "attrs": {},
+      "html_line": 7202,
+      "bytes": 45270,
+      "file": "js/inline-11.js",
+      "sha256": "23d4dbe40ce5bcb83cf99df17fa55535c19703e591e5b5059212e35d5dd1c8ff"
+    },
+    {
+      "tag": "script",
+      "attrs": {},
+      "html_line": 7938,
+      "bytes": 4473,
+      "file": "js/inline-12.js",
+      "sha256": "83636a7863302e3263ed22b7b62ce9219df052f7e21ada2cae6b7a5b3ec2402d"
+    },
+    {
+      "tag": "script",
+      "attrs": {},
+      "html_line": 8488,
+      "bytes": 467,
+      "file": "js/inline-13.js",
+      "sha256": "5519c59f996bb30bb9452f8a6d65bf038aa2519d7688201fe93818e65c70aea4"
+    },
+    {
+      "tag": "script",
+      "attrs": {},
+      "html_line": 9196,
+      "bytes": 17831,
+      "file": "js/inline-14.js",
+      "sha256": "7f94e5bd0973c5b8556ceeb696845dfcca032dae4658012004fc6ea3d55317ee"
+    },
+    {
+      "tag": "script",
+      "attrs": {},
+      "html_line": 10632,
+      "bytes": 1162,
+      "file": "js/inline-15.js",
+      "sha256": "ef9a5ed5faa6de498bff4907ab0bb9fbdc61dbffa23b70e6dbd356aae54d1dc1"
+    },
+    {
+      "tag": "script",
+      "attrs": {},
+      "html_line": 10658,
+      "bytes": 2581,
+      "file": "js/inline-16.js",
+      "sha256": "19337a905ed2751d7d98793f12606d7f71e5053cdb97083754a84bb49df28054"
+    },
+    {
+      "tag": "script",
+      "attrs": {},
+      "html_line": 12724,
+      "bytes": 6464,
+      "file": "js/inline-17.js",
+      "sha256": "f43a9f4ad33b48303d94c31e185c53dfe668ccc67acf36edff261493f59306e1"
+    },
+    {
+      "tag": "script",
+      "attrs": {},
+      "html_line": 12799,
+      "bytes": 1132,
+      "file": "js/inline-18.js",
+      "sha256": "4c977c1ef442adb8e68fd499daf3425047b7f4c54c728fa1b9fafd488ac0d6eb"
+    },
+    {
+      "tag": "script",
+      "attrs": {},
+      "html_line": 13478,
+      "bytes": 892,
+      "file": "js/inline-19.js",
+      "sha256": "ae240863f9f684bc7ac33b1d37d889edde86c7824655b05d17890e1d7be7097f"
+    },
+    {
+      "tag": "script",
+      "attrs": {
+        "src": "/navbar.js"
+      },
+      "html_line": 13690,
+      "bytes": 0
+    },
+    {
+      "tag": "script",
+      "attrs": {},
+      "html_line": 13693,
+      "bytes": 14718,
+      "file": "js/inline-21.js",
+      "sha256": "a834da235c02800dad060455f78fe44e66f4694cf77087126720285468100e8f"
+    },
+    {
+      "tag": "script",
+      "attrs": {},
+      "html_line": 14082,
+      "bytes": 2449,
+      "file": "js/inline-22.js",
+      "sha256": "09245141a0c4ab3e3e193cfcdc4c3f4f84830810c227937b260dda1978dff41b"
+    },
+    {
+      "tag": "script",
+      "attrs": {},
+      "html_line": 14141,
+      "bytes": 2116,
+      "file": "js/inline-23.js",
+      "sha256": "8444cb303cbb8b3842764b0eb769dd45b124d4dea9cc98aef1030b2bb1048cfd"
+    },
+    {
+      "tag": "script",
+      "attrs": {},
+      "html_line": 14196,
+      "bytes": 3314,
+      "file": "js/inline-24.js",
+      "sha256": "fcb81718e47581d3703fd2a1f96cdda8a69d94f9bb95437feb4c6629b6ef666e"
+    },
+    {
+      "tag": "script",
+      "attrs": {},
+      "html_line": 14266,
+      "bytes": 29345,
+      "file": "js/inline-25.js",
+      "sha256": "fae495ee0cae17de8d77d9a6aaac81f7568706c2f58eef185e27f159b01a608f"
+    },
+    {
+      "tag": "script",
+      "attrs": {
+        "type": "application/ld+json"
+      },
+      "html_line": 14842,
+      "bytes": 6098,
+      "file": "js/inline-26.json",
+      "sha256": "c479bf9d1ded2cb6d41cf84dd2abf15ece463699abe41fda754fa50d543fe05b"
+    },
+    {
+      "tag": "script",
+      "attrs": {},
+      "html_line": 14956,
+      "bytes": 6517,
+      "file": "js/inline-27.js",
+      "sha256": "296a7769e30fdc843a7e4e17cc499d90664f33243e81a4c3db6db60e118174e4"
+    },
+    {
+      "tag": "script",
+      "attrs": {},
+      "html_line": 15063,
+      "bytes": 15619,
+      "file": "js/inline-28.js",
+      "sha256": "8eeac4a26f6f50e9dd36284331c8805106a96f00e3b6f96b2b0a30552a69f2d8"
+    },
+    {
+      "tag": "script",
+      "attrs": {},
+      "html_line": 15314,
+      "bytes": 3178,
+      "file": "js/inline-29.js",
+      "sha256": "af30318d2a1f32716abee869faac69673f417e7943785aa0fdc29e7386b03a59"
+    },
+    {
+      "tag": "script",
+      "attrs": {},
+      "html_line": 15398,
+      "bytes": 930,
+      "file": "js/inline-30.js",
+      "sha256": "c1308f3e42be2d12190d740004a9211b00b0bd15e35930626f9abc7f6668f4cd"
+    },
+    {
+      "tag": "script",
+      "attrs": {},
+      "html_line": 15422,
+      "bytes": 1681,
+      "file": "js/inline-31.js",
+      "sha256": "d755c6c5554dd189ec963239a75641096ef690a34dbd28988639d3a37ef6cde0"
+    },
+    {
+      "tag": "script",
+      "attrs": {},
+      "html_line": 15471,
+      "bytes": 1499,
+      "file": "js/inline-32.js",
+      "sha256": "6b1bd528a2dad02cb65a44522987de6f7d3b9ed1f2c10aa3ba7222850f90913e"
+    }
+  ],
+  "styles": [
+    {
+      "tag": "style",
+      "attrs": {
+        "id": "signup-hide-rules"
+      },
+      "html_line": 27,
+      "bytes": 913,
+      "file": "css/inline-01.css",
+      "sha256": "a1a779e346c682fd11586f33fc328070a5daa286240bd11c0661629dc23b2f40"
+    },
+    {
+      "tag": "style",
+      "attrs": {},
+      "html_line": 265,
+      "bytes": 190047,
+      "file": "css/inline-02.css",
+      "sha256": "d95d1f8ca6bc0474a6d2d0c6bb98c52b686eb5028aa72b354591ef2695408549"
+    },
+    {
+      "tag": "style",
+      "attrs": {},
+      "html_line": 6047,
+      "bytes": 3646,
+      "file": "css/inline-03.css",
+      "sha256": "c412a00b996baa735812da2640211107773267ed1c961acea6e428877733fe54"
+    },
+    {
+      "tag": "style",
+      "attrs": {},
+      "html_line": 6129,
+      "bytes": 46031,
+      "file": "css/inline-04.css",
+      "sha256": "ad78e249ec76605d85bb586cf7d8552e5bfcfef72b2ee1c3979bb5d2312bdf26"
+    },
+    {
+      "tag": "style",
+      "attrs": {},
+      "html_line": 8349,
+      "bytes": 8094,
+      "file": "css/inline-05.css",
+      "sha256": "96512aeb216a2f3a275a271b8621d0bd87934d9444ec478fdd1767477f9c653d"
+    },
+    {
+      "tag": "style",
+      "attrs": {},
+      "html_line": 8864,
+      "bytes": 3627,
+      "file": "css/inline-06.css",
+      "sha256": "0781d56dc8930663424e2dd4d11a25744cf8c82ad7b809042013c2463cfeda2e"
+    },
+    {
+      "tag": "style",
+      "attrs": {},
+      "html_line": 9111,
+      "bytes": 6841,
+      "file": "css/inline-07.css",
+      "sha256": "463d1ea77f9025bfbded35fbf6f3cb452d5e8c00002e03ae511679152b9d71da"
+    },
+    {
+      "tag": "style",
+      "attrs": {},
+      "html_line": 9504,
+      "bytes": 17229,
+      "file": "css/inline-08.css",
+      "sha256": "90222cff7f668d3a4cb7ebf1a4bf4d0f1b289261190e8eb4a1e4974043df0f15"
+    },
+    {
+      "tag": "style",
+      "attrs": {},
+      "html_line": 9684,
+      "bytes": 26559,
+      "file": "css/inline-09.css",
+      "sha256": "dd8c8bc2f0b0d18ca1f81181ab55d3106e5328cb38e1fc151af55d94ef23cbd2"
+    },
+    {
+      "tag": "style",
+      "attrs": {},
+      "html_line": 10286,
+      "bytes": 1598,
+      "file": "css/inline-10.css",
+      "sha256": "e68db8f216ac65cbf0056530fd74befaa240ba800de7442c00173cde683b2978"
+    },
+    {
+      "tag": "style",
+      "attrs": {},
+      "html_line": 10329,
+      "bytes": 14560,
+      "file": "css/inline-11.css",
+      "sha256": "fdb7577c4a66e17c07c4eeaa9adfe48ffb6022746618354f2a333fac4d5301c6"
+    },
+    {
+      "tag": "style",
+      "attrs": {},
+      "html_line": 10581,
+      "bytes": 1321,
+      "file": "css/inline-12.css",
+      "sha256": "897fdb8cff4c43310a97e34040d9fe94fb85eb39b2095ee61001bb125045f20e"
+    },
+    {
+      "tag": "style",
+      "attrs": {},
+      "html_line": 10730,
+      "bytes": 5286,
+      "file": "css/inline-13.css",
+      "sha256": "d7a4d90f730328d98beb5225add2e16da2fe7b7609af237f0e2046d467f08be1"
+    },
+    {
+      "tag": "style",
+      "attrs": {},
+      "html_line": 11389,
+      "bytes": 15121,
+      "file": "css/inline-14.css",
+      "sha256": "8a5b3e993b4c7e6200e1d8cfbaf0dacb7f0c14bf9fd34bf596ca694907aef950"
+    },
+    {
+      "tag": "style",
+      "attrs": {},
+      "html_line": 11753,
+      "bytes": 403,
+      "file": "css/inline-15.css",
+      "sha256": "beb045c494aa074118804e2c529e1b33d3f90383e24962a2719166c2614c9e23"
+    },
+    {
+      "tag": "style",
+      "attrs": {},
+      "html_line": 11849,
+      "bytes": 2309,
+      "file": "css/inline-16.css",
+      "sha256": "f267d282789a5c48c35537692db1e9b33c9c2eddc57a18d15a32d71b6c5909c2"
+    },
+    {
+      "tag": "style",
+      "attrs": {},
+      "html_line": 12120,
+      "bytes": 21023,
+      "file": "css/inline-17.css",
+      "sha256": "4998c16de8538897feead0ceb037261fca59f8b09cabdb8da9c8b69a0349356f"
+    },
+    {
+      "tag": "style",
+      "attrs": {},
+      "html_line": 12827,
+      "bytes": 3939,
+      "file": "css/inline-18.css",
+      "sha256": "8b78b9dfb63368170dd39f331d72be52d32247099704ac9731abb84dac3f9d38"
+    }
+  ],
+  "downloads": [
+    {
+      "url": "https://www.forfeit.app/privacy.js",
+      "file": "js/privacy.js",
+      "bytes": 17999,
+      "status": 200,
+      "content_type": "text/javascript; charset=utf-8",
+      "sha256": "2b65b99e5632ca964f94a347a9a2e3255f63171b070799baf682c1f88322ad3a"
+    },
+    {
+      "url": "https://www.forfeit.app/navbar.js",
+      "file": "js/navbar.js",
+      "bytes": 3940,
+      "status": 200,
+      "content_type": "text/javascript; charset=utf-8",
+      "sha256": "12e26a08523993faec259400e9c1f9c79537a7658c5559431ca3f755c8622161"
+    },
+    {
+      "url": "https://www.forfeit.app/assets/fonts/landing-fonts.css",
+      "file": "css/landing-fonts.css",
+      "bytes": 2325,
+      "status": 200,
+      "content_type": "text/css; charset=utf-8",
+      "sha256": "6aa080a1e8f803279761f19e6d72c4fc5ca40dfeccf90a13215522c6f588275b"
+    },
+    {
+      "url": "https://www.forfeit.app/iphone-frame.css",
+      "file": "css/iphone-frame.css",
+      "bytes": 5956,
+      "status": 200,
+      "content_type": "text/css; charset=utf-8",
+      "sha256": "b67f27a300828842cc9172e066c99d4a71733d909223eab7e1a4e6f9df158f90"
+    },
+    {
+      "url": "https://www.forfeit.app/chat-styles.css",
+      "file": "css/chat-styles.css",
+      "bytes": 11151,
+      "status": 200,
+      "content_type": "text/css; charset=utf-8",
+      "sha256": "962d5b5e93d792ce6b09274126e222a6b91713ab687d524642775b57d5042a6b"
+    },
+    {
+      "url": "https://www.forfeit.app/accessibility.css",
+      "file": "css/accessibility.css",
+      "bytes": 1669,
+      "status": 200,
+      "content_type": "text/css; charset=utf-8",
+      "sha256": "0e72fce9a1fc8517646cb01f1da06f53072b86f048707020dcffad34c53aa1bf"
+    }
+  ],
+  "media_references": [
+    {
+      "tag": "script",
+      "attribute": "src",
+      "value": "/privacy.js"
+    },
+    {
+      "tag": "img",
+      "attribute": "src",
+      "value": "/assets/iphone-status-bar.png"
+    },
+    {
+      "tag": "img",
+      "attribute": "src",
+      "value": "/assets/icons/icons8-iphone-14.svg"
+    },
+    {
+      "tag": "img",
+      "attribute": "src",
+      "value": "/assets/ToothbrushPhoto.jpg"
+    },
+    {
+      "tag": "img",
+      "attribute": "src",
+      "value": "/assets/CleanDesk.png"
+    },
+    {
+      "tag": "img",
+      "attribute": "src",
+      "value": "/assets/FridgePhoto.jpg"
+    },
+    {
+      "tag": "img",
+      "attribute": "src",
+      "value": "/assets/madebed.jpeg"
+    },
+    {
+      "tag": "img",
+      "attribute": "src",
+      "value": "/assets/PullUps.jpg"
+    },
+    {
+      "tag": "script",
+      "attribute": "src",
+      "value": "/navbar.js"
+    }
+  ],
+  "outline": [
+    {
+      "tag": "header",
+      "attrs": {
+        "class": "ol-topbar"
+      },
+      "html_line": 8081
+    },
+    {
+      "tag": "nav",
+      "attrs": {
+        "class": "ol-topbar-nav",
+        "aria-label": "Primary"
+      },
+      "html_line": 8084
+    },
+    {
+      "tag": "main",
+      "attrs": {
+        "class": "main-content-wrapper"
+      },
+      "html_line": 8215
+    },
+    {
+      "tag": "header",
+      "attrs": {
+        "class": "left-content"
+      },
+      "html_line": 8218
+    },
+    {
+      "tag": "section",
+      "attrs": {
+        "class": "right-content",
+        "aria-label": "Product Demo"
+      },
+      "html_line": 8257
+    },
+    {
+      "tag": "section",
+      "attrs": {
+        "class": "info-cards",
+        "id": "features",
+        "aria-label": "Key Features"
+      },
+      "html_line": 8831
+    },
+    {
+      "tag": "section",
+      "attrs": {
+        "class": "tg-section testimonials-section animate-on-scroll",
+        "id": "testimonials-terminal"
+      },
+      "html_line": 8863
+    },
+    {
+      "tag": "section",
+      "attrs": {
+        "class": "hiw2 animate-on-scroll",
+        "id": "integrations",
+        "aria-label": "How Forfeit works"
+      },
+      "html_line": 9110
+    },
+    {
+      "tag": "section",
+      "attrs": {
+        "class": "sw-section flx animate-on-scroll",
+        "id": "how-it-works"
+      },
+      "html_line": 10328
+    },
+    {
+      "tag": "section",
+      "attrs": {
+        "class": "pun-section animate-on-scroll",
+        "aria-label": "What punishments can you set?"
+      },
+      "html_line": 10864
+    },
+    {
+      "tag": "section",
+      "attrs": {
+        "class": "other-features-section animate-on-scroll"
+      },
+      "html_line": 10926
+    },
+    {
+      "tag": "section",
+      "attrs": {
+        "class": "uc-section animate-on-scroll",
+        "id": "use-cases"
+      },
+      "html_line": 13023
+    },
+    {
+      "tag": "section",
+      "attrs": {
+        "class": "faq-section animate-on-scroll",
+        "id": "faq"
+      },
+      "html_line": 13509
+    },
+    {
+      "tag": "section",
+      "attrs": {
+        "class": "final-cta-section fcta-iter05 animate-on-scroll"
+      },
+      "html_line": 13648
+    },
+    {
+      "tag": "footer",
+      "attrs": {},
+      "html_line": 13673
+    },
+    {
+      "tag": "nav",
+      "attrs": {},
+      "html_line": 13675
+    }
+  ],
+  "html_sha256": "fb525d35a58f41007ce7f8d9aaca729ee638004abfe5f81d4ba0a779419d4f2a"
+}

@@ -4,8 +4,10 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import { PactaLogo } from '@/components/brand/PactaLogo';
 import { Pax, type PaxExpression } from '@/components/companion/Pax';
-import { Button, Icon, Screen, Text, type IconName } from '@/components/ui';
+import { Button, ErrorBanner, Icon, Screen, Text, type IconName } from '@/components/ui';
+import { useAuth } from '@/lib/auth/session';
 import { routes } from '@/lib/routes';
+import { usePacts } from '@/lib/store/pacts';
 import { colors, radii } from '@/lib/theme';
 
 interface Step {
@@ -20,32 +22,31 @@ interface Step {
 const steps: Step[] = [
   {
     eyebrow: 'Welcome',
-    title: 'Meet Pax',
-    body: 'One task. One deadline. Pax keeps you company.',
+    title: 'Small promises.\nReal progress.',
+    body: 'Meet Pax, your companion for following through. One task, one deadline, one promise to yourself.',
     expression: 'idle',
     waving: true,
   },
   {
     eyebrow: 'How it works',
     title: 'Make a pact',
-    body: 'Pick a task, set a deadline and put a stake on it. Keep your word and the stake comes back. Miss it and the stake moves to the Vault.',
+    body: 'Choose a task and a deadline. Stake from $1 with your balance, pay by card, or start without money. Keep your word and your stake comes back.',
     expression: 'talking',
   },
   {
     eyebrow: 'Proof',
     title: 'Prove it',
-    body: 'Show you did it with a live photo, your location, or a witness who confirms it.',
+    body: 'Take a live photo with your daily code. If the AI needs more evidence, try another photo or ask a witness to confirm it.',
     expression: 'idle',
     proofs: [
       { icon: 'camera', label: 'Photo' },
-      { icon: 'location', label: 'Location' },
       { icon: 'witness', label: 'Witness' },
     ],
   },
   {
     eyebrow: 'Fair play',
-    title: 'Disputes go to a jury',
-    body: 'When a proof is questioned, a Terac jury of real people reviews it and decides.',
+    title: 'A fair way forward',
+    body: 'Verification scales with your stake. Larger disputed stakes go to a human jury. Miss a pact and your money moves to the Vault, where you can earn it back.',
     expression: 'worried',
   },
   {
@@ -58,17 +59,35 @@ const steps: Step[] = [
 
 export default function Onboarding() {
   const router = useRouter();
+  const { user, busy, error: authError, signIn } = useAuth();
+  const { createPact } = usePacts();
   const [index, setIndex] = useState(0);
   const step = steps[index];
   const last = index === steps.length - 1;
+  const [trying, setTrying] = useState(false);
+  const [error, setError] = useState<unknown>(null);
+  const login = async () => { if (await signIn()) router.replace(routes.home); };
+
+  // Pacto de ejemplo sin dinero: arriesgas 30 puntos de reputación y ves cómo funciona.
+  const tryExample = async () => {
+    setTrying(true);
+    setError(null);
+    try {
+      const pact = await createPact({ title: 'Example: read 10 pages', stakeCents: 0, dueAt: Date.now() + 60 * 60_000, methods: ['photo'], reputationOnly: true });
+      router.replace(routes.pact(pact.id));
+    } catch (e) {
+      setError(e);
+      setTrying(false);
+    }
+  };
 
   return (
     <Screen contentStyle={styles.content}>
       <View style={styles.top}>
         <PactaLogo size={26} />
         {last ? null : (
-          <Pressable accessibilityRole="button" onPress={() => router.replace(routes.home)} hitSlop={8}>
-            <Text variant="small" color="muted">Skip</Text>
+          <Pressable accessibilityRole="button" onPress={() => user ? router.replace(routes.home) : setIndex(steps.length - 1)} hitSlop={8} style={styles.skip}>
+            <Text variant="small" color="muted">{user ? 'Close' : 'Get started'}</Text>
           </Pressable>
         )}
       </View>
@@ -99,9 +118,17 @@ export default function Onboarding() {
         ))}
       </View>
 
-      {last ? (
+      {authError || error ? <ErrorBanner error={authError || error} /> : null}
+      {!user ? (
+        <View style={styles.actions}>
+          <Button label={busy ? 'Connecting to Whop…' : 'Continue with Whop'} leadingIcon="lock" disabled={busy} onPress={login} />
+          <Text variant="caption" color="muted" style={styles.note}>Your account. Your balance. Your progress.</Text>
+          {last ? <Button label="Back" variant="link" disabled={busy} onPress={() => setIndex(index - 1)} /> : <Button label={index === 0 ? 'How it works' : 'Next'} variant="link" icon="arrowRight" disabled={busy} onPress={() => setIndex(index + 1)} />}
+        </View>
+      ) : last ? (
         <View style={styles.actions}>
           <Button label="Create my first pact" icon="arrowRight" onPress={() => router.replace(routes.newPact)} />
+          <Button label="Try a free example pact" variant="outline" disabled={trying} onPress={tryExample} />
           <Button label="Maybe later" variant="link" onPress={() => router.replace(routes.home)} />
         </View>
       ) : (
@@ -145,6 +172,8 @@ const styles = StyleSheet.create({
   dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.border },
   dotOn: { width: 24, backgroundColor: colors.forest },
   actions: { gap: 8 },
+  note: { textAlign: 'center' },
+  skip: { minHeight: 44, justifyContent: 'center' },
   // Reserva el hueco del "Back" para que los botones no salten entre pasos.
   backSlot: { minHeight: 36, alignItems: 'center', justifyContent: 'center' },
 });

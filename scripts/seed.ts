@@ -1,6 +1,7 @@
 // Datos de demo: restablece a un usuario con dos semanas de historial (docs/09). Deja Trust 55,
-// dos pactos verificados seguidos y $60 en el Vault: un pacto cumplido en directo sube a Trust
-// 70 con racha de 3 y desbloquea el primer tramo de $20.
+// dos pactos verificados seguidos, $60 en el Vault y $20 de saldo prepagado (una recarga y un
+// pacto de $2 pagado con ella): un pacto cumplido en directo sube a Trust 70 con racha de 3 y
+// desbloquea el primer tramo de $20.
 // Uso: npm run seed                 → usuario de demo (la URL de Vercel fuera de Whop)
 //      npm run seed -- user_XXXXXXX → la cuenta de ese usuario de Whop (la app dentro de Whop)
 import { query, withTransaction } from '../lib/server/db';
@@ -19,6 +20,8 @@ interface SeedPact {
   code: string;
   delta?: number;
   reason?: string;
+  // Pagado con el saldo prepagado.
+  credit?: boolean;
 }
 
 // En orden cronológico. El Trust empieza en 50: 65 → 35 → 55 → 70 → 40 → 55 → 25 → 40 → 55.
@@ -26,7 +29,7 @@ const HISTORY: SeedPact[] = [
   { title: 'Write 500 words', stake: 500, daysAgo: 13, status: 'REFUNDED', methods: ['photo'], code: 'K7QD', delta: TRUST_DELTA.aiApproved, reason: 'ai_approved' },
   { title: 'Morning run', stake: 2000, daysAgo: 12, status: 'VAULTED', methods: ['photo', 'location'], code: 'R2MN', delta: TRUST_DELTA.failedOrExpired, reason: 'deadline_missed' },
   { title: 'Gym session', stake: 1000, daysAgo: 11, status: 'REFUNDED', methods: ['photo'], code: 'G4YM', delta: TRUST_DELTA.juryApproved, reason: 'jury_approved' },
-  { title: 'Read 20 pages', stake: 500, daysAgo: 10, status: 'REFUNDED', methods: ['photo'], code: 'B8KS', delta: TRUST_DELTA.aiApproved, reason: 'ai_approved' },
+  { title: 'Read 20 pages', stake: 200, daysAgo: 10, status: 'REFUNDED', methods: ['photo'], code: 'B8KS', delta: TRUST_DELTA.aiApproved, reason: 'ai_approved', credit: true },
   { title: 'Clear the inbox', stake: 2000, daysAgo: 8, status: 'VAULTED', methods: ['photo', 'witness'], code: 'M3XT', delta: TRUST_DELTA.failedOrExpired, reason: 'jury_rejected' },
   { title: 'Call mom', stake: 0, daysAgo: 7, status: 'REFUNDED', methods: ['witness'], code: 'C5LL', delta: TRUST_DELTA.aiApproved, reason: 'witness_approved' },
   { title: 'Finish the slides', stake: 2000, daysAgo: 5, status: 'VAULTED', methods: ['photo'], code: 'S6DE', delta: TRUST_DELTA.failedOrExpired, reason: 'unverified_after_ai_doubt' },
@@ -55,7 +58,14 @@ async function main() {
     // Orden por dependencias: lo que cuelga de los pactos primero.
     await q('delete from pacta.trust_events where user_id = $1', [userId]);
     await q('delete from pacta.vault_ledger where user_id = $1', [userId]);
+    await q('delete from pacta.wallet_ledger where user_id = $1', [userId]);
     await q('delete from pacta.pacts where user_id = $1', [userId]);
+
+    // Recarga de demo: sin pago de Whop, así que retirarla solo la registra en el ledger.
+    await q("insert into pacta.wallet_ledger (user_id, type, amount_cents, created_at) values ($1, 'topup', 2000, to_timestamp($2 / 1000.0))", [
+      userId,
+      now - 14 * DAY,
+    ]);
 
     let trust = TRUST_START_SCORE;
     let streak = 0;
@@ -64,12 +74,17 @@ async function main() {
       const resolvedAt = createdAt + 6 * HOUR;
       const deadline = pact.status === 'ACTIVE' ? now + 6 * HOUR : createdAt + 5 * HOUR;
       const { rows } = await q<{ id: string }>(
-        `insert into pacta.pacts (user_id, title, stake_cents, deadline, day_code, status, proof_methods, created_at, resolved_at)
+        `insert into pacta.pacts (user_id, title, stake_cents, deadline, day_code, status, proof_methods, created_at, resolved_at, paid_with_credit)
          values ($1, $2, $3, to_timestamp($4 / 1000.0), $5, $6, $7, to_timestamp($8 / 1000.0),
-                 case when $6 in ('REFUNDED', 'VAULTED') then to_timestamp($9 / 1000.0) end)
+                 case when $6 in ('REFUNDED', 'VAULTED') then to_timestamp($9 / 1000.0) end, $10)
          returning id`,
-        [userId, pact.title, pact.stake, deadline, pact.code, pact.status, pact.methods, createdAt, resolvedAt],
+        [userId, pact.title, pact.stake, deadline, pact.code, pact.status, pact.methods, createdAt, resolvedAt, pact.credit === true],
       );
+      if (pact.credit) {
+        const wallet = "insert into pacta.wallet_ledger (user_id, type, amount_cents, pact_id, created_at) values ($1, $2, $3, $4, to_timestamp($5 / 1000.0))";
+        await q(wallet, [userId, 'hold', pact.stake, rows[0].id, createdAt]);
+        if (pact.status === 'REFUNDED') await q(wallet, [userId, 'release', pact.stake, rows[0].id, resolvedAt]);
+      }
       if (pact.delta === undefined) continue;
 
       const pactId = rows[0].id;

@@ -13,7 +13,7 @@ export function useIsDesktopWeb() {
 }
 
 // Rutas que sí tienen sentido en escritorio: el testigo invitado, el jurado y la galería.
-const DESKTOP_PATHS = ['/witness', '/jury', '/kit'];
+const DESKTOP_PATHS = ['/witness', '/jury', '/kit', '/landing'];
 
 export function isDesktopPath(pathname: string) {
   return DESKTOP_PATHS.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));

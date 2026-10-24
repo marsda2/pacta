@@ -1,0 +1,817 @@
+
+        /* === L12 hero override layer (added 2026-05-06)
+           Re-skins production hero to L12 style + L14 V3 Tinted Titanium phone chassis.
+           Scoped to hero only; does not touch sections below or carousel UI. */
+
+        /* Layout */
+        .main-content-wrapper { background: #ffffff !important; padding: 64px 24px 96px !important; }
+        .page-container { max-width: 1140px !important; margin: 0 auto !important; display: grid !important; grid-template-columns: 1.05fr 1fr !important; gap: 64px !important; align-items: center !important; padding: 0 !important; min-height: 0 !important; }
+        .left-content { display: flex !important; flex-direction: column !important; gap: 28px !important; align-items: flex-start !important; padding: 0 !important; margin: 0 !important; max-width: 580px !important; }
+        .right-content { display: flex !important; flex-direction: column !important; align-items: center !important; gap: 24px !important; padding: 0 !important; margin: 0 !important; }
+
+        /* Headline */
+        .crt-text-container { background: transparent !important; padding: 0 !important; margin: 0 !important; border: 0 !important; box-shadow: none !important; display: block !important; font-family: 'Figtree', sans-serif !important; }
+        .crt-text-container::before, .crt-text-container::after { display: none !important; content: none !important; }
+        .title-overlord, .title-watching {
+            font-family: 'Figtree', sans-serif !important;
+            font-size: 96px !important;
+            font-weight: 700 !important;
+            letter-spacing: -0.035em !important;
+            line-height: 1.0 !important;
+            color: #0b0b0c !important;
+            text-shadow: none !important;
+            text-transform: uppercase !important;
+            display: block !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            -webkit-text-fill-color: #0b0b0c !important;
+            -webkit-text-stroke: 0 !important;
+            background: transparent !important;
+            opacity: 1 !important;
+            transform: none !important;
+            animation: none !important;
+        }
+        .title-overlord::before, .title-overlord::after,
+        .title-watching::before, .title-watching::after {
+            display: none !important; content: none !important;
+        }
+
+        /* Drop decorative bits */
+        .eye-container, .hero-background, .ascii-background, .matrix-bg,
+        .lava-lamp-container, .scanlines-overlay, .corner-brackets { display: none !important; }
+
+        /* Download buttons - L12 2x2 grid */
+        .download-section {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+            gap: 10px !important;
+            max-width: 460px !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        .hero-stores { display:flex; flex-wrap:wrap; gap:12px; }
+        .hero-store-badge { display:inline-flex; align-items:center; gap:10px; background:#000; color:#fff; padding:9px 16px; border-radius:9px; text-decoration:none; transition:opacity .15s, transform .15s; border:1px solid rgba(255,255,255,0.08); }
+        .hero-store-badge:hover { opacity:.9; }
+        .hero-store-badge:active { transform:scale(.98); }
+        .hero-store-badge svg { width:26px; height:26px; flex:none; }
+        .hero-store-badge > span { display:flex; flex-direction:column; align-items:flex-start; justify-content:center; gap:1px; text-align:left; }
+        .hero-store-badge .hsb-sm { display:block; font-size:10px; line-height:1.1; opacity:.85; letter-spacing:0.01em; }
+        .hero-store-badge .hsb-lg { display:block; font-size:17px; font-weight:600; line-height:1.1; letter-spacing:-0.015em; }
+        .hero-store-badge.sm { padding:6px 12px; gap:8px; border-radius:8px; }
+        .hero-store-badge.sm svg { width:20px; height:20px; }
+        .hero-store-badge.sm .hsb-sm { font-size:8px; }
+        .hero-store-badge.sm .hsb-lg { font-size:13px; }
+        .download-button {
+            height: 48px !important;
+            border-radius: 12px !important;
+            font-family: 'Figtree', sans-serif !important;
+            font-size: 14px !important;
+            font-weight: 600 !important;
+            cursor: pointer !important;
+            padding: 0 18px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            background: #ffffff !important;
+            color: #0b0b0c !important;
+            border: 1px solid #e6e6e8 !important;
+            text-decoration: none !important;
+            transition: background 160ms ease, border-color 160ms ease !important;
+            position: static !important;
+            text-transform: none !important;
+            letter-spacing: 0 !important;
+            width: auto !important;
+            min-width: 0 !important;
+            box-shadow: none !important;
+            text-shadow: none !important;
+        }
+        .download-button:hover { border-color: #0b0b0c !important; background: #fafafa !important; }
+        #hero-download-trigger,
+        #cta-download-trigger { background: #0b0b0c !important; color: #ffffff !important; border-color: #0b0b0c !important; }
+        #hero-download-trigger:hover,
+        #cta-download-trigger:hover { background: #1a1a1c !important; border-color: #1a1a1c !important; }
+        #hero-download-trigger > span,
+        #cta-download-trigger > span { color: #ffffff !important; }
+        .fcta-iter05-buttons { margin: 0 auto !important; border: none !important; outline: none !important; box-shadow: none !important; background: transparent !important; }
+        .fcta-iter05-buttons::before, .fcta-iter05-buttons::after { display: none !important; content: none !important; }
+        .fcta-iter05-container .download-section { border: none !important; outline: none !important; box-shadow: none !important; }
+
+        /* Fresh button row for bottom CTA - no inherited styles from .download-section */
+        .fcta-iter05-btnrow {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin: 0 auto;
+            background: transparent;
+            border: 0;
+            outline: 0;
+            box-shadow: none;
+        }
+        .fcta-iter05-btn {
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #ffffff;
+            color: #0b0b0c;
+            border: 1px solid #e6e6e8;
+            border-radius: 12px;
+            font-family: 'Figtree', system-ui, -apple-system, sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background 160ms ease, border-color 160ms ease;
+            box-shadow: none;
+        }
+        .fcta-iter05-btn:hover { border-color: #0b0b0c; background: #fafafa; }
+        .fcta-iter05-btn--primary { background: #0b0b0c; color: #ffffff; border-color: #0b0b0c; }
+        .fcta-iter05-btn--primary:hover { background: #1a1a1c; border-color: #1a1a1c; color: #ffffff; }
+        .download-button > span { position: static !important; z-index: auto !important; color: inherit !important; font-family: inherit !important; font-size: inherit !important; font-weight: inherit !important; letter-spacing: inherit !important; text-shadow: none !important; }
+        .download-button .button-ascii-bg, .download-button .corner-brackets-extra { display: none !important; }
+        .download-button::before, .download-button::after { display: none !important; content: none !important; }
+
+        /* Stats row - L12 spec */
+        .stats {
+            display: flex !important;
+            align-items: center !important;
+            gap: 32px !important;
+            margin: 4px 0 0 !important;
+            padding: 18px 0 0 !important;
+            flex-wrap: wrap !important;
+            border: 0 !important;
+            border-top: 1px solid #e6e6e8 !important;
+            background: transparent !important;
+            width: 100% !important;
+            max-width: 460px !important;
+        }
+        .stat-item {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 4px !important;
+            padding: 0 !important;
+            border: 0 !important;
+            align-items: flex-start !important;
+            background: transparent !important;
+        }
+        .stat-item:not(:last-child)::after { display: none !important; content: none !important; }
+        .stat-number {
+            font-family: 'Figtree', sans-serif !important;
+            font-size: 14px !important;
+            font-weight: 700 !important;
+            color: #0b0b0c !important;
+            letter-spacing: -0.005em !important;
+            line-height: 1 !important;
+            text-shadow: none !important;
+            -webkit-text-fill-color: #0b0b0c !important;
+        }
+        .stat-label {
+            font-family: 'Figtree', sans-serif !important;
+            font-size: 10.5px !important;
+            font-weight: 600 !important;
+            color: #8a8a90 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.10em !important;
+            line-height: 1 !important;
+        }
+        .stat-badge .yc-logo { height: 22px !important; width: auto !important; }
+        .stat-badge { padding-top: 0 !important; }
+
+        /* L14 V3 Tinted Titanium chassis - hero phone only. Sized to mockup (686 x 1376) */
+        .right-content > .iphone-preview {
+            background: linear-gradient(180deg, #f7f7f9 0%, #ececef 100%) !important;
+            background-image: linear-gradient(180deg, #f7f7f9 0%, #ececef 100%) !important;
+            border: 1px solid #e6e6e8 !important;
+            border-radius: 46px !important;
+            padding: 12px !important;
+            /* Shadow via drop-shadow filter so it survives overflow: hidden */
+            box-shadow: none !important;
+            filter: drop-shadow(0 28px 36px rgba(11,11,12,0.12)) drop-shadow(0 6px 12px rgba(11,11,12,0.05));
+            width: 320px !important;
+            max-width: 100% !important;
+            aspect-ratio: 686 / 1376 !important;
+            height: auto !important;
+            position: relative !important;
+            overflow: hidden !important;
+            margin: 0 !important;
+        }
+        .right-content > .iphone-preview::before,
+        .right-content > .iphone-preview::after { display: none !important; content: none !important; }
+        .right-content > .iphone-preview > .iphone-screen {
+            background: #ffffff !important;
+            border-radius: 34px !important;
+            overflow: hidden !important;
+            position: relative !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            border: 0 !important;
+            box-shadow: none !important;
+            /* Sit above the floating .hero-chip elements (z-index 5, active 6) so
+               the screen's left/right edges don't get covered when a side chip
+               activates. Chips remain visible where they extend outside the
+               chassis. */
+            z-index: 7 !important;
+        }
+
+        /* New hero copy: pill + h1 + sub - all left-aligned */
+        .left-content, .left-content * { text-align: left !important; }
+        .crt-text-container { display: flex !important; flex-direction: column !important; gap: 22px !important; align-items: flex-start !important; text-align: left !important; }
+        .hero-pill {
+            display: inline-flex !important; align-items: center !important; gap: 8px !important;
+            padding: 6px 14px !important;
+            border: 1px solid #e6e6e8 !important; border-radius: 999px !important;
+            background: #ffffff !important;
+            font-family: 'Figtree', sans-serif !important;
+            font-size: 13px !important; font-weight: 500 !important;
+            color: #0b0b0c !important;
+            line-height: 1 !important;
+            align-self: flex-start !important;
+        }
+        .hero-pill-dot { width: 7px !important; height: 7px !important; border-radius: 50% !important; background: #2f5bff !important; display: inline-block !important; animation: heroPillPulse 1.8s ease-out infinite !important; }
+        @keyframes heroPillPulse {
+            0%   { box-shadow: 0 0 0 0 rgba(47,91,255,0.55); }
+            70%  { box-shadow: 0 0 0 6px rgba(47,91,255,0); }
+            100% { box-shadow: 0 0 0 0 rgba(47,91,255,0); }
+        }
+        .hero-pill-text { display: inline-block; transition: opacity 0.18s ease; }
+        .hero-pill-text.fading { opacity: 0; }
+        .hero-h1 {
+            font-family: 'Figtree', sans-serif !important;
+            font-size: 72px !important; font-weight: 700 !important;
+            letter-spacing: -0.035em !important; line-height: 1.05 !important;
+            color: #0b0b0c !important; margin: 0 !important;
+            text-transform: none !important; text-shadow: none !important;
+            -webkit-text-fill-color: #0b0b0c !important;
+            text-align: left !important;
+            align-self: flex-start !important;
+        }
+        .hero-rotate-word {
+            display: inline-block;
+            color: #2f5bff !important;
+            -webkit-text-fill-color: #2f5bff !important;
+            transition: opacity 0.25s ease;
+        }
+        .hero-rotate-word.fading { opacity: 0; }
+        .hero-sub {
+            font-family: 'Figtree', sans-serif !important;
+            font-size: 21px !important; line-height: 1.5 !important;
+            color: #5a5a5f !important; margin: 0 !important;
+            max-width: 600px !important;
+            font-weight: 500 !important;
+            text-align: left !important;
+            align-self: flex-start !important;
+        }
+        .hero-sub-hl { color: #2f5bff !important; -webkit-text-fill-color: #2f5bff !important; font-weight: inherit !important; }
+
+        /* "Backed by Y Combinator" badge in hero */
+        .hero-yc {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+            font-family: 'Figtree', sans-serif;
+            align-self: flex-start;
+        }
+        .hero-yc-label { font-size: 16px; font-weight: 500; color: #5a5a5f; letter-spacing: -0.01em; }
+        .hero-yc-badge { display: inline-flex; align-items: center; gap: 9px; }
+        .hero-yc-logo {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 2px;
+            background: #ff6600;
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            font-weight: 500 !important;
+            font-size: 24px;
+            line-height: 1;
+            font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+        }
+        .hero-yc-name {
+            color: #0b0b0c;
+            font-size: 22px;
+            font-weight: 500;
+            letter-spacing: -0.01em;
+            line-height: 1;
+        }
+        @media (max-width: 480px) {
+            .hero-yc-label { font-size: 13px; }
+            .hero-yc-logo { width: 26px; height: 26px; font-size: 20px; }
+            .hero-yc-name { font-size: 18px; }
+            .hero-yc { gap: 6px; }
+            .hero-yc-badge { gap: 7px; }
+
+            /* Hero phone on mobile: kill the box-shadow halo (the
+               .ol-phone base rule at line 9757 sets box-shadow !important,
+               and the hero phone has class "iphone-preview ol-phone" so we
+               have to override both selector paths). Re-clip the inner
+               screen to its rounded corners - the earlier 480 rule sets
+               overflow:visible to let the legacy status bar peek above,
+               but that bar is display:none in the hero (line 8307), so
+               the override just lets nfw content run past the inner
+               bezel down to the chassis bottom. */
+            .right-content > .iphone-preview,
+            .right-content > .iphone-preview.ol-phone,
+            .right-content > .ol-phone {
+                box-shadow: none !important;
+                /* The actual shadow on the hero phone is filter:drop-shadow(),
+                   not box-shadow (see live line 6308). Killing both. */
+                filter: none !important;
+                -webkit-filter: none !important;
+            }
+            .right-content > .iphone-preview > .iphone-screen,
+            .right-content > .iphone-preview > .ol-phone-screen,
+            .right-content > .ol-phone > .ol-phone-screen {
+                overflow: hidden !important;
+            }
+            /* Equal chassis padding keeps all four bezel edges consistent. */
+            .right-content > .iphone-preview {
+                padding: 14px !important;
+            }
+            .right-content > .iphone-preview > .iphone-screen,
+            .right-content > .iphone-preview > .ol-phone-screen,
+            .right-content > .ol-phone > .ol-phone-screen {
+                border: 1px solid #d4d4d8 !important;
+            }
+        }
+
+        /* === Late overrides: hide topbar on mobile, tame toy buttons,
+              fix apsl-card overflow, add phone-shadow breathing room === */
+        @media (max-width: 640px) {
+            /* Topbar stays visible on mobile so the Login button is reachable.
+               The mobile rules above reduce it to brand + Login (nav + store
+               badges hidden), so it no longer clutters the bar. */
+            .flx .apsl-card { width: 100% !important; max-width: 100% !important; box-sizing: border-box; }
+        }
+        /* Phone shadow fix.
+           filter: drop-shadow gets clipped by sibling stacking contexts and
+           translates - real box-shadow on the chassis always renders cleanly
+           outside the element box, no clipping artifacts at the bottom. */
+        .hiw2-phone { filter: none !important; }
+        .hiw2-phone .ol-phone {
+            box-shadow:
+                0 30px 60px rgba(11,11,12,0.18),
+                0 8px 20px rgba(11,11,12,0.06) !important;
+        }
+        .hiw2 { overflow: visible; }
+        .hiw2-inner, .hiw2-stage, .hiw2-phonewrap { overflow: visible; }
+        .hiw2-stage { padding-bottom: 40px; }
+        /* Make the "Back / Next" buttons on the phone chrome less glossy /
+           less toy-like - flat white pill with a hair-thin border. */
+        .nfw .nfw-navbtn {
+            background: #ffffff !important;
+            border: 1px solid #e6e6e8 !important;
+            box-shadow: 0 1px 2px rgba(15,17,22,0.04) !important;
+            color: #5a5a5f !important;
+        }
+        .nfw .nfw-navbtn:hover {
+            background: #fafafa !important;
+            border-color: #d4d4d8 !important;
+            box-shadow: 0 1px 3px rgba(15,17,22,0.05) !important;
+        }
+
+        /* Simpler stats line (replaces 4-cell stat row) */
+        .hero-stats-line {
+            display: flex !important; align-items: center !important; gap: 12px !important;
+            margin: 4px 0 0 !important; padding: 0 !important;
+            font-family: 'Figtree', sans-serif !important;
+            font-size: 14px !important; color: #5a5a5f !important;
+            flex-wrap: wrap !important;
+        }
+        .hero-stars { color: #0b0b0c !important; letter-spacing: 0.04em !important; font-size: 14px !important; }
+        .hero-stat-num { color: #5a5a5f !important; font-weight: 500 !important; }
+        .hero-stat-num strong { color: #0b0b0c !important; font-weight: 700 !important; }
+        .hero-stat-sep { color: #d4d4d8 !important; }
+        .stats[hidden], .carousel-wrapper[hidden] { display: none !important; }
+
+        /* Right column becomes the chip stage */
+        .right-content { position: relative !important; min-height: 700px !important; width: 100% !important; }
+
+        /* Lock the hero phone height so a long chat scrolls inside the
+           thread (overflow-y: auto on .l12hp-thread) instead of stretching
+           the phone frame. The mobile rule sets .iphone-screen overflow to
+           visible for the legacy status-bar workaround; the hero phone uses
+           the new .l12hp-iosbar so it doesn't need that, and clipping is
+           required here so the new-design chat scrolls properly. */
+        .right-content > .iphone-preview { min-height: 0 !important; display: grid !important; grid-template-rows: minmax(0, 1fr); align-items: stretch !important; }
+        .right-content > .iphone-preview > .iphone-screen { overflow: hidden !important; height: auto !important; max-height: 100% !important; min-height: 0 !important; }
+        .right-content > .iphone-preview > .iphone-screen > .l12hp { height: 100% !important; max-height: 100% !important; min-height: 0 !important; overflow: hidden !important; }
+
+        /* Temporarily hidden 2026-06-22 - the floating chips around the phone. Restore by deleting this single rule. */
+        body .hero-chip, .right-content .hero-chip, [class*="hero-chip"].hero-chip { display: none !important; }
+
+        /* Floating chip - shared base */
+        .hero-chip {
+            position: absolute !important;
+            z-index: 5 !important;
+            padding: 12px 14px !important;
+            border-radius: 14px !important;
+            background: #fff !important;
+            border: 1px solid #e6e6e8 !important;
+            box-shadow: 0 6px 18px rgba(11,11,12,0.08), 0 1px 3px rgba(11,11,12,0.04) !important;
+            font-family: 'Figtree', sans-serif !important;
+            display: grid !important;
+            grid-template-columns: auto 1fr !important;
+            grid-template-rows: auto auto auto !important;
+            column-gap: 10px !important;
+            row-gap: 2px !important;
+            align-items: center !important;
+        }
+        /* Action-leads hierarchy: eyebrow is the big headline, bignum+foot are
+           the smaller supporting detail next to a colored icon tile. */
+        .hero-chip-eyebrow { grid-column: 1 / -1 !important; grid-row: 1 !important; margin-bottom: 4px !important; font-size: 18px !important; font-weight: 800 !important; letter-spacing: -0.02em !important; text-transform: none !important; color: #0b0b0c !important; line-height: 1.08 !important; }
+        .hero-chip-eyebrow.light { color: #ffffff !important; }
+        .hero-chip-bignum { grid-column: 2 !important; grid-row: 2 !important; font-size: 15px !important; font-weight: 700 !important; letter-spacing: -0.015em !important; color: #5a5a5f !important; line-height: 1.1 !important; font-variant-numeric: tabular-nums !important; }
+        .hero-chip-bignum.white { color: rgba(255,255,255,0.8) !important; }
+        .hero-chip-bignum .unit { font-size: 10px !important; font-weight: 600 !important; color: #8a8a90 !important; letter-spacing: 0.04em !important; margin-left: 3px !important; text-transform: uppercase !important; }
+        .hero-chip-bignum .x { font-size: 12px !important; font-weight: 600 !important; color: rgba(255,255,255,0.55) !important; margin-left: 2px !important; letter-spacing: -0.02em !important; }
+        .hero-chip-foot { grid-column: 2 !important; grid-row: 3 !important; font-size: 11px !important; font-weight: 500 !important; color: #5a5a5f !important; line-height: 1.2 !important; }
+        .hero-chip-foot.light { color: rgba(255,255,255,0.55) !important; font-weight: 600 !important; }
+        .hero-chip-foot.dark { color: #5a5a5f !important; font-weight: 500 !important; }
+        .hero-chip-icon { display: flex !important; align-items: center !important; justify-content: center !important; padding: 2px 6px !important; }
+
+        /* Chip head: display:contents lets iconbox + eyebrow become direct grid
+           children of .hero-chip so we can position them independently. */
+        .hero-chip-head { display: contents !important; }
+        .hero-chip-iconbox { display: inline-flex !important; grid-column: 1 !important; grid-row: 2 / span 2 !important; align-self: center !important; width: 32px !important; height: 32px !important; border-radius: 9px !important; align-items: center !important; justify-content: center !important; color: #fff !important; flex-shrink: 0 !important; box-shadow: 0 3px 8px rgba(11,11,12,0.08) !important; }
+        .hero-chip-iconbox svg { width: 18px !important; height: 18px !important; }
+        .hero-chip-iconbox-text { font-size: 19px !important; font-weight: 800 !important; line-height: 1 !important; letter-spacing: -0.02em !important; }
+
+        /* Hide inline chip graphics (sparkline, ring, calendar grid) so chips
+           read as the new text-only Landing37 v1 style. */
+        .hero-chip-spark, .hero-chip-mac-ring, .hero-chip-cal-strip { display: none !important; }
+        .hero-chip-mac-row { display: block !important; margin-top: 0 !important; }
+        .hero-chip-mac-h { font-size: 15px !important; font-weight: 700 !important; color: #5a5a5f !important; letter-spacing: -0.015em !important; }
+        .hero-chip-mac-h span { font-size: 10px !important; font-weight: 600 !important; color: #8a8a90 !important; }
+        .hero-chip[data-clickable="true"] { cursor: pointer !important; }
+        .hero-chip[data-clickable="true"]:hover { transform: translateY(-2px) !important; box-shadow: 0 10px 28px rgba(11,11,12,0.12), 0 1px 3px rgba(11,11,12,0.05) !important; opacity: 1 !important; }
+
+        /* Pushups chip (top-left, light) */
+        .hero-chip-pushups { background: #ffffff !important; border-color: #e6e6e8 !important; min-width: 110px !important; top: 4% !important; left: 0 !important; }
+        .hero-chip-pushups .hero-chip-eyebrow.light { color: #8a8a90 !important; }
+        .hero-chip-pushups .hero-chip-bignum.white { color: #0b0b0c !important; }
+        .hero-chip-pushups .hero-chip-bignum.white .x { color: #8a8a90 !important; }
+        .hero-chip-pushups .hero-chip-foot.light { color: #5a5a5f !important; }
+
+        /* GPS chip (top-right, icon-only) */
+        .hero-chip-gps { align-items: center !important; padding: 12px 14px 10px !important; top: 16% !important; right: 0 !important; }
+
+        /* Heart-rate chip (mid-left, sparkline) */
+        .hero-chip-heart { min-width: 122px !important; top: 44% !important; left: -12px !important; }
+        .hero-chip-spark { width: 100% !important; height: 16px !important; margin-top: 2px !important; display: block !important; }
+
+        /* Mac focus chip (mid-right, ring) */
+        .hero-chip-mac { min-width: 138px !important; top: 56% !important; right: -8px !important; }
+        .hero-chip-mac-row { display: flex !important; align-items: center !important; gap: 10px !important; margin-top: 2px !important; }
+        .hero-chip-mac-ring { flex-shrink: 0 !important; }
+        .hero-chip-mac-stat { display: flex !important; flex-direction: column !important; gap: 2px !important; }
+        .hero-chip-mac-h { font-size: 22px !important; font-weight: 800 !important; letter-spacing: -0.03em !important; color: #0b0b0c !important; line-height: 1 !important; }
+        .hero-chip-mac-h span { font-size: 13px !important; font-weight: 600 !important; color: #8a8a90 !important; margin-left: 1px !important; }
+
+        /* Wake-up chip (left, between pushups and heart) */
+        .hero-chip-wakeup { min-width: 118px !important; top: 24% !important; left: -2% !important; }
+        .hero-chip-wakeup .hero-chip-bignum .unit { color: #8a8a90 !important; }
+
+        /* Screen Time chip (right, between gps and mac) */
+        .hero-chip-screentime { min-width: 124px !important; top: 30% !important; right: -4px !important; }
+
+        /* Workout chip (left, below heart) */
+        .hero-chip-workout { min-width: 122px !important; top: 72% !important; left: -2% !important; }
+
+        /* Bedtime chip (right, below mac) */
+        .hero-chip-bedtime { min-width: 124px !important; top: 76% !important; right: -4px !important; }
+
+        /* Calendar chip (bottom-center) */
+        .hero-chip-cal { min-width: 168px !important; bottom: -4% !important; left: 18% !important; }
+        .hero-chip-cal-strip { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 3px !important; margin-top: 4px !important; }
+        .hero-chip-cal-block { background: #f4f4f5 !important; border-radius: 5px !important; padding: 5px 0 4px !important; text-align: center !important; min-height: 30px !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; }
+        .hero-chip-cal-block.free { background: #2f5bff !important; box-shadow: 0 2px 6px rgba(47,91,255,0.30) !important; }
+        .hero-chip-cal-h { font-size: 11px !important; font-weight: 700 !important; color: #8a8a90 !important; line-height: 1 !important; }
+        .hero-chip-cal-block.free .hero-chip-cal-h { color: #fff !important; }
+        .hero-chip-cal-tag { font-size: 7px !important; font-weight: 800 !important; color: #fff !important; letter-spacing: 0.08em !important; margin-top: 2px !important; line-height: 1 !important; }
+
+        /* Mobile responsive */
+        @media (max-width: 980px) {
+            .page-container { grid-template-columns: 1fr !important; gap: 48px !important; }
+            .hero-h1 { font-size: 64px !important; }
+            .right-content { min-height: 0 !important; }
+        }
+        @media (max-width: 760px) {
+            /* On mobile, shrink the floating chips so they tuck around the phone
+               instead of hiding them. transform-origin per chip keeps each one
+               anchored at its corner so the scale-down doesn't drift it
+               off-position. The active-state transform: scale(1.06) and the
+               float animation's individual translate compose with `scale:`.
+               Positions are pulled inward so chips sit near the centered
+               phone rather than pinned to the viewport edges. We can't set
+               `translate:` here because the float keyframes animate it. */
+            .hero-chip { scale: 0.75 !important; }
+            .hero-chip-pushups    { transform-origin: top left      !important; top: 2%  !important; left: 4%  !important; }
+            .hero-chip-gps        { transform-origin: top right     !important; top: 14% !important; right: 4% !important; }
+            .hero-chip-wakeup     { transform-origin: top left      !important; top: 22% !important; left: 2%  !important; }
+            .hero-chip-screentime { transform-origin: top right     !important; top: 28% !important; right: 2% !important; }
+            .hero-chip-heart      { transform-origin: center left   !important; top: 42% !important; left: 0   !important; }
+            .hero-chip-mac        { transform-origin: center right  !important; top: 54% !important; right: 0  !important; }
+            .hero-chip-workout    { transform-origin: bottom left   !important; top: 70% !important; left: 2%  !important; }
+            .hero-chip-bedtime    { transform-origin: bottom right  !important; top: 74% !important; right: 2% !important; }
+            .hero-chip-cal        { transform-origin: bottom center !important; bottom: -2% !important; left: 23% !important; }
+        }
+        @media (max-width: 600px) {
+            .main-content-wrapper { padding: 40px 20px 64px !important; }
+            .hero-h1 { font-size: 44px !important; }
+            .hero-sub { font-size: 16px !important; }
+            .download-section { max-width: 100% !important; }
+        }
+
+        /* Active-chip state for the auto-cycle */
+        @property --chip-prog {
+            syntax: '<number>';
+            inherits: false;
+            initial-value: 0;
+        }
+        .hero-chip { transition: transform 240ms ease, box-shadow 240ms ease, opacity 240ms ease !important; opacity: 0.32 !important; filter: none !important; cursor: pointer !important; }
+        .hero-stats-line { display: none !important; }
+        .hero-chip:hover { opacity: 1 !important; }
+        .hero-chip.active { opacity: 1 !important; transform: scale(1.06) !important; border-color: transparent !important; box-shadow: 0 16px 36px rgba(11,11,12,0.16) !important; z-index: 6 !important; }
+        .hero-chip.active::before {
+            content: '' !important;
+            position: absolute !important;
+            inset: -1px !important;
+            border-radius: 15px !important;
+            padding: 2px !important;
+            background: conic-gradient(from -90deg, #2f5bff 0, #2f5bff calc(var(--chip-prog) * 1turn), rgba(47,91,255,0.12) 0) !important;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0) !important;
+            -webkit-mask-composite: xor !important;
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0) !important;
+            mask-composite: exclude !important;
+            --chip-prog: 0;
+            animation: hero-chip-prog 4500ms linear forwards !important;
+            pointer-events: none !important;
+            z-index: 1 !important;
+        }
+        @keyframes hero-chip-prog {
+            from { --chip-prog: 0; }
+            to   { --chip-prog: 1; }
+        }
+        .hero-chip-pushups.active { border-color: transparent !important; }
+
+        /* Mobile: fade out non-active chips much more aggressively so the
+           one cycling through reads as the focal point. Desktop is unchanged. */
+        @media (max-width: 760px) {
+            .hero-chip { opacity: 0.32 !important; }
+            .hero-chip.active { opacity: 1 !important; }
+        }
+
+        /* Floating bob animation. Uses the individual `translate:` property so
+           it composes with transform: scale(1.06) on .active and with `scale:`
+           on mobile. Each chip gets a slightly different duration + delay so
+           the group feels organic, not synchronized. */
+        @keyframes hero-chip-float {
+            0%, 100% { translate: 0 0; }
+            50%      { translate: 0 -7px; }
+        }
+        .hero-chip {
+            animation: hero-chip-float 6s ease-in-out infinite !important;
+            will-change: translate !important;
+        }
+        .hero-chip-pushups    { animation-duration: 5.2s !important; animation-delay: 0s !important; }
+        .hero-chip-gps        { animation-duration: 6.4s !important; animation-delay: 0.8s !important; }
+        .hero-chip-wakeup     { animation-duration: 5.6s !important; animation-delay: 1.6s !important; }
+        .hero-chip-screentime { animation-duration: 6.0s !important; animation-delay: 2.4s !important; }
+        .hero-chip-heart      { animation-duration: 5.8s !important; animation-delay: 0.4s !important; }
+        .hero-chip-mac        { animation-duration: 6.2s !important; animation-delay: 1.2s !important; }
+        .hero-chip-workout    { animation-duration: 5.4s !important; animation-delay: 2.0s !important; }
+        .hero-chip-bedtime    { animation-duration: 6.6s !important; animation-delay: 0.6s !important; }
+        .hero-chip-cal        { animation-duration: 5.0s !important; animation-delay: 1.8s !important; }
+        @media (prefers-reduced-motion: reduce) {
+            .hero-chip { animation: none !important; }
+        }
+
+        /* === Flutter-app top tab bar (Chat / Goals) === */
+        .right-content > .iphone-preview > .iphone-screen .top-nav-bar {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 14px 16px 10px !important;
+            background: transparent !important;
+            border: none !important;
+            position: relative !important;
+        }
+        .right-content > .iphone-preview > .iphone-screen .nav-menu-icon,
+        .right-content > .iphone-preview > .iphone-screen .nav-edit-icon {
+            position: absolute !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            background: transparent !important;
+            border: none !important;
+        }
+        .right-content > .iphone-preview > .iphone-screen .nav-menu-icon {
+            left: 16px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 4px !important;
+            width: 18px !important;
+        }
+        .right-content > .iphone-preview > .iphone-screen .nav-menu-icon span {
+            display: block !important;
+            width: 18px !important;
+            height: 1.5px !important;
+            background: #0b0b0c !important;
+            border-radius: 1px !important;
+        }
+        .right-content > .iphone-preview > .iphone-screen .nav-edit-icon {
+            right: 16px !important;
+            width: 20px !important;
+            height: 20px !important;
+            color: #0b0b0c !important;
+        }
+        .right-content > .iphone-preview > .iphone-screen .nav-edit-icon svg {
+            width: 18px !important;
+            height: 18px !important;
+            stroke: #0b0b0c !important;
+        }
+        .right-content > .iphone-preview > .iphone-screen .nav-center-tabs {
+            display: inline-flex !important;
+            align-items: center !important;
+            background: #ececef !important;
+            border-radius: 18px !important;
+            padding: 2px !important;
+            gap: 0 !important;
+            width: auto !important;
+            height: 36px !important;
+        }
+        .right-content > .iphone-preview > .iphone-screen .nav-tab {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 5px !important;
+            padding: 0 14px !important;
+            height: 32px !important;
+            border-radius: 16px !important;
+            border: none !important;
+            background: transparent !important;
+            color: #8a8a90 !important;
+            font-family: 'Figtree', sans-serif !important;
+            font-size: 13px !important;
+            font-weight: 500 !important;
+            letter-spacing: -0.005em !important;
+            cursor: pointer !important;
+            transition: color 160ms ease !important;
+            white-space: nowrap !important;
+        }
+        .right-content > .iphone-preview > .iphone-screen .nav-tab.active {
+            background: #ffffff !important;
+            color: #0b0b0c !important;
+            font-weight: 600 !important;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05), 0 0 0 0.5px rgba(255,255,255,0.6) inset, 0 4px 8px rgba(0,0,0,0.04) !important;
+        }
+        .right-content > .iphone-preview > .iphone-screen .nav-tab svg {
+            width: 14px !important;
+            height: 14px !important;
+            stroke: currentColor !important;
+            stroke-width: 2 !important;
+            margin: 0 !important;
+        }
+
+        /* === Flutter-app composer pill (Message Overlord input) === */
+        .right-content > .iphone-preview > .iphone-screen .chat-input-bar {
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            margin: 0 10px 8px !important;
+            padding: 6px 8px 6px 6px !important;
+            background: #ffffff !important;
+            border: 1px solid #e6e6e8 !important;
+            border-radius: 24px !important;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03) !important;
+            position: relative !important;
+            min-height: 44px !important;
+        }
+        .right-content > .iphone-preview > .iphone-screen .chat-input-bar::before {
+            content: '+' !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 32px !important;
+            height: 32px !important;
+            border-radius: 50% !important;
+            background: #f4f4f5 !important;
+            border: none !important;
+            color: #5a5a5f !important;
+            font-size: 18px !important;
+            font-weight: 400 !important;
+            line-height: 1 !important;
+            flex-shrink: 0 !important;
+            position: static !important;
+            font-family: 'Figtree', sans-serif !important;
+            padding-bottom: 2px !important;
+        }
+        .right-content > .iphone-preview > .iphone-screen .chat-input-bar::after {
+            content: '' !important;
+            display: inline-block !important;
+            width: 32px !important;
+            height: 32px !important;
+            border-radius: 50% !important;
+            background: #ffffff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235a5a5f' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><rect x='9' y='2' width='6' height='13' rx='3'/><path d='M5 11a7 7 0 0 0 14 0M12 18v3'/></svg>") center / 16px 16px no-repeat !important;
+            border: 1px solid #e6e6e8 !important;
+            margin-left: auto !important;
+            flex-shrink: 0 !important;
+            position: static !important;
+            transform: none !important;
+        }
+        .right-content > .iphone-preview > .iphone-screen .chat-placeholder {
+            flex: 1 !important;
+            font-family: 'Figtree', sans-serif !important;
+            font-size: 15px !important;
+            color: #8a8a90 !important;
+            font-weight: 400 !important;
+            text-align: left !important;
+            padding: 0 4px !important;
+            letter-spacing: -0.005em !important;
+        }
+
+        /* === White Raised bubble style (global, all .iphone-screen chats) ===
+           Both Overlord + user messages are white, no border, soft drop shadow. */
+        .iphone-screen .agent-message,
+        .iphone-screen .user-message,
+        .iphone-screen .integration-message {
+            background: #ffffff !important;
+            background-color: #ffffff !important;
+            color: #0b0b0c !important;
+            border: none !important;
+            border-radius: 16px !important;
+            padding: 7px 12px !important;
+            max-width: 88% !important;
+            font-size: 13.5px !important;
+            line-height: 1.35 !important;
+            box-shadow: 0 2px 6px rgba(11,11,12,0.06), 0 8px 24px rgba(11,11,12,0.08) !important;
+            font-family: 'Figtree', sans-serif !important;
+            -webkit-text-fill-color: #0b0b0c !important;
+            font-weight: 500 !important;
+        }
+        /* Bubble tails: Overlord bottom-left squared, You bottom-right squared */
+        .iphone-screen .agent-message { border-bottom-left-radius: 4px !important; }
+        .iphone-screen .user-message  { border-bottom-right-radius: 4px !important; }
+
+        /* Wrappers: control alignment without bubble strokes */
+        .iphone-screen .message-wrapper { background: transparent !important; border: none !important; padding: 0 !important; margin: 6px 0 !important; }
+        .iphone-screen .message-wrapper.agent { display: flex !important; justify-content: flex-start !important; }
+        .iphone-screen .message-wrapper.user  { display: flex !important; justify-content: flex-end !important; }
+
+        /* Hide the "Overlord 4:21 PM" / "You 4:20 PM" stamp above each bubble */
+        .iphone-screen .message-header { display: none !important; }
+
+        /* Drop the inverted-icon images inside action bubbles */
+        .iphone-screen .agent-message img { display: none !important; }
+
+        /* Tighten the inline icon-row inside action bubbles since icon is gone */
+        .iphone-screen .agent-message div[style*="margin-bottom"] { margin-bottom: 4px !important; }
+        .iphone-screen .agent-message div[style*="margin-bottom"] > span {
+            color: #0b0b0c !important;
+            font-weight: 700 !important;
+            font-size: 14px !important;
+            letter-spacing: -0.005em !important;
+        }
+        .iphone-screen .agent-message p {
+            color: #5a5a5f !important;
+            font-weight: 400 !important;
+            font-size: 13px !important;
+            line-height: 1.4 !important;
+            margin: 0 !important;
+        }
+
+        /* Integration message ("→ Screen Time Disconnected") inside the user side */
+        .iphone-screen .integration-message .integration-title {
+            color: #0b0b0c !important;
+            font-weight: 700 !important;
+            font-size: 13.5px !important;
+            margin-bottom: 2px !important;
+        }
+        .iphone-screen .integration-message .integration-content {
+            color: #5a5a5f !important;
+            font-size: 12.5px !important;
+            font-weight: 400 !important;
+        }
+
+        /* Chat bubbles in non-iphone surfaces (feature-icon-container etc.) - canonical tokens */
+        .feature-icon-container .agent-message,
+        .feature-icon-container .user-message {
+            background: var(--olc-bubble-bg) !important;
+            color: var(--olc-bubble-text) !important;
+            border: var(--olc-bubble-border) !important;
+            box-shadow: var(--olc-bubble-shadow) !important;
+            border-radius: var(--olc-bubble-radius) !important;
+            font-family: var(--olc-bubble-font) !important;
+        }
+        .feature-icon-container .agent-message { border-bottom-left-radius: 4px !important; }
+        .feature-icon-container .user-message  { border-bottom-right-radius: 4px !important; }
+        .feature-icon-container .message-header { display: none !important; }
+    

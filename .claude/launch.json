@@ -6,6 +6,12 @@
       "runtimeExecutable": "npx",
       "runtimeArgs": ["expo", "start", "--web", "--port", "8081"],
       "port": 8081
+    },
+    {
+      "name": "pacta-web-main",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "cd /d C:\\Users\\marki\\Documents\\TestWhoop-main && set EXPO_PUBLIC_API_URL=http://localhost:3100&& npx expo start --web --port 8083"],
+      "port": 8083
     }
   ]
 }

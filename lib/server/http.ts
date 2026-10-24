@@ -19,13 +19,13 @@ export function uuidParam(value: unknown): string {
   return id;
 }
 
-// CORS abierto: la API aún no usa cookies ni credenciales (prototipo con usuario de demo).
-// Responde al preflight y convierte los errores en JSON.
+// Bearer auth works cross-origin on mobile/dev; no cookies are used by the API.
 export function api(handler: Handler): Handler {
   return async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-whop-user-token');
+    res.setHeader('Cache-Control', 'no-store');
     if (req.method === 'OPTIONS') return res.status(204).end();
 
     try {

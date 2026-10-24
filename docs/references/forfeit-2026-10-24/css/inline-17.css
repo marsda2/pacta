@@ -1,0 +1,413 @@
+
+                .macblock {
+                    width: 100%;
+                    max-width: 1140px;
+                    margin: 0 auto;
+                    padding: 0 24px;
+                    box-sizing: border-box;
+                    text-align: left;
+                    align-self: center;
+                    font-family: 'Figtree', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                    color: #0b0b0c;
+                    line-height: 1.5;
+                }
+                .macblock-head { margin-bottom: 40px; max-width: 760px; }
+                .macblock-eyebrow {
+                    display: inline-block;
+                    font-size: 12px;
+                    font-weight: 700;
+                    letter-spacing: 0.18em;
+                    color: #8a8a90;
+                    text-transform: uppercase;
+                    margin-bottom: 14px;
+                }
+                .macblock-h2 {
+                    font-family: 'Figtree', sans-serif;
+                    font-size: 40px;
+                    line-height: 1.06;
+                    font-weight: 800;
+                    letter-spacing: -0.025em;
+                    margin: 0 0 12px;
+                    color: #0b0b0c;
+                    text-transform: none;
+                    text-shadow: none;
+                    -webkit-text-fill-color: #0b0b0c;
+                    filter: none;
+                }
+                .macblock-sub { font-size: 15px; color: #5a5a5f; max-width: 720px; margin: 0; }
+                .macblock-stage {
+                    display: grid;
+                    grid-template-columns: 300px 1fr;
+                    gap: 32px;
+                    align-items: start;
+                    margin-top: 8px;
+                }
+                .macblock-side { display: flex; flex-direction: column; gap: 10px; }
+                .macblock-side-label {
+                    font-size: 11px;
+                    font-weight: 700;
+                    letter-spacing: 0.14em;
+                    color: #8a8a90;
+                    text-transform: uppercase;
+                    padding-left: 4px;
+                }
+                .macblock-side-list { display: flex; flex-direction: column; gap: 6px; }
+                .macblock-side-row {
+                    display: flex;
+                    align-items: flex-start;
+                    gap: 10px;
+                    text-align: left;
+                    background: #ffffff;
+                    border: 1px solid #e6e6e8;
+                    border-radius: 12px;
+                    padding: 10px 12px;
+                    font-family: inherit;
+                    color: #0b0b0c;
+                    cursor: pointer;
+                    transition: border-color 120ms ease, background 120ms ease;
+                    width: 100%;
+                }
+                .macblock-side-row:hover { border-color: #8a8a90; background: #fafafa; }
+                .macblock-side-row-active { border: 2px solid #0b0b0c; padding: 9px 11px; background: #ffffff; }
+                .macblock-side-num {
+                    font-size: 11px;
+                    font-weight: 700;
+                    color: #8a8a90;
+                    font-variant-numeric: tabular-nums;
+                    letter-spacing: 0.06em;
+                    flex-shrink: 0;
+                    padding-top: 2px;
+                }
+                .macblock-side-meta { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+                .macblock-side-title { font-size: 13.5px; font-weight: 600; color: #0b0b0c; line-height: 1.25; }
+                .macblock-side-url {
+                    font-size: 11.5px;
+                    color: #8a8a90;
+                    line-height: 1.3;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    font-family: 'SF Mono', ui-monospace, Menlo, monospace;
+                }
+                .macblock-right { min-width: 0; }
+                .macblock-browser {
+                    background: #ffffff;
+                    border: 1px solid #e6e6e8;
+                    border-radius: 14px;
+                    box-shadow: 0 20px 60px rgba(11,11,12,0.10), 0 4px 14px rgba(11,11,12,0.05);
+                    overflow: hidden;
+                }
+                .macblock-chrome {
+                    display: flex;
+                    align-items: center;
+                    gap: 14px;
+                    padding: 10px 14px 0;
+                    background: linear-gradient(180deg, #f4f4f5 0%, #ececef 100%);
+                    border-bottom: 1px solid #e6e6e8;
+                }
+                .macblock-traffic { display: flex; gap: 6px; padding-bottom: 8px; }
+                .macblock-traffic span { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
+                .macblock-traffic span:nth-child(1) { background: #ff5f57; }
+                .macblock-traffic span:nth-child(2) { background: #febc2e; }
+                .macblock-traffic span:nth-child(3) { background: #28c840; }
+                .macblock-tabs { display: flex; align-items: flex-end; gap: 4px; flex: 1; }
+                .macblock-tab {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                    padding: 7px 10px 9px;
+                    background: #ffffff;
+                    border: 1px solid #e6e6e8;
+                    border-bottom: none;
+                    border-top-left-radius: 8px;
+                    border-top-right-radius: 8px;
+                    font-size: 12px;
+                    color: #0b0b0c;
+                    max-width: 220px;
+                }
+                .macblock-tab-favicon {
+                    width: 14px;
+                    height: 14px;
+                    border-radius: 3px;
+                    color: #fff;
+                    font-size: 9px;
+                    font-weight: 700;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-shrink: 0;
+                }
+                .macblock-tab-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+                .macblock-tab-close { font-size: 14px; color: #8a8a90; line-height: 1; padding-left: 2px; }
+                .macblock-tab-new { font-size: 16px; color: #8a8a90; padding: 0 8px 9px; line-height: 1; }
+                .macblock-urlbar {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    padding: 8px 14px;
+                    background: #ffffff;
+                    border-bottom: 1px solid #e6e6e8;
+                }
+                .macblock-urlbar-nav {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 22px;
+                    height: 22px;
+                    border-radius: 6px;
+                    color: #5a5a5f;
+                    font-size: 14px;
+                    line-height: 1;
+                }
+                .macblock-url {
+                    flex: 1;
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    background: #fafafa;
+                    border: 1px solid #e6e6e8;
+                    border-radius: 999px;
+                    padding: 5px 12px;
+                    font-size: 12px;
+                    color: #8a8a90;
+                    font-family: 'SF Mono', ui-monospace, Menlo, monospace;
+                    min-width: 0;
+                }
+                .macblock-url-lock { flex-shrink: 0; }
+                .macblock-url-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #5a5a5f; }
+                .macblock-viewport { position: relative; min-height: 480px; overflow: hidden; }
+                .macblock-page { position: absolute; inset: 0; padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+                .macblock-page-stripe { background: rgba(11,11,12,0.08); border-radius: 4px; }
+                .macblock-page-stripe-1 { height: 18px; width: 60%; }
+                .macblock-page-stripe-2 { height: 12px; width: 88%; }
+                .macblock-page-stripe-3 { height: 12px; width: 84%; }
+                .macblock-page-stripe-4 { height: 12px; width: 70%; }
+                .macblock-dim {
+                    position: absolute;
+                    inset: 0;
+                    background: rgba(11,11,12,0.55);
+                    backdrop-filter: blur(4px);
+                    -webkit-backdrop-filter: blur(4px);
+                }
+                .macblock-modal {
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    width: 78%;
+                    max-width: 480px;
+                    background: #ffffff;
+                    border-radius: 16px;
+                    overflow: hidden;
+                    box-shadow: 0 30px 80px rgba(0,0,0,0.55), 0 4px 12px rgba(0,0,0,0.3);
+                    border: 1px solid rgba(255,255,255,0.08);
+                }
+                .macblock-modal-titlebar {
+                    background: #0b0b0c;
+                    color: #ffffff;
+                    display: flex;
+                    align-items: center;
+                    padding: 12px 14px;
+                    gap: 10px;
+                    border-bottom: 1px solid rgba(255,255,255,0.06);
+                }
+                .macblock-modal-lock {
+                    width: 22px;
+                    height: 22px;
+                    background: rgba(239,68,68,0.2);
+                    border: 1px solid rgba(239,68,68,0.4);
+                    border-radius: 6px;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+                .macblock-modal-title {
+                    font-size: 13px;
+                    font-weight: 600;
+                    letter-spacing: -0.005em;
+                    flex: 1;
+                    text-align: left;
+                    text-transform: none;
+                    text-shadow: none;
+                    color: #ffffff;
+                    -webkit-text-fill-color: #ffffff;
+                }
+                .macblock-modal-x { font-size: 18px; color: rgba(255,255,255,0.4); line-height: 1; cursor: pointer; }
+                .macblock-modal-body { padding: 44px 24px 24px; display: flex; flex-direction: column; gap: 18px; }
+                .macblock-bubble {
+                    background: var(--olc-bubble-bg);
+                    color: var(--olc-bubble-text);
+                    border: var(--olc-bubble-border);
+                    border-radius: var(--olc-bubble-radius);
+                    border-bottom-left-radius: 4px;
+                    padding: 14px 16px;
+                    font-size: 14.5px;
+                    line-height: 1.5;
+                    font-weight: 500;
+                    box-shadow: var(--olc-bubble-shadow);
+                    font-family: var(--olc-bubble-font);
+                }
+                .macblock-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+                .macblock-chip {
+                    background: #fafafa;
+                    border: 1px solid #e6e6e8;
+                    color: #0b0b0c;
+                    padding: 7px 12px;
+                    border-radius: 999px;
+                    font-family: inherit;
+                    font-size: 12px;
+                    font-weight: 500;
+                    cursor: pointer;
+                    transition: background 120ms ease;
+                }
+                .macblock-chip:hover { background: #f2f2f4; }
+                .macblock-input {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    background: #fafafa;
+                    border: 1px solid #e6e6e8;
+                    border-radius: 999px;
+                    padding: 9px 14px;
+                    font-size: 12px;
+                    color: #8a8a90;
+                }
+                .macblock-input span { color: #626269; }
+
+                /* Dark-section overrides: macblock lives inside .olp-pitch so the
+                   text reads on the black background. The browser mockup stays
+                   white (it's a Mac browser, has to look like one). The
+                   archetype side cards switch to dark glass to match the rest
+                   of the bento cards in the section. */
+                .olp-pitch .macblock { padding: 0; margin-top: 96px; color: #ffffff; }
+                .olp-pitch .macblock-h2 { color: #ffffff; -webkit-text-fill-color: #ffffff; }
+                .olp-pitch .macblock-sub { color: rgba(255,255,255,0.66); }
+                .olp-pitch .macblock-side-label { color: rgba(255,255,255,0.5); }
+                .olp-pitch .macblock-side-row {
+                    background: rgba(255,255,255,0.04);
+                    border: 1px solid rgba(255,255,255,0.12);
+                    color: #ffffff;
+                    backdrop-filter: blur(10px);
+                    -webkit-backdrop-filter: blur(10px);
+                }
+                .olp-pitch .macblock-side-row:hover {
+                    background: rgba(255,255,255,0.08);
+                    border-color: rgba(255,255,255,0.22);
+                }
+                .olp-pitch .macblock-side-row-active {
+                    background: rgba(255,255,255,0.10);
+                    border: 2px solid rgba(255,255,255,0.85);
+                    padding: 9px 11px;
+                }
+                .olp-pitch .macblock-side-num { color: rgba(255,255,255,0.72); }
+                .olp-pitch .macblock-side-title { color: #ffffff; }
+                .olp-pitch .macblock-side-url { color: rgba(255,255,255,0.5); }
+
+                /* Feature grid (ported from overlord-landing-page) sits inside
+                   the same dark section. Override text colors + chat bubbles
+                   so everything reads as dark glass, matching the rest of the
+                   olp-pitch section instead of looking like an island of
+                   light-mode UI. Targeting only .olp-pitch keeps the iPhone
+                   hero bubbles up top untouched. */
+                .olp-pitch .macblock .feature-grid { margin: 64px auto 0; align-items: stretch; }
+                /* Stretch every column to the same height so the headers
+                   ("Tracks Everything", "Flexible Blocking", etc.) sit on the
+                   same baseline regardless of how tall each bubble stack is.
+                   The icon container fills the leftover space and pushes its
+                   bubbles to the bottom, so empty room collapses upward
+                   instead of pushing the header down. */
+                .olp-pitch .macblock .feature-item {
+                    display: flex;
+                    flex-direction: column;
+                    align-self: stretch;
+                    height: 100%;
+                }
+                .olp-pitch .macblock .feature-icon-container {
+                    flex: 1 1 auto;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: flex-end;
+                }
+                .olp-pitch .feature-text { color: #ffffff; }
+                .olp-pitch .feature-description { color: rgba(255,255,255,0.66); }
+                .olp-pitch .feature-icon-container .message-header { color: rgba(255,255,255,0.55); }
+                .olp-pitch .feature-icon-container .message-header strong { color: rgba(255,255,255,0.85); font-weight: 600; }
+                .olp-pitch .feature-icon-container .user-message,
+                .olp-pitch .feature-icon-container .agent-message,
+                .olp-pitch .feature-icon-container .olc-bubble {
+                    background: rgba(255,255,255,0.06) !important;
+                    border: 1px solid rgba(255,255,255,0.12) !important;
+                    color: #ffffff !important;
+                    box-shadow: 0 1px 0 rgba(255,255,255,0.08) inset !important;
+                }
+                .olp-pitch .feature-icon-container .olc-action {
+                    background: rgba(255,255,255,0.05) !important;
+                    border: 1px solid rgba(255,255,255,0.12) !important;
+                    color: #ffffff !important;
+                    box-shadow: 0 1px 0 rgba(255,255,255,0.08) inset !important;
+                }
+                .olp-pitch .feature-icon-container .olc-action-icon {
+                    background: rgba(255,255,255,0.10) !important;
+                    border-color: rgba(255,255,255,0.18) !important;
+                    color: rgba(255,255,255,0.92) !important;
+                }
+                .olp-pitch .feature-icon-container .olc-action-icon svg { stroke: rgba(255,255,255,0.92) !important; }
+                .olp-pitch .feature-icon-container .olc-action-title { color: #ffffff !important; }
+                .olp-pitch .feature-icon-container .olc-action-body { color: rgba(255,255,255,0.66) !important; }
+                .olp-pitch .feature-icon-container .olc-trackbar {
+                    background: rgba(255,255,255,0.05) !important;
+                    border: 1px solid rgba(255,255,255,0.12) !important;
+                    color: #ffffff !important;
+                    box-shadow: 0 1px 0 rgba(255,255,255,0.08) inset !important;
+                }
+                .olp-pitch .feature-icon-container .olc-trackbar-head { color: rgba(255,255,255,0.5) !important; }
+                .olp-pitch .feature-icon-container .olc-trackbar-label { color: #ffffff !important; }
+                .olp-pitch .feature-icon-container .olc-trackbar-val { color: rgba(255,255,255,0.66) !important; }
+                .olp-pitch .feature-icon-container .olc-trackbar-track { background: rgba(255,255,255,0.10) !important; }
+                .olp-pitch .feature-icon-container .olc-trackbar-fill { background: linear-gradient(90deg, #2f6bff 0%, #5a85ff 100%) !important; }
+
+                @media (max-width: 900px) {
+                    .macblock { padding: 0 20px; }
+                    .macblock-stage { grid-template-columns: 1fr; gap: 22px; }
+                    .macblock-h2 { font-size: 30px; }
+                    .macblock-side { order: 2; }
+                    .macblock-right { order: 1; }
+                    .macblock-side-label { display: none; }
+                    .macblock-side-list {
+                        flex-direction: row !important;
+                        flex-wrap: wrap;
+                        gap: 6px;
+                        justify-content: center;
+                    }
+                    .macblock-side-row {
+                        width: auto !important;
+                        padding: 7px 12px !important;
+                        border-radius: 999px !important;
+                        align-items: center !important;
+                        gap: 6px !important;
+                    }
+                    .macblock-side-row-active {
+                        padding: 7px 12px !important;
+                        border-width: 1px !important;
+                        background: #0b0b0c !important;
+                    }
+                    .macblock-side-num { display: none !important; }
+                    .macblock-side-url { display: none !important; }
+                    .macblock-side-meta { flex: none !important; }
+                    .macblock-side-title { font-size: 12px !important; font-weight: 600 !important; white-space: nowrap; }
+                    .macblock-side-row-active .macblock-side-title { color: #fff !important; }
+                    .macblock-modal { width: 92%; max-width: 92%; }
+                    .macblock-modal-body { padding: 32px 16px 16px; gap: 12px; }
+                    .macblock-bubble { padding: 11px 13px; font-size: 13px; line-height: 1.45; }
+                    .macblock-modal-title { font-size: 12px; }
+                    .macblock-page { padding: 18px 14px; }
+                    .macblock-page-stripe-1 { height: 14px; }
+                    .macblock-page-stripe-2, .macblock-page-stripe-3, .macblock-page-stripe-4 { height: 10px; }
+                    .macblock-chip { padding: 6px 10px; font-size: 11.5px; }
+                    .macblock-input { padding: 8px 12px; font-size: 11.5px; }
+                    .macblock-chrome { padding: 8px 10px 0; gap: 8px; }
+                    .macblock-traffic span { width: 9px; height: 9px; }
+                    .macblock-tab { padding: 6px 8px 8px; font-size: 11px; max-width: 140px; }
+                    .macblock-url-bar { padding: 5px 10px; font-size: 11px; }
+                }
+                

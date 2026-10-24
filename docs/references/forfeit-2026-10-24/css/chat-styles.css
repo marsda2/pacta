@@ -1,0 +1,478 @@
+/* Modern Chat Interface Styling */
+
+/* Chat Container */
+.chat-container {
+    height: 100vh;
+    background: var(--bg-primary, #000);
+    display: flex;
+    flex-direction: column;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Chat Header */
+.chat-header {
+    background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%);
+    color: white;
+    padding: 1rem 1.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.chat-header-content {
+    display: flex;
+    align-items: center;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.chat-header-avatar {
+    font-size: 2rem;
+    margin-right: 1rem;
+    width: 50px;
+    height: 50px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chat-header-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.chat-header-subtitle {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+/* Chat Input */
+.chat-input-container {
+    padding: 1rem 1.5rem;
+    background: white;
+    border-top: 1px solid #e9ecef;
+}
+
+.chat-input-wrapper {
+    display: flex;
+    gap: 0.75rem;
+    max-width: 800px;
+    margin: 0 auto;
+    align-items: flex-end;
+}
+
+.chat-input {
+    flex: 1;
+    padding: 1rem 1.25rem;
+    border: 2px solid #e9ecef;
+    border-radius: 25px;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+    resize: none;
+    min-height: 50px;
+    max-height: 120px;
+}
+
+.chat-input:focus {
+    border-color: #007AFF;
+}
+
+.send-button {
+    background: #007AFF;
+    color: white;
+    border: none;
+    padding: 1rem;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 50px;
+    height: 50px;
+}
+
+.send-button:hover {
+    background: #0056CC;
+    transform: scale(1.05);
+}
+
+.send-button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Chat Bubble Styling - Refined */
+
+.message-container {
+    padding: 1rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    max-width: 800px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.hidden {
+    display: none;
+}
+
+/* Styles for the new message wrapper */
+.message-wrapper {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px; /* Space between message groups */
+    width: 100%; /* Allow wrapper to take up most width */
+}
+
+/* Styles for the new message header */
+.message-header {
+    font-size: 12px;
+    color: var(--text-muted-2, #98989d); /* Use CSS variable with fallback */
+    margin-bottom: 3px; /* Space below header */
+    padding: 0 5px;    /* Slight horizontal padding to align with bubble edge */
+    font-weight: 400;
+}
+
+/* Target the strong tag within the header for the sender name */
+.message-header strong {
+    font-weight: 700; /* Bold for sender name */
+}
+
+/* Align agent messages (header and bubble) to the left */
+.message-wrapper.agent {
+    align-items: flex-start;
+}
+/* Align user messages (header and bubble) to the right */
+.message-wrapper.user {
+    align-items: flex-end;
+}
+/* Ensure header text aligns correctly for user */
+.message-wrapper.user .message-header {
+    text-align: right;
+}
+
+/* No longer need the centered .message-time */
+
+.agent-message, .user-message {
+    max-width: 85%;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.4;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    text-align: left;
+}
+
+.agent-message {
+    background: var(--bg-secondary, #1c1c1e); /* Use CSS variable with fallback */
+    color: var(--text-primary, #fff);
+    border: 1px solid var(--border-color, transparent);
+    border-radius: 12px;
+    padding: 4px 12px;
+    /* align-self handled by wrapper */
+}
+
+/* Styling for lists inside agent messages */
+.agent-message ul {
+    padding-left: 25px;
+    margin-top: 8px;
+    margin-bottom: 4px;
+}
+
+.agent-message li {
+    margin-bottom: 5px;
+}
+
+.user-message {
+    background: var(--bg-primary, rgb(26, 26, 26));
+    color: var(--text-primary, #fff);
+    border: 1px solid var(--border-color, rgb(35, 35, 35));
+    border-radius: 12px 12px 12px 8px; /* Asymmetric bottom-right corner */
+    padding: 8px 12px;
+    /* align-self handled by wrapper */
+}
+
+/* New Integration Message Style */
+.integration-message {
+    background-color: var(--bg-secondary, #1c1c1e); /* Use CSS variable with fallback */
+    color: var(--text-primary, #fff);
+    border-radius: 12px;
+    padding: 4px 12px 4px 25px; /* Match agent padding with extra left for bar */
+    font-size: 14px;
+    line-height: 1.4;
+    position: relative; /* Needed for positioning the vertical bar */
+    overflow: hidden; /* Ensure bar doesn't overflow rounded corners */
+    max-width: 85%; /* Keep similar width constraint */
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    text-align: left;
+}
+
+/* Vertical bar */
+.integration-message::before {
+    content: '';
+    position: absolute;
+    left: 8px; /* Position from the left edge */
+    top: 8px;  /* Position from the top */
+    bottom: 8px; /* Position from the bottom */
+    width: 4px; /* Width of the bar */
+    background-color: var(--border-color); /* Use border color for both themes */
+    border-radius: 2px; /* Slightly rounded ends for the bar */
+}
+
+/* Style for the title line */
+.integration-message .integration-title {
+    color: var(--text-primary, #fff);
+    font-weight: 600; /* Bold title */
+    margin-bottom: 4px; /* Space below title */
+    font-size: 14px;
+}
+
+/* Style for the content line (inherits color from .integration-message) */
+.integration-message .integration-content {
+    font-weight: 400; /* Regular weight for content */
+}
+
+.agent-message-image {
+    max-width: 80%; /* Keep image width contained */
+    /* align-self handled by wrapper if needed, or keep here */
+    align-self: flex-start; 
+    margin-bottom: 0; /* Remove bottom margin if inside a wrapper */
+    border-radius: 15px; 
+    overflow: hidden; 
+}
+
+/* If image is inside a wrapper, apply rounding there too */
+.message-wrapper .agent-message-image {
+     border-radius: 15px;
+     overflow: hidden;
+     /* Adjust max-width as needed */
+     max-width: 85%;
+}
+
+/* New Call Action Box Styling - Matched to agent-message */
+.call-action-box {
+    /* Background matches agent message */
+    background-color: var(--bg-secondary, #1c1c1e);
+    /* Removed border */
+    /* border: 1px solid rgba(0, 0, 0, 0.05); */
+    /* Matched border-radius */
+    border-radius: 12px;
+    /* Matched padding */
+    padding: 4px 12px;
+    /* Matched max-width */
+    max-width: 85%;
+    /* Removed specific width settings */
+    /* width: fit-content; */
+    /* min-width: 250px; */
+    line-height: 1.4;
+}
+
+.call-action-header {
+    display: flex;
+    align-items: center;
+    /* Adjusted margin slightly as subtitle is removed */
+    margin-bottom: 8px; 
+}
+
+/* Updated icon style for SVG */
+.call-action-icon {
+    /* display: none; */ /* Remove display: none */
+    /* Increased size */
+    width: 24px;
+    height: 24px;
+    margin-right: 8px; /* Adjust spacing if needed */
+    vertical-align: middle; /* Helps align SVG with text */
+    fill: #fff; /* White color */
+    filter: brightness(0) invert(1); /* Make SVG white for img tags */
+    /* Remove styles used for the block */
+    /* background-color: #ff9800; */
+    /* border-radius: 3px; */
+}
+
+.call-action-title {
+    /* Updated color to use CSS variable */
+    color: var(--text-primary, #fff);
+    font-weight: 700; /* Bold title */
+    font-size: 14px;
+}
+
+.call-action-body {
+    /* Container for subtitle and text */
+}
+
+/* .call-action-subtitle can be removed or left, as it's removed from HTML */
+/*
+.call-action-subtitle {
+    color: #ff9800; 
+    font-weight: 700; 
+    font-size: 0.9rem; 
+    display: block; 
+    margin-bottom: 5px; 
+}
+*/
+
+.call-action-text {
+    color: var(--text-primary, #fff); /* Use CSS variable with fallback */
+    font-weight: 400; /* Normal weight */
+    font-size: 14px;
+    margin: 0; /* Remove default paragraph margin */
+}
+
+/* Optional: Fake chart styles */
+.fake-chart {
+    height: 120px;
+    background: white;
+    border-radius: 12px;
+    padding: 12px;
+    border: 1px solid #e0e0e0;
+    position: relative;
+}
+
+.fake-chart::before {
+    content: '';
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    right: 12px;
+    height: 60px;
+    background: linear-gradient(90deg, 
+        #ddd 0%, #ddd 10%, 
+        #aaa 10%, #aaa 20%,
+        #ddd 20%, #ddd 30%,
+        #aaa 30%, #aaa 40%,
+        #0062E6 40%, #0062E6 50%,
+        #0062E6 50%, #0062E6 60%,
+        #0062E6 60%, #0062E6 70%,
+        #0062E6 70%, #0062E6 80%,
+        #33AEFF 80%, #33AEFF 90%,
+        #33AEFF 90%, #33AEFF 100%
+    );
+    clip-path: polygon(
+        0% 100%, 
+        10% 70%, 
+        20% 80%, 
+        30% 60%,
+        40% 50%,
+        50% 30%,
+        60% 40%,
+        70% 20%,
+        80% 30%,
+        90% 20%,
+        100% 10%,
+        100% 100%
+    );
+}
+
+/* New General Action Box Styling */
+.action-box {
+    background-color: var(--bg-secondary, #1c1c1e);
+    border-radius: 12px;
+    padding: 4px 12px;
+    max-width: 85%;
+    line-height: 1.4;
+    margin-bottom: 8px;
+}
+
+.action-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.action-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 8px;
+    vertical-align: middle;
+    fill: #fff;
+    filter: brightness(0) invert(1); /* Make SVG white for img tags */
+}
+
+.action-title {
+    color: var(--text-primary, #fff);
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.action-body {
+    /* Container for action content */
+}
+
+.action-text {
+    color: var(--text-primary, #fff);
+    font-weight: 400;
+    font-size: 14px;
+    margin: 0;
+}
+
+/* Call Status - For system notifications */
+.call-status {
+    background-color: var(--bg-secondary, #1c1c1e);
+    color: var(--text-primary, #fff);
+    font-weight: 600;
+    font-size: 14px;
+    padding: 4px 12px;
+    border-radius: 12px;
+    max-width: 85%;
+    text-align: center;
+    margin: 8px 0;
+}
+
+/* Light Mode Overrides */
+body.light-mode .agent-message {
+    background: rgba(0, 0, 0, 0.05);
+    color: #111 !important;
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+body.light-mode .agent-message * {
+    color: #111 !important;
+}
+
+body.light-mode .user-message {
+    background: rgba(0, 0, 0, 0.08);
+    color: #111 !important;
+    border-color: rgba(0, 0, 0, 0.15);
+}
+
+body.light-mode .user-message * {
+    color: #111 !important;
+}
+
+body.light-mode .message-header {
+    color: #666 !important;
+}
+
+body.light-mode .message-header strong {
+    color: #111 !important;
+}
+
+body.light-mode .integration-message {
+    background: rgba(0, 0, 0, 0.05);
+    color: #111 !important;
+}
+
+body.light-mode .integration-message * {
+    color: #111 !important;
+}
+
+body.light-mode .call-action-box,
+body.light-mode .action-box {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+body.light-mode .call-action-box *,
+body.light-mode .action-box * {
+    color: #111 !important;
+}
+
+body.light-mode .call-status {
+    background: rgba(0, 0, 0, 0.05);
+    color: #111 !important;
+} 

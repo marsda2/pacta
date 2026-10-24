@@ -1,5 +1,5 @@
 // Servidor local para api/*: reproduce el enrutado de Vercel (carpetas y [param]) sin vercel dev.
-// Uso: npm run dev:api  (lee DATABASE_URL de .env.local y escucha en el puerto 3000).
+// Uso: npm run dev:api  (lee DATABASE_URL de .env.local y escucha en el puerto 3000, o en PORT).
 import { readdirSync, statSync } from 'node:fs';
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import { join, relative, sep } from 'node:path';
@@ -12,6 +12,7 @@ interface Route {
 }
 
 const API_DIR = join(process.cwd(), 'api');
+const PORT = Number(process.env.PORT) || 3000;
 
 function collect(dir: string): string[] {
   return readdirSync(dir).flatMap((name) => {
@@ -96,4 +97,4 @@ createServer(async (req, res) => {
     console.error(error);
     if (!res.headersSent) out.status(500).json({ error: 'internal_error' });
   }
-}).listen(3000, () => console.log('API local en http://localhost:3000'));
+}).listen(PORT, () => console.log(`API local en http://localhost:${PORT}`));

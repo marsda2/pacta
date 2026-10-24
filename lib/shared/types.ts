@@ -12,8 +12,10 @@ export interface PactReviewDto {
   juryOpen: boolean;
   // Puede subir una segunda prueba.
   canRetry: boolean;
-  // Puede pedir un juez humano.
+  // Puede pedir un panel de jueces humanos.
   canAppeal: boolean;
+  // Fianza que deja en juego si apela (0 = cubierta por el Pass). Solo si canAppeal.
+  appealBondCents?: number;
   // Horas que quedan antes de que el stake pase al Vault si nadie lo resuelve.
   hoursLeft?: number;
 }
@@ -105,6 +107,30 @@ export interface RedeemResultDto {
   payoutCents: number;
   feeCents: number;
   yieldCents: number;
-  // 'whop': reembolso real de los stakes fallados; 'ledger': stakes sin pago (datos de demo).
+  // 'whop': reembolso real de los stakes fallados; 'credit': vuelve al saldo prepagado;
+  // 'ledger': stakes sin pago (datos de demo).
+  method: 'whop' | 'credit' | 'ledger';
+}
+
+// Saldo prepagado tal y como lo devuelve /api/vault/wallet.
+export interface WalletEntryDto {
+  id: string;
+  type: 'topup' | 'hold' | 'release' | 'vault_unlock' | 'withdraw';
+  amountCents: number;
+  at: number;
+  pactTitle?: string;
+}
+
+export interface WalletDto {
+  balanceCents: number;
+  // Stakes retenidos en pactos que siguen abiertos.
+  heldCents: number;
+  entries: WalletEntryDto[];
+}
+
+export interface WithdrawResultDto {
+  wallet: WalletDto;
+  withdrawnCents: number;
+  // 'whop': reembolso a la tarjeta de las recargas; 'ledger': recargas sin pago (datos de demo).
   method: 'whop' | 'ledger';
 }

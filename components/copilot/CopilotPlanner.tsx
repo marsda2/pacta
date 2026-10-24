@@ -1,7 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { Button, GlassCard, Icon, Text } from '@/components/ui';
+import { apiFetch } from '@/lib/api/client';
 import { formatCountdown } from '@/lib/shared/time';
 import { colors, radii } from '@/lib/theme';
 
@@ -15,7 +16,7 @@ const blockers: { value: Blocker; label: string }[] = [
   { value: 'clarity', label: 'Need clarity' },
 ];
 
-// Pasos de ejemplo por bloqueo. La versión final los generará el agente (ver ROADMAP, fase 6).
+// Pasos de respaldo por bloqueo: se muestran si Gemini no responde (sin red, sin clave o error).
 const plans: Record<Blocker, string[]> = {
   big: ['Open the document', 'Write three bullet points', 'Focus for 15 minutes'],
   distracted: ['Put your phone out of reach', 'Close every unrelated tab', 'Focus for one short block'],
@@ -32,10 +33,25 @@ export function CopilotPlanner({ onStart }: CopilotPlannerProps) {
   const [blocker, setBlocker] = useState<Blocker>('big');
   const [minutes, setMinutes] = useState<(typeof durations)[number]>(15);
   const [done, setDone] = useState<string[]>([]);
+  // Pasos que ya ha generado Pax por bloqueo; se piden una vez por bloqueo.
+  const [generated, setGenerated] = useState<Partial<Record<Blocker, string[]>>>({});
+
+  useEffect(() => {
+    if (generated[blocker]) return;
+    let active = true;
+    apiFetch<{ steps: string[] }>('/api/copilot/steps', { method: 'POST', body: { blocker } })
+      .then(({ steps }) => {
+        if (active) setGenerated((prev) => ({ ...prev, [blocker]: steps }));
+      })
+      .catch(() => undefined); // Sin respuesta se quedan los pasos de respaldo.
+    return () => {
+      active = false;
+    };
+  }, [blocker, generated]);
 
   const steps = useMemo<CopilotStep[]>(
-    () => plans[blocker].map((title, index) => ({ id: `${blocker}-${index}`, title, done: done.includes(`${blocker}-${index}`) })),
-    [blocker, done],
+    () => (generated[blocker] ?? plans[blocker]).map((title, index) => ({ id: `${blocker}-${index}`, title, done: done.includes(`${blocker}-${index}`) })),
+    [blocker, done, generated],
   );
   const toggle = (id: string) => setDone((list) => (list.includes(id) ? list.filter((x) => x !== id) : [...list, id]));
 

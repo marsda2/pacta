@@ -16,7 +16,7 @@
 | 5 | Agente auditor + jurado Terac + antes/después | 🟡 |
 | 6 | Copilot con IA y Pax reactivo | ⬜ |
 | 7 | Vault y Trust Score reales | ✅ (falta la micro-tarea de clemencia) |
-| 8 | Embeber en Whop, datos de demo y pulido | 🟡 (código listo; falta crear la app en Whop) |
+| 8 | Embeber en Whop, datos de demo y pulido | 🟡 (app y OAuth configurados; integración preparada, faltan consentimiento real y pruebas móviles) |
 | 9 | Demo y entrega | 🟡 (guion y checklist en docs/09) |
 | Extra | Pact Circles (opcional, solo si el flujo central es estable) | ⬜ |
 
@@ -43,7 +43,7 @@ Tokens, iconos y componentes portados del *UI Component Library* y de *Windows &
 - ✅ **Pax**, el companion: SVG portado a `react-native-svg` con expresiones (`idle`, `happy`, `talking`, `worried`, `sleeping`), saludo, parpadeo y respeto a "reducir movimiento". `PaxSays` (con globo de texto).
 - ✅ Galería de componentes en la ruta `/kit`.
 - ✅ Pax se presenta en su pestaña como una conversación: "Hey, I’m Pax…" → puntos de "escribiendo" → "Tell me what’s in the way…" (`PaxSays` acepta un array de mensajes).
-- ✅ Web de escritorio = landing (`components/landing/DesktopLanding.tsx`, puerta en `app/_layout.tsx`): la app se usa desde el móvil (cámara en vivo, ubicación), así que en ventanas ≥ 900 px con puntero preciso se muestra una landing con QR hacia el móvil. `Preview the app here` abre la app en un marco de móvil. `/witness`, `/jury` y `/kit` siguen abiertas en escritorio.
+- ✅ Landing de escritorio con QR construida anteriormente. **Cambio local del 2026-10-24:** la entrada del escritorio ahora muestra la bienvenida con Whop y la app en marco de móvil; los componentes de la landing se conservan.
 - 🟡 Logo: `PactaMark` es una marca provisional; falta el SVG oficial.
 - ⬜ Tipografía final (el kit parece una sans geométrica; ahora se usa la del sistema).
 - ⬜ Modo oscuro completo (por ahora `userInterfaceStyle: light`; solo Focus es oscuro).
@@ -59,6 +59,7 @@ Los seis flujos de *Windows & Flows* están construidos. Empezaron con un store 
 - ✅ 05 Revisión de testigo (invitado, sin cuenta) → `app/witness/[id].tsx`
 - ✅ 06 Resultado (cumplido / fallado) → `app/pact/[id]/result.tsx`
 - ✅ Pestañas: Home, Pacts (Today/Upcoming/Completed), Copilot, Progress.
+- ✅ **Local, 2026-10-24:** bienvenida sin sesión con acceso por Whop desde el primer paso; avatar → perfil → cerrar sesión. Rutas de cuenta protegidas y caché descartada al cambiar de usuario. También en escritorio. Pendientes despliegue, revisión visual y login completo real.
 - ✅ Verificado en el navegador (ancho móvil): crear pacto → pacto activo → prueba (modo demo) → revisión → testigo → "Pact kept". Typecheck limpio y `expo export -p web` genera las 16 rutas.
 - 🟡 Revisión visual en móvil real (Expo Go) y en distintos anchos. La cámara real solo se ha probado hasta el estado "sin cámara" (modo demo).
 - ✅ Enlaces directos en Vercel verificados en https://pacta-theta.vercel.app (`/kit`, `/pacts`, `/pact/new`, `/pact/<id>`, `/pact/<id>/proof`, `/witness/<id>`, `/api/health`). La web se exporta como SPA (`web.output: "single"`): con pre-renderizado, Vercel servía el HTML de la home en los enlaces directos y React lanzaba el error de hidratación #418.
@@ -73,7 +74,7 @@ La app ya lee y escribe en Supabase (esquema `pacta`) a través de `/api/*`.
 - ✅ Rutas: `GET/POST /api/pacts`, `GET /api/pacts/:id`, `POST /api/pacts/:id/proof`, `POST /api/pacts/:id/resolve`, `GET /api/proofs/:id/image`. Validación de entrada (título, stake, fecha límite, tipo real de imagen por sus primeros bytes, 1,5 MB máx.).
 - ✅ Proyección de la máquina de estados del servidor a los cinco estados de la UI (`toDto`).
 - ✅ Store en el cliente con React Query (`lib/store/pacts.tsx`): estados de carga y error, mutaciones, foto reducida a 1024 px antes de subirla. La sesión de foco sigue siendo local al dispositivo.
-- ✅ Identidad: usuario de demo (`whop_user_id = 'demo-user'`). El token de Whop llega en la fase 8.
+- ✅ Identidad local actual: OAuth de Whop o JWT del iframe verificados; sin credenciales → 401. Demo solo con `ALLOW_DEMO_USER=true` en API local, nunca en Vercel/production. Detalle en [COMO-FUNCIONA](COMO-FUNCIONA.md).
 - ✅ Migración `pacta_pacts_methods_images`: `pacts.proof_methods` y tabla `proof_images`.
 - ✅ Servidor de desarrollo de la API: `npm run dev:api` (puerto 3000, lee `.env.local`). Datos de demo: `npm run seed`.
 - ✅ Verificado: 24 comprobaciones de la API contra la base real (altas, validaciones, 409 en transiciones inválidas, imagen servida, CORS, Trust y Vault) y el flujo completo en el navegador: el pacto creado desde la UI quedó `REFUNDED` en Postgres con su `trust_event`. Typecheck y lint limpios.
@@ -81,6 +82,8 @@ La app ya lee y escribe en Supabase (esquema `pacta`) a través de `/api/*`.
 - ✅ Desplegado en Vercel (`8e16177`) y verificado en producción: las 24 comprobaciones de la API pasan contra https://pacta-theta.vercel.app, Home y un enlace directo `/pact/<uuid>` cargan datos reales sin errores de consola.
 
 ## Fase 4 · Pagos con Whop 🟡
+
+- ✅ **Código local del saldo:** recargas $10/$20/$50, abono idempotente por webhook, pactos con Balance desde $1, devolución al saldo al cumplir y rescate del Vault hacia el origen correcto. Selector Balance / Card / No money, saldo en Home y `/wallet`. Pendiente desplegar y comprobar una recarga real.
 
 - ✅ Cuenta de negocio `pacta` en Whop (`biz_3luEKKKfUOfpk8`) creada con `whop quickstart`; CLI con sesión OAuth.
 - ✅ Verificado con el CLI y la doc: checkout con `--plan` y `metadata`, eventos del webhook, firma (`webhook-signature`, `unwrapWebhook` de `@whop/sdk`), reembolso con `whop payments refund`.
@@ -97,20 +100,26 @@ La app ya lee y escribe en Supabase (esquema `pacta`) a través de `/api/*`.
 
 ## Fase 5 · Agente auditor y jurado Terac 🟡
 
+Cómo funciona todo junto: [COMO-FUNCIONA.md](COMO-FUNCIONA.md). Detalle y precios de Terac: [docs/04](docs/04-agente-terac.md).
+
 - ✅ Agente de visión `lib/server/vision-agent.ts` con Gemini 3.6 Flash (y Claude, por `AGENT_MODEL`), prompts versionados en `agent_prompts` (`v1-baseline` sembrado), reintentos ante 429/5xx.
-- ✅ Regla de aprobación en `pact-engine` (confianza ≥ 0.88, sin señales de trampa, no "agobiado"). Probada con la IA real: foto buena → reembolso; foto dudosa → ver política.
-- ✅ Política de revisión humana por stake ([docs/04 §7](docs/04-agente-terac.md)): segunda prueba, testigo, apelación (`POST /api/pacts/:id/appeal`), caducidad a las 48 h hacia el Vault y jurado de Terac solo con stake alto. 12 comprobaciones contra la base de datos.
-- ✅ Jurado de Terac: `api/jury/[id]`, `api/webhooks/terac` (firma verificada con un ping real), cierre del caso con Trust y Vault.
-- ✅ Set de evaluación de 12 fotos etiquetadas (`eval/`), `npm run eval` por modelo y prompt. `v1-baseline` con Gemini: 83% (10/12), falla la trampa del código digital.
-- 🟡 Ronda 1 en Terac lanzada el 2026-10-24 ($16.50, 1 experto, 12 fotos): esperando el voto.
-- ⬜ `POST /api/admin/calibrate` → `v2-terac` y tabla antes/después con números reales.
+- ✅ Regla de aprobación en `pact-engine` (confianza ≥ 0.88, sin señales de trampa, no "agobiado"). Probada con la IA real: foto buena → reembolso; foto dudosa → política de abajo.
+- ✅ Política de revisión humana por stake ([docs/04 §4](docs/04-agente-terac.md)): segunda prueba, testigo, apelación, caducidad a las 48 h hacia el Vault y jurado de Terac solo con stake alto (≥ `HUMAN_REVIEW_MIN_STAKE_CENTS`, hoy $20). 12 comprobaciones contra la base de datos.
+- ✅ Apelación con fianza: desde $15, fianza de $7.50 que sale del stake retenido, panel de 3 jueces, hasta 2 fotos extra y una nota, ventana de 48 h. Pantalla `app/pact/[id]/appeal.tsx`. Ganar → reembolso entero; perder → al Vault menos la fianza (`vault_ledger` tipo `fee`). Con el Pass no hay fianza. 16 comprobaciones contra la base de datos y probada en producción.
+- ✅ Lotes de apelaciones: `launchBatch` agrupa 3–5 apelaciones (o 2 tras 24 h, o 1 tras 48 h) en **un** estudio de Terac con el panel de 3 jueces; cada juez vota todos los casos en `/jury/queue`. `npm run batch:launch` (simulación gratis) y `-- --launch`. **Lanzamiento automático apagado** (`TERAC_AUTO_LAUNCH`) porque cada lote gasta saldo. 11 comprobaciones, incluido un borrador real de Terac.
+- ✅ Jurado de Terac: `api/jury/[id]`, cola genérica en `api/jury/round1.ts`, `api/webhooks/terac` (firma verificada con un ping real), cierre del caso con Trust y Vault, pago al juez solo si dejó su voto.
+- ✅ Precios de Terac medidos con borradores gratuitos: mínimo $5 de incentivo por estudio, +50 % de comisión, **$4.50 por juez** de 1 a 3 min y no admite 1 solo juez desde la API. Ver [docs/04 §2](docs/04-agente-terac.md).
+- ✅ Set de evaluación de 12 fotos etiquetadas (`eval/`), `npm run eval` por modelo y prompt. `v1-baseline` con Gemini: 83 % (10/12), falla la trampa del código digital.
+- 🟡 Ronda 1 en Terac lanzada el 2026-10-24 desde el panel ($16.50: $11 de incentivo + 50 %; 1 experto, 12 fotos): esperando el voto. Saldo de Terac: $83.50.
+- ⬜ `POST /api/admin/calibrate` → `v2-terac` y tabla antes/después con números reales, y su pantalla para los jueces.
 - ⬜ Fotos reales con el móvil para sustituir las generadas con IA (el modelo las marca por ser sintéticas).
-- ⬜ Botón de apelar en la app y lotes de casos de stake alto (`/jury/queue`).
+- ⬜ Probar un lote con jueces reales; meter en la cola los casos de stake alto sin apelación; decidir cuándo activar `TERAC_AUTO_LAUNCH`.
+- ⬜ Micro-tarea de clemencia (veredicto `MICRO_TASK`).
 
-## Fase 6 · Copilot con IA y Pax reactivo ⬜
+## Fase 6 · Copilot con IA y Pax reactivo 🟡
 
-- ⬜ Micro-pasos generados por el agente a partir del bloqueo ("Too big", "Distracted", "Need clarity"). Hoy son pasos fijos de ejemplo.
-- ⬜ Pax cambia de expresión según el estado real (preocupado cerca de la fecha límite, contento al cumplir, dormido sin pactos).
+- ✅ Micro-pasos generados por Gemini a partir del bloqueo ("Too big", "Distracted", "Need clarity"): `POST /api/copilot/steps` (`lib/server/copilot-agent.ts`, modelo `COPILOT_MODEL` o `AGENT_MODEL`). La app usa pasos de respaldo si Gemini falla.
+- ⬜ Pax cambia de expresión según el estado real (preocupado cerca de la fecha límite, contento al cumplir, dormido sin pactos). Ya se pone preocupado en la pantalla de duda de la IA.
 
 ## Fase 7 · Vault y Trust Score reales ✅
 
@@ -124,11 +133,17 @@ La app ya lee y escribe en Supabase (esquema `pacta`) a través de `/api/*`.
 
 ## Fase 8 · Embeber en Whop y pulido 🟡
 
-- ✅ Identidad de Whop (`lib/server/identity.ts`): verifica `x-whop-user-token` (ES256 con el JWKS de Whop, emisor `urn:whopcom:exp-proxy`, audiencia `WHOP_APP_ID`) porque `@whop/sdk` 2.x ya no trae `verifyUserToken`. Cada usuario de Whop tiene su fila en `users`; sin token, usuario de demo. Todas las rutas de pactos y del Vault la usan. Probado: token válido, caducado, de otro emisor, de otra app, firma alterada y un token falso contra el JWKS real de Whop (401).
+- ✅ **Configuración real Whop (2026-10-24):** OAuth public + PKCE con 6 callbacks guardados y releídos mediante `npm run whop:auth`. Sin client secret nuevo; autorización real responde 302 hacia el login de Whop.
+- ✅ **Código local:** OAuth fuera de Whop, perfil y salida, state/nonce, renovación de tokens, SecureStore nativo / sessionStorage web, protección de rutas y separación de caché por cuenta. 27 comprobaciones con OAuth simulado y Postgres real; cuentas QA borradas. Typecheck, lint y export web pasan.
+- ⬜ Desplegar bienvenida/sesión/perfil y completar login con consentimiento real; comprobar móvil. Arranque de Expo web rechazado por la revisión automática («blocked by policy»), por lo que no hay verificación visual de estos cambios en esta tarea.
+- ✅ Testigo invitado con enlace firmado para una prueba, caducidad de 48 h, invalidación al repetir prueba y resolución atómica sin doble devolución. Veredictos de simulación deshabilitados en producción.
+
+- ✅ Identidad de Whop (`lib/server/identity.ts`): verifica `x-whop-user-token` (ES256 con JWKS de Whop, emisor y audiencia) u OAuth Bearer. Cada usuario de Whop tiene su fila en `users`; sin credenciales, 401 (demo solo con opt-in local). Pactos y Vault usan esa identidad. La verificación del JWT tenía pruebas previas; la de OAuth tiene los 27 checks descritos arriba.
 - ✅ La web publicada llama a la API con rutas relativas, así el iframe de Whop adjunta el token.
 - ✅ Entrada `/experiences/[experienceId]`: al onboarding si el usuario no tiene pactos, a Home si los tiene. Dentro del iframe nunca sale la landing de escritorio (verificado con un iframe de 1200 px).
 - ✅ Pago dentro de Whop con `@whop/iframe` (`inAppPurchase`) para el stake y el Pass; fuera de Whop, la página del checkout.
 - ✅ Datos de demo (`npm run seed`, o `npm run seed -- user_XXXX` para una cuenta de Whop): dos semanas de historial, Trust 55, racha 2 y $60 en el Vault; un pacto cumplido en directo desbloquea el primer tramo.
+- ✅ Pacto de ejemplo sin dinero (stake 0, solo arriesga reputación y no pasa por Whop) para el onboarding y la demo (migración `pacta_reputation_pacts`).
 - ⬜ Crear la app en el dashboard de Whop (Hosting: base URL y *Experience view* `/experiences/[experienceId]`), instalarla en `pacta` y poner `WHOP_APP_ID` y `EXPO_PUBLIC_WHOP_APP_ID` en Vercel.
 - ⬜ Comprobar dentro de Whop que llega el token y que el modal de pago se abre.
 - ⬜ Pase de pulido: rendimiento, textos, estados de carga.
@@ -137,12 +152,13 @@ La app ya lee y escribe en Supabase (esquema `pacta`) a través de `/api/*`.
 
 - ✅ Pasos manuales previos, guion de 2 minutos con plan B, lista de planos del vídeo y entrega en [docs/09](docs/09-demo-y-entrega.md).
 - ⬜ Tres ensayos cronometrados y grabar el vídeo de respaldo.
+- ✅ Vídeo animado de pitch de **2 minutos en inglés**, con Remotion, voz/música/efectos de ElevenLabs y arquitectura contrastada con el código y los docs. Entrega local en `../PACTA-Demo-Video/out/pacta-film-120s-en-final.mp4`; [guía del vídeo](docs/10-video-pitch.md). No sustituye el ensayo ni la validación de pagos y jurados reales.
 - ⬜ Reembolsar los pagos de prueba y enviar repo, URL y vídeo.
 
 ## Ideas a futuro
 
 - ⬜ Tiempo de uso del móvil como prueba o señal (p. ej. pactos de "menos pantalla"). No funciona en Expo Go: iOS exige el entitlement de Family Controls (Screen Time API) y Android el permiso `PACKAGE_USAGE_STATS`, ambos con módulo nativo propio y un dev build. Valorar tras la demo.
-- ⬜ QR de la landing apuntando a `/onboarding` para el primer uso (hoy apunta a la raíz). Dentro de Whop ya se entra al onboarding si no hay pactos.
+- ✅ En el código local, la raíz sin sesión lleva al onboarding, también si se llega desde un QR; no hace falta cambiar el enlace del QR.
 
 ## Decisiones abiertas
 
@@ -165,8 +181,11 @@ npm run build:web        # export estático a dist/
 
 ## Registro de cambios
 
+- **2026-10-24:** entregado el vídeo animado de 120 segundos en inglés (Remotion + ElevenLabs). Distingue funciones actuales de conceptos futuros; la fase 9 sigue parcial. Ver [docs/10](docs/10-video-pitch.md).
+
 | Fecha | Cambio |
 |---|---|
+| 2026-10-24 | En `TestWhoop-main`: bienvenida con Whop, OAuth public + PKCE, perfil/salida y aislamiento por cuenta; conserva el saldo prepagado local. Configuración OAuth real guardada; código sin desplegar. 27 checks (Whop simulado, Postgres real), QA limpiada y compilación/tipos/lint verificados. Nuevo COMO-FUNCIONA y docs de identidad actualizados. |
 | 2026-10-24 | Entorno, GitHub, Vercel y Supabase (esquema `pacta`, bucket, rol y `DATABASE_URL`) listos. |
 | 2026-10-24 | Sistema de diseño, Pax y los seis flujos con datos de prueba. Galería en `/kit`. Este roadmap. |
 | 2026-10-24 | Subido a `main` y desplegado. Web exportada como SPA para corregir el error de hidratación en enlaces directos. |
@@ -175,3 +194,12 @@ npm run build:web        # export estático a dist/
 | 2026-10-24 | Pax se presenta en el chat de su pestaña; la web de escritorio muestra una landing con QR en lugar de la app. |
 | 2026-10-24 | Fase 5: agente auditor (Gemini 3.6 Flash), jurado y webhook de Terac, set de evaluación de 12 fotos, ronda 1 lanzada y política de revisión humana por stake. |
 | 2026-10-24 | Fases 4, 7 y 8: High-Yield Pass en Whop y webhook de membresías, Vault con rendimiento simulado y rescate por tramos, identidad con el token de Whop y pago en el iframe, seed de dos semanas. Guion de la demo en docs/09. |
+| 2026-10-24 | Fase 5: apelación con fianza ($15+, $7.50, panel de 3, 2 fotos y nota), lotes de apelaciones en un solo estudio de Terac, precios de Terac medidos y política de revisión humana por stake. Lanzamiento automático de lotes apagado. |
+| 2026-10-24 | Docs: nuevo [COMO-FUNCIONA.md](COMO-FUNCIONA.md) y revisión de README, docs/01, 02, 04, 05 y 06 con lo construido. |
+
+## Integración de las dos carpetas · 2026-10-24
+
+- Guardados ambos árboles en commits y resueltos los conflictos de sesión, saldo, landing, apelaciones, jurado y docs.
+- La entrada sin sesión sigue siendo la bienvenida de Whop; la landing nueva vive en `/landing` y su botón respeta la sesión.
+- Validación: 27 casos de autenticación + 20 de saldo/Vault/testigo/apelaciones; base real con QA borrada, OAuth simulado, sin cobros ni estudios pagados. Typecheck, lint y export web antes de publicar.
+- La publicación se hace al integrar el PR en `main`; Vercel tiene `main` configurada como rama de producción. El estado final se comprueba en GitHub/Vercel.

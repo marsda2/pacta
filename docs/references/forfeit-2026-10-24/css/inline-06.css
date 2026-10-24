@@ -1,0 +1,169 @@
+
+.tg-section {
+  padding: 80px 0;
+  background-color: #ffffff;
+  font-family: 'Figtree', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #0b0b0c;
+}
+.tg-inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 24px;
+  box-sizing: border-box;
+  width: 100%;
+}
+.tg-grid > * { min-width: 0; }
+.tg-quote, .tg-body { overflow-wrap: break-word; word-wrap: break-word; }
+
+/* Stats bar */
+.tg-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  padding: 16px 0 88px;
+  text-align: center;
+}
+.tg-stat-num {
+  font-family: 'Figtree', system-ui, sans-serif;
+  font-size: 80px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: #0b0b0c;
+  margin: 0 0 14px;
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+}
+.tg-stat-num .reel {
+  display: inline-block;
+  overflow: hidden;
+  height: 1em;
+  line-height: 1;
+  vertical-align: bottom;
+}
+.tg-stat-num .reel-track {
+  display: block;
+  transform: translateY(0);
+  will-change: transform;
+}
+.tg-stat-num .reel-digit {
+  display: block;
+  height: 1em;
+  line-height: 1;
+}
+.tg-stat-num .reel-static {
+  display: inline-block;
+  line-height: 1;
+}
+.tg-stat-label {
+  font-family: 'Figtree', system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  color: #0b0b0c;
+  letter-spacing: -0.005em;
+}
+
+/* Testimonials head */
+.tg-section-head {
+  max-width: 760px;
+  margin: 0 0 32px;
+}
+.tg-eyebrow {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: #2f4cff;
+  margin-bottom: 14px;
+  text-transform: uppercase;
+}
+.tg-eyebrow::before {
+  content: "— ";
+}
+.tg-h2 {
+  font-family: 'Figtree', system-ui, sans-serif;
+  font-size: 40px;
+  line-height: 1.08;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  margin: 0;
+  color: #0b0b0c;
+  text-shadow: none;
+  filter: none;
+  text-transform: none;
+}
+
+/* Testimonial cards — horizontal scroll carousel */
+.tg-scroll {
+  margin: 0 calc(50% - 50vw); /* bleed to viewport edges */
+  padding: 4px 0 16px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  scroll-padding-left: max(24px, calc(50vw - 590px));
+  scroll-padding-right: max(24px, calc(50vw - 590px));
+  scrollbar-width: none;
+}
+.tg-scroll::-webkit-scrollbar { display: none; }
+.tg-grid {
+  display: flex;
+  gap: 20px;
+  width: max-content;
+  max-width: none;
+  margin: 0 auto;
+  padding: 0 max(24px, calc(50vw - 590px));
+}
+.tg-card {
+  border: 1px solid #e6e6e8;
+  border-radius: 16px;
+  padding: 28px;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 0 0 360px;
+  scroll-snap-align: start;
+}
+.tg-headline {
+  font-family: 'Figtree', system-ui, sans-serif;
+  font-size: 18px;
+  line-height: 1.25;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: #0b0b0c;
+  margin: 0;
+}
+.tg-headline::before { content: "\201C"; }
+.tg-headline::after { content: "\201D"; }
+.tg-body {
+  font-size: 14px;
+  line-height: 1.55;
+  color: #626269;
+  margin: 0;
+  flex: 1;
+}
+.tg-attrib {
+  font-size: 13px;
+  font-weight: 600;
+  color: #5a5a5f;
+  margin: 0;
+}
+
+@media (max-width: 980px) {
+  .tg-stat-num { font-size: 56px; }
+  .tg-card { flex: 0 0 320px; }
+}
+@media (max-width: 768px) {
+  .tg-inner { padding: 0 20px; }
+  .tg-stats { grid-template-columns: 1fr; gap: 32px; padding: 8px 0 56px; }
+  .tg-h2 { font-size: 28px; }
+  .tg-stat-num { font-size: 52px; }
+  .tg-card { flex: 0 0 280px; padding: 24px; }
+  .tg-grid { padding: 0 20px; }
+}
+@media (max-width: 640px) {
+  .tg-section { padding: 56px 0; }
+  .tg-h2 { font-size: 26px; }
+}

@@ -1,0 +1,206 @@
+/* iPhone Mock-up Frame Styling - High Fidelity v7 */
+
+.iphone-preview {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 0; /* Add some padding around the preview */
+}
+
+.iphone-frame {
+    width: 300px;
+    height: 600px;
+    /* Adjusted gradient for lighter, silver/metallic feel like the image */
+    background: linear-gradient(165deg, #E0E0E0 0%, #CFCFCF 50%, #BDBDBD 100%); 
+    /* Increased rounding substantially */
+    border-radius: 84px; 
+    /* Further reduced padding for thinner bezel */
+    padding: 8px; 
+    position: relative; /* Needed for positioning pseudo-elements */
+    box-shadow: 
+        /* Slightly softer overall shadow */
+        0px 5px 15px rgba(0, 0, 0, 0.25), 
+        0px 15px 30px rgba(0, 0, 0, 0.2),
+        /* Inner highlight for metallic edge */
+        inset 0 0 0 1px rgba(255, 255, 255, 0.4); 
+    overflow: visible; /* Changed from hidden to allow buttons outside padding */
+}
+
+/* General Button Styling */
+.iphone-button {
+    position: absolute;
+    width: 3px; /* Thickness of buttons */
+    /* Darker grey gradient for buttons to contrast slightly with frame */
+    background: linear-gradient(to right, #B0B0B0, #A0A0A0); 
+    border-radius: 3px;
+    /* Adjusted shadow for darker buttons */
+    box-shadow: inset 0.5px 0 0.5px rgba(255, 255, 255, 0.3), 0 1px 1px rgba(0,0,0,0.1); 
+    z-index: 0; /* Behind screen but above frame background */
+}
+
+/* Volume Buttons (Left Side) - Position seems okay based on image */
+.iphone-button.volume-up {
+    left: -3px; /* Position just outside the frame padding */
+    top: 125px; /* Moved down */
+    height: 45px; 
+}
+
+.iphone-button.volume-down {
+    left: -3px;
+    top: 185px; /* Moved down */
+    height: 45px;
+}
+
+/* Side/Power Button (Right Side) - Position seems okay based on image */
+.iphone-button.side-button {
+    right: -3px; /* Position just outside the frame padding */
+    top: 140px; 
+    height: 75px; /* Longer button */
+}
+
+.iphone-screen {
+    background: #fff; 
+    /* Match frame rounding minus padding */
+    border-radius: 76px; 
+    width: 100%;
+    height: 100%;
+    overflow: hidden; /* Clip content like chat bubbles */
+    position: relative; /* Needed for positioning home indicator */
+    /* Slightly softer inner screen shadow */
+    box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.1); 
+    z-index: 1; /* Ensure screen is above buttons */
+}
+
+/* Dynamic Island Pill - Dimensions/position seem okay based on image */
+.iphone-frame::before {
+    content: '';
+    display: block;
+    /* Reduced width more */
+    width: 80px; 
+    /* Increased height more */
+    height: 23px; 
+    background: #000; 
+    position: absolute;
+    /* Moved down */
+    top: 18px; 
+    left: 50%;
+    transform: translateX(-50%);
+    /* Increased radius slightly for taller pill */
+    border-radius: 22px; 
+    z-index: 2; /* Above screen */
+    /* Add a subtle highlight to match screen */
+    box-shadow: inset 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+/* Removed the ::after rule that attempted simple buttons */
+/* 
+.iphone-frame::after { ... } 
+*/
+
+/* Home Indicator Bar - Style seems okay */
+.iphone-screen::after {
+    content: '';
+    display: block;
+    width: 35%; 
+    height: 5px; 
+    /* Slightly darker grey for home indicator */
+    background: #ccc; 
+    position: absolute;
+    bottom: 10px; 
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 10px; 
+    z-index: 3; /* Above screen content */
+}
+
+/* Media query adjustments */
+@media (max-width: 992px) {
+    .iphone-frame {
+        width: 280px;
+        height: 560px;
+        /* Adjusted rounding */
+        border-radius: 80px;
+        padding: 7px;
+        /* Keep gradient consistent */
+        background: linear-gradient(165deg, #E0E0E0 0%, #CFCFCF 50%, #BDBDBD 100%);
+    }
+    .iphone-screen {
+         /* Adjusted rounding */
+        border-radius: 73px;
+    }
+    .iphone-frame::before { /* Dynamic island adjustments */
+         /* Adjusted width/height */
+        width: 70px;
+        height: 21px;
+        /* Adjusted top */
+        top: 16px;
+        border-radius: 20px;
+    }
+     .iphone-screen::after { /* Home indicator */
+        width: 30%;
+        height: 4px;
+        bottom: 8px;
+     }
+     /* Adjust button positions/sizes */
+     .iphone-button.volume-up { top: 115px; height: 40px; }
+     .iphone-button.volume-down { top: 170px; height: 40px; }
+     .iphone-button.side-button { top: 125px; height: 70px; }
+}
+
+/* Additional adjustments for smaller mobile screens */
+@media (max-width: 768px) {
+    .iphone-frame {
+        width: 260px;
+        height: 520px;
+        /* Reduced border radius to minimize corner gaps */
+        border-radius: 50px;
+        padding: 6px;
+    }
+    .iphone-screen {
+        /* Reduced border radius to match frame */
+        border-radius: 44px;
+    }
+    .iphone-frame::before {
+        width: 65px;
+        height: 20px;
+        top: 14px;
+        border-radius: 18px;
+    }
+    .iphone-screen::after {
+        width: 28%;
+        height: 3px;
+        bottom: 7px;
+    }
+    .iphone-button.volume-up { top: 105px; height: 35px; }
+    .iphone-button.volume-down { top: 155px; height: 35px; }
+    .iphone-button.side-button { top: 115px; height: 60px; }
+}
+
+/* Even smaller screens */
+@media (max-width: 480px) {
+    .iphone-frame {
+        width: 240px;
+        height: 480px;
+        /* Further reduced border radius */
+        border-radius: 40px;
+        padding: 5px;
+    }
+    .iphone-screen {
+        /* Further reduced border radius */
+        border-radius: 35px;
+    }
+    .iphone-frame::before {
+        width: 60px;
+        height: 18px;
+        top: 12px;
+        border-radius: 16px;
+    }
+    .iphone-screen::after {
+        width: 25%;
+        height: 3px;
+        bottom: 6px;
+    }
+    .iphone-button.volume-up { top: 95px; height: 30px; }
+    .iphone-button.volume-down { top: 140px; height: 30px; }
+    .iphone-button.side-button { top: 105px; height: 55px; }
+} 

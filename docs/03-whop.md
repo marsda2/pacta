@@ -19,8 +19,14 @@ whop --help                # ver todos los grupos de comandos
 1. Dashboard de Whop → **Developer** → crear una app "PACTA".
 2. Anotar: `WHOP_APP_ID`, `WHOP_COMPANY_ID` (`biz_3luEKKKfUOfpk8`) y crear una **API key** con los permisos mínimos: productos, variantes, checkout, pagos, reembolsos, webhooks y memberships. Lee https://docs.whop.com/developer/guides/auth-scoping.md antes de dar la key al agente.
 3. En la sección **Hosting** de la app (verificado en la doc *App Views*): base URL `https://pacta-theta.vercel.app` y *Experience view* con la ruta `/experiences/[experienceId]`. Esa ruta existe en la app (`app/experiences/[experienceId].tsx`) y lleva al onboarding o a Home. Así PACTA se abre dentro de Whop.
-4. Dentro del iframe, Whop envía el JWT del usuario en la cabecera **`x-whop-user-token`**, solo en peticiones al mismo origen (por eso la web publicada llama a la API con rutas relativas, `lib/api/client.ts`). **`@whop/sdk` 2.x ya no trae `verifyUserToken`**, así que `lib/server/identity.ts` lo verifica como los SDK oficiales de Python y Ruby: ES256 con las claves de `https://api.whop.com/.well-known/jwks.json`, emisor `urn:whopcom:exp-proxy` y audiencia = `WHOP_APP_ID`. El `sub` es el `whop_user_id`. Sin cabecera (la URL de Vercel fuera de Whop) se usa el usuario de demo, salvo `WHOP_REQUIRE_USER_TOKEN=true`.
+4. Dentro del iframe, Whop envía el JWT en **`x-whop-user-token`**, solo en peticiones al mismo origen. `lib/server/identity.ts` lo verifica con ES256, JWKS de Whop, emisor `urn:whopcom:exp-proxy` y audiencia `WHOP_APP_ID`. Fuera del iframe se acepta el Bearer de **OAuth de Whop**, comprobado con `/oauth/userinfo`. Sin credenciales se devuelve 401; no se entra automáticamente en la cuenta demo.
 5. Pago dentro de Whop: `@whop/iframe` (`inAppPurchase({ planId, id })`) abre el modal de pago sin salir del iframe (`lib/whop.ts`). Necesita `EXPO_PUBLIC_WHOP_APP_ID`. Fuera de Whop se abre la página del checkout.
+
+### Bienvenida y login (2026-10-24; código local)
+
+La bienvenida pide **Continue with Whop**. OAuth usa PKCE S256, state, nonce y los scopes `openid profile email`. `npm run whop:auth` ya configuró y verificó la app `app_3r1c2LEetOyasW` como **public** y registró los callbacks `https://pacta-theta.vercel.app/auth/callback`, `pacta://auth/callback`, y localhost/127.0.0.1 en puertos 8081/8082. Conserva los callbacks previos. La app public no requiere client secret; las claves de servidor siguen en `.env.local`/Vercel.
+
+El avatar abre `/profile`, con salida de PACTA. Se elimina la sesión del dispositivo y se revoca el refresh token si hay conexión. Se reutiliza la cuenta existente por `whop_user_id`. El login completo con consentimiento y el despliegue de esta UI siguen pendientes. Pruebas: `npm run check:auth` (27 comprobaciones; OAuth simulado, base real y limpieza de QA), y autorización real aceptada por Whop (302 al login). [Guía oficial de OAuth](https://docs.whop.com/developer/guides/oauth.md).
 
 ### ¿Vercel o `whop apps deploy`?
 La CLI puede alojar la app (`whop apps deploy`, `whop apps logs`). **Plan por defecto: Vercel**, porque sabemos que sirve Expo web + funciones serverless. A las 10:45, revisa `whop apps deploy --help`: si soporta nuestro stack, alojar en Whop suma puntos con los jueces de Whop. Decídelo en 10 minutos como máximo y no cambies después.
@@ -114,7 +120,8 @@ WHOP_STAKE_PRODUCT_ID=   # opcional: el stake funciona sin producto
 WHOP_PASS_PRODUCT_ID=    # prod_QdKfivmFTDf6L (High-Yield Pass)
 WHOP_PASS_PLAN_ID=       # opcional: reutilizar un plan ya creado
 EXPO_PUBLIC_WHOP_APP_ID= # el mismo app_… que WHOP_APP_ID, para el modal de pago del iframe
-WHOP_REQUIRE_USER_TOKEN= # true = la API exige el token de Whop
+ALLOW_DEMO_USER=false    # opt-in solo para API local; Vercel siempre exige sesión
+WHOP_OAUTH_REDIRECT_URIS= # callbacks adicionales exactos, separados por comas
 ```
 
 ## 10. Limpieza después de la demo

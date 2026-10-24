@@ -1,14 +1,12 @@
-# 04 · Agente auditor + jurado humano en Terac
+# 04 · Agente auditor y jurado humano en Terac
 
-> El 40% de la nota es demostrar una **mejora medible impulsada por humanos**. Este documento es el núcleo de eso.
+> El 40% de la nota es demostrar una **mejora medible impulsada por humanos**. Este documento es el núcleo de eso. Para una visión de conjunto, empieza por [COMO-FUNCIONA.md](../COMO-FUNCIONA.md). Última revisión: **2026-10-24**; todo lo marcado como "medido" o "verificado" se comprobó contra la API real de Terac.
 
-Los nombres de las tools, campos y callbacks de Terac están marcados con **[verificar]**: confírmalos con la documentación o el equipo de Terac en el evento.
+## 1. Agente auditor (visión)
 
-## 1. Agente auditor (Claude visión)
+**Entrada:** la foto, el título del pacto, el `day_code` esperado y el `emotional_state` (`normal` / `overwhelmed`).
 
-**Entrada:** URL firmada de la foto, título del pacto, `day_code` esperado, `emotional_state` y la hora de captura.
-
-**Salida estructurada (JSON schema / tool use):**
+**Salida estructurada (JSON schema):**
 
 ```json
 {
@@ -21,109 +19,134 @@ Los nombres de las tools, campos y callbacks de Terac están marcados con **[ver
 }
 ```
 
-**Regla de oro (en `pact-engine`, no en el prompt):**
-- `verdict = APPROVE` **y** `confidence ≥ 0.88` **y** `cheat_signals = ["none"]` **y** `emotional_state != overwhelmed` → aprobado por el agente.
-- En cualquier otro caso → **duda**, y quién la resuelve depende del stake (sección 7). **No va siempre a Terac.**
-- El umbral (0.88) es una constante en `lib/shared/rules.ts`.
+**Regla de oro (en `lib/shared/rules.ts` → `shouldAutoApprove`, no en el prompt):** el agente aprueba solo si `verdict = APPROVE` **y** `confidence ≥ 0.88` **y** `cheat_signals = ["none"]` **y** `emotional_state != overwhelmed`. En cualquier otro caso hay **duda**, y quién la resuelve depende del stake (§4). **No todo va a Terac.**
 
-**Prompts versionados** en la tabla `agent_prompts`:
-- `v1-baseline`: instrucciones genéricas. A propósito, se deja engañar por fotos de una pantalla o por pruebas viejas.
-- `v2-terac`: v1 + reglas aprendidas + ejemplos few-shot sacados de los votos de Terac (sección 4).
+**Proveedor y modelo** (`lib/server/vision-agent.ts`): el proveedor se deduce del modelo. `gemini-*` usa Google (por defecto `gemini-3.6-flash`, ≈ $0.002 y ~3 s por foto); cualquier otro usa Anthropic. Se cambia con `AGENT_MODEL`. Reintenta con espera ante 429/5xx (Gemini devolvió 503 por demanda durante las pruebas). Un rechazo o bloqueo del modelo cuenta como duda, nunca como aprobación.
 
-Modelo: `gemini-3.6-flash` por defecto (≈ $0.002 por foto y ~3 s); se cambia con `AGENT_MODEL` (`gemini-*` usa Google, el resto Anthropic). Compáralos con `npm run eval -- v1-baseline <modelo> <modelo>`.
+**Prompts versionados** en la tabla `agent_prompts` (`AGENT_PROMPT_VERSION`):
+- `v1-baseline`: instrucciones genéricas, sembrado por el código la primera vez.
+- `v2-terac`: v1 + reglas aprendidas + ejemplos few-shot sacados de los votos de Terac (§6). **Pendiente.**
 
-## 2. Conexión con Terac MCP
+**Resultado medido** (`npm run eval -- v1-baseline gemini-3.6-flash`, 12 fotos): precisión **83 % (10/12)**, trampas detectadas 5/6, 1 aprobación falsa (el código escrito digitalmente sobre la foto) y 1 derivación de más (una foto legítima marcada "generada por IA"). Con las 8 fotos fáciles iniciales acertaba el 100 %, por eso se añadieron 4 trampas sutiles. **Limitación:** las 12 fotos están generadas con IA, y el modelo a veces rechaza por eso; ver §5.
 
-Dos maneras de conectarse (elige la que Terac soporte):
+## 2. Cómo funciona Terac (verificado)
 
-- **A. Cliente MCP en el servidor:** `lib/server/terac.ts` abre una sesión MCP (`@modelcontextprotocol/sdk`) contra la URL del servidor MCP de Terac con `TERAC_API_KEY` y llama directamente a la tool de crear tarea. Es determinista: recomendada para el flujo de dinero.
-- **B. Conector MCP de la API de Claude:** se le pasa el servidor MCP de Terac al agente y es Claude quien decide crear la tarea. Luce más "autónomo", pero es menos predecible. Úsala solo para la generación de micro-tareas, si sobra tiempo.
+**Modelo mental.** Terac no "etiqueta una imagen". **Contrata personas**: se crea una *opportunity* (un estudio) y cada persona que pasa el cuestionario hace una *task*. Para nuestro caso la task es `interview` con un `task_url`: **una página nuestra** donde el juez ve la foto y vota. Terac añade `?submissionId=…&teracSubmissionId=…&taskId=…` a esa URL. El voto llega a **nuestro** servidor, no a Terac.
 
-**Verificado en la doc de Terac (oct 2026, API v2 beta):**
+**Ciclo de un juez:**
+1. Terac invita a quien pasa los filtros y el cuestionario (después hace una entrevista corta por voz con su IA, sin coste extra pero con más espera).
+2. El juez abre `task_url` (`/jury/…`), vota y nuestra API lo guarda en `jury_tasks.raw.votes` (antes comprueba con `GET /submissions/{id}` que es de ese estudio y está `screen_passed` o `in_progress`).
+3. La página lo devuelve a `https://terac.com/api/external/callback?…&result=completed`; su envío pasa a `awaiting_review`.
+4. Terac manda el webhook `submission.status.change` a `POST /api/webhooks/terac`: **si el juez dejó voto, se aprueba (se le paga); si no, se rechaza.** El estado real se pregunta a la API, no se confía en el cuerpo del evento.
 
-- MCP: `https://terac.com/api/mcp` (HTTP streamable, OAuth al conectar, sin API key). Configurado en `.mcp.json`; se autentica con `/mcp`.
-- Tools del MCP: `terac_request_feasibility` → `terac_get_feasibility_request` (hasta `PRICED`, da `cpi_usd`) → `terac_launch_draft_opportunity`; después `terac_get_submissions`, `terac_get_context`, `terac_pause_opportunity`, `terac_list_opportunities`.
-- REST (para el servidor en Vercel): base `https://terac.com/api/external/v2`, `Authorization: Bearer <API key>`. Spec: `https://terac.com/docs/developers/openapi.json`.
-- **Terac no tiene "tarea con foto + opciones".** Contrata personas (`opportunity`) y estas hacen una `task`: `interview` con `task_url` (una página tuya donde el humano ve la foto y vota), o `file_upload`. Por tanto, PACTA debe alojar una página de jurado (`/jury/[id]`) y usar `review_type: "manual_review"`; el veredicto lo guarda la propia app y se aprueba la submission con `POST /submissions/{id}/approve`. Terac añade `submissionId`/`teracSubmissionId`/`taskId` a la URL.
-- Webhooks: eventos `submission.status.change` y `submission.approved`; firma `base64(HMAC-SHA256(secret, X-Terac-Request-Timestamp + cuerpo))`. Hay sandbox (`POST /opportunities/{id}/test-submissions`) para probarlos sin pagar.
+**Conexión:**
+- **MCP** (`https://terac.com/api/mcp`, OAuth, sin API key; `.mcp.json`): para trabajar *desde Claude* (crear borradores, ver envíos, aprobar). No lo usa el servidor.
+- **REST** (`https://terac.com/api/external/v2`, `Authorization: Bearer TERAC_API_KEY`; spec en `/docs/developers/openapi.json`): lo usa el servidor (`lib/server/terac.ts`). Es API v2 **beta**.
+- **Webhook** `q0kezx9h6yjflr5kp4l9auej` → `https://pacta-theta.vercel.app/api/webhooks/terac`, eventos `submission.status.change` y `submission.approved`. Cuerpo `{event_id, event_type, occurred_at, resource_id}` (`resource_id` = la submission). Firma en la cabecera `x-terac-request-signature`: `base64(HMAC-SHA256(secreto, x-terac-request-timestamp + cuerpo))`. Idempotencia con `x-event-id` en `webhook_events`.
+- **Sandbox:** `test-submissions` solo funciona en una organización sandbox; la nuestra no lo es. Un voto real solo se prueba con un juez real.
 
-**Tarea que se crea** (la forma de abajo es el diseño original; adáptala a lo anterior):
+**Precios y límites (medidos creando borradores gratuitos):**
 
-```
-title:        "Audit proof for pact #<id>"
-instructions: "El usuario apostó $<stake> a: '<título>'. Debe verse el código <day_code> escrito a mano.
-               ¿Lo cumplió de verdad o es una prueba falsa o de bajo esfuerzo?
-               Si pide clemencia por agobio, propón una micro-tarea de 10 minutos demostrable con foto."
-media:        URL firmada de la foto (validez suficiente para que la revisen: 2–4 h)
-options:      APPROVE | REJECT | CHEAT | MICRO_TASK (+ texto libre para la micro-tarea)
-callback:     https://pacta.vercel.app/api/webhooks/terac   (si Terac admite webhooks)
-```
+| Dato | Valor |
+|---|---|
+| Incentivo mínimo por estudio | **$5** |
+| Comisión de Terac | **50 %** sobre el incentivo |
+| Precio por juez, tarea de 1 a 3 min | **$4.50** ($3 de incentivo) |
+| Precio por juez, tarea de 4 a 8 min | $6.00 (a veces $4.50: es una estimación automática y varía) |
+| Estudio de 1 juez desde la API | **Rechazado** (el presupuesto de $3 queda por debajo de los $5) |
+| Estudio de 2 / 3 / 4 / 5 jueces (1–3 min) | $9.00 / **$13.50** / $18.00 / $22.50 |
+| Fijar el incentivo a mano | Solo desde el panel de Terac (la API no deja). Así se hizo la ronda 1: $11 + 50 % = **$16.50** |
+| Lanzar sin cuestionario | Rechazado; el cuestionario es obligatorio |
+| Crear un borrador | Gratis y **no idempotente**: un fallo de red puede dejar borradores duplicados (se borran con `DELETE /opportunities/{id}`) |
 
-**Recepción del veredicto:**
-- Con webhook: `/api/webhooks/terac` → verificar la firma → `jury_tasks.verdict` → `pact-engine.transition`.
-- Sin webhook (respaldo): la pantalla `jury.tsx` hace polling a `GET /api/jury/:id` cada 10 s, y el servidor consulta el estado de la tarea en Terac.
-- **Timeout:** si en la demo no hay respuesta en N minutos, el pacto queda en `JURY_PENDING` y se enseña un caso ya resuelto de antes. Nunca dependas de un voto en vivo para la demo.
+La cuenta es "Pacta" (slug `pacta-mvmmnfkd`, proyecto "Default project"), con **$83.50** de saldo tras la ronda 1.
 
-## 3. Ronda 1 en Terac (lanzar a las 13:00 a más tardar)
+## 3. Los tres usos del jurado
 
-Las respuestas humanas tardan, así que se lanzan **pronto**.
+| Uso | Estudio de Terac | Jueces | Cierra el pacto |
+|---|---|---|---|
+| **Ronda 1** (calibración) | Uno, lanzado a mano (`d32resa6t76d99lnsvhxqu5w`), 12 fotos | 1 | No: solo guarda votos (`raw.round = 1`) |
+| **Apelación** | Uno por **lote** de 3–5 apelaciones (§4) | 3 (mayoría) | Sí, con la fianza |
+| **Stake alto** (duda de la IA con stake ≥ umbral) | Caso individual atado a `TERAC_JURY_OPPORTUNITY_ID` (sin automatizar del todo) | 1 | Sí |
 
-Set de **8–10 pruebas reales** guardado en `eval/set.json`, cada una con su etiqueta "verdad":
+La página de los jueces es `/jury/[id]` (un caso) o `/jury/queue` (varios casos; `/jury/round1` es el mismo componente porque ese estudio ya la tenía registrada). La API de la cola vive en `api/jury/round1.ts` (nombre histórico) para no pasar el límite de **12 funciones** de Vercel Hobby.
 
-| # | Prueba | Etiqueta esperada |
+## 4. Revisión humana, apelaciones y coste
+
+Un juez de Terac cuesta más que la comisión de un pacto pequeño, así que **un humano no interviene siempre**:
+
+| Situación | Quién decide |
+|---|---|
+| La IA está segura | La IA, gratis |
+| Duda y stake **< `HUMAN_REVIEW_MIN_STAKE_CENTS`** (hoy $20) | Sin humano: **segunda prueba** (máx. 2), **testigo** o **apelación**. Si en 48 h nadie lo resuelve → Vault (−30 de Trust, no −50) |
+| Duda y stake **≥ umbral** | Jurado de Terac, caso abierto al instante (coste de PACTA) |
+| **Apelación** del usuario | Panel de 3 jueces de Terac |
+| Trampa | −50 de Trust y 7 días sin retiros **solo si el jurado vota `CHEAT`**; la sospecha de la IA sola nunca lo hace |
+
+- Equivocarse con un stake bajo sale barato: el dinero no se pierde, pasa al Vault y se recupera reconstruyendo el Trust.
+- El umbral es $20 porque el stake máximo es $20 (Whop no tiene sandbox). En producción, súbelo a $30–40 con `HUMAN_REVIEW_MIN_STAKE_CENTS`.
+- La caducidad de 48 h solo cuenta si la IA llegó a opinar: una caída del proveedor no penaliza al usuario.
+
+**Apelación con fianza** (`appealPact`, `lib/shared/rules.ts` → `APPEAL_*`, pantalla `app/pact/[id]/appeal.tsx`):
+
+| Condición | Valor |
+|---|---|
+| Quién puede | Stake **≥ $15**; con el High-Yield Pass, cualquier stake (2 al mes, sin fianza) |
+| Cuándo | Mientras el pacto está en `AI_REVIEW` (48 h desde la duda de la IA) |
+| Fianza | **$7.50**, que sale del stake que PACTA ya retiene: no se cobra nada nuevo |
+| Pruebas extra | Hasta **2 fotos** y una **nota** de 280 caracteres, que ven los jueces |
+| Panel | **3 jueces**, mayoría estricta (sin mayoría → rechazo; trampa solo con mayoría de `CHEAT`) |
+| Si gana el usuario | Stake devuelto **entero**, sin fianza, +20 de Trust. Es un falso rechazo de la IA: ejemplo para calibrar |
+| Si pierde | El stake va al Vault **menos la fianza** (`vault_ledger` tipo `fee`), −30 de Trust (−50 si es trampa) |
+
+**El problema del coste y por qué hay lotes.** Un estudio de 3 jueces cuesta **$13.50** (hasta $18), más que la fianza de $7.50. Por eso las apelaciones **esperan en una cola** (`jury_tasks` con `raw.appeal = true` y sin estudio) y `launchBatch` (`lib/server/appeal-study.ts`) las agrupa en **un solo estudio de 3 jueces**:
+
+| Casos en la cola | Cuándo se lanza | Duración | Coste por caso (con $13.50) |
+|---|---|---|---|
+| 3 a 5 | Al momento | 5–8 min (1,5 min por caso) | $4.50 a $2.70 |
+| 2 | Tras 24 h | 3 min | ≈ $6.75 |
+| 1 | Tras 48 h | 3 min | $13.50 (lo asume PACTA) |
+
+Cada juez vota **todos** los casos en una página; cada caso se cierra solo al llegar a 3 votos y aplica el veredicto. La fianza de $7.50 cubre el coste en todos los casos salvo el suelto.
+
+**Lanzamiento apagado por defecto.** Cada lote gasta saldo de Terac, así que el disparador automático (al apelar y al leer pactos) solo actúa con `TERAC_AUTO_LAUNCH=true`. A mano: `npm run batch:launch` (simulación: crea un borrador, lee el precio y lo borra) y `npm run batch:launch -- --launch` (lanza de verdad; `--force` ignora el tamaño mínimo). Con el automático apagado, una apelación queda en la cola sin gastar nada.
+
+## 5. Ronda 1 y set de evaluación
+
+`eval/set.json` + `eval/images/`: **12 pruebas etiquetadas** (se ejecutan con `npm run eval`; se siembran como casos del jurado con `npm run seed:eval`).
+
+| # | Prueba | Etiqueta |
 |---|---|---|
-| 1–3 | Legítimas (gimnasio, libro abierto, comida sana) con el código visible | APPROVE |
-| 4 | Foto de una **pantalla de otro monitor** con la tarea | CHEAT |
-| 5 | Apunte viejo o foto reutilizada (sin código o con un código incorrecto) | CHEAT |
-| 6 | Escena que no tiene nada que ver | REJECT |
-| 7 | Legítima pero ambigua (mala luz) | APPROVE |
-| 8 | "Estoy agobiado, no pude" → pide clemencia | MICRO_TASK |
+| 01–03 | Legítimas (gimnasio, libro, comida) con el código visible | APPROVE |
+| 04 | Foto de una pantalla de monitor (se ve el marco) | CHEAT |
+| 05 | Papel con el código equivocado (W2KC, esperado H4NB) | CHEAT |
+| 06 | Escena sin relación (perro en la playa) | REJECT |
+| 07 | Legítima con poca luz | APPROVE |
+| 08 | "Agobiado, no pude" | MICRO_TASK |
+| 09 | Pantalla recortada a pantalla completa, sin marco | CHEAT |
+| 10 | Gimnasio con el código escrito digitalmente encima | CHEAT |
+| 11 | Foto publicitaria de estudio de otra persona | CHEAT |
+| 12 | Foto de una foto impresa | CHEAT |
 
-Preguntas a los humanos: **(A)** ¿legítima o trampa?, y por qué; **(B)** si pide clemencia, ¿qué micro-tarea de 10 minutos le exigirías?
+**Estado:** lanzada el 2026-10-24 a las 19:33 UTC desde el panel de Terac (1 juez, $16.50, ventana hasta el 31-oct). En la última comprobación había 0 envíos. El estudio pide un cuestionario corto (familiaridad con fotos editadas, inglés).
 
-## 4. "After": calibración del agente (16:00)
+**Limitación importante:** las 12 fotos son de IA (Nano Banana y Pillow), no hechas con un móvil. Gemini marca algunas por "parecer generadas", y un humano también puede votar "fake" por eso. Para una verdad de referencia defendible hay que sustituirlas por unas 10 fotos reales (3 buenas con código, 1 con poca luz, trampas físicas como fotografiar una pantalla o una impresión, código equivocado, escena irrelevante, "agobiado").
 
-`POST /api/admin/calibrate`:
-1. Lee los veredictos y motivos de Terac de la ronda 1.
-2. Le pide a Claude que los resuma en **reglas** ("si la imagen tiene muaré o bordes de pantalla → screen_photo") y elige 3–4 ejemplos few-shot.
+## 6. "After": calibración del agente (pendiente)
+
+`POST /api/admin/calibrate` (aún no existe):
+1. Lee los veredictos y motivos de Terac de la ronda 1 y los **de las apelaciones ganadas** (falsos rechazos).
+2. Resume los votos en **reglas** ("si la imagen tiene bordes de pantalla → `screen_photo`") y elige 3–4 ejemplos few-shot.
 3. Guarda `agent_prompts.v2-terac`.
-4. Ejecuta **el mismo set** con v1 y con v2 y guarda `eval_runs` para cada uno.
+4. Ejecuta **el mismo set** con v1 y con v2 y guarda `eval_runs` para cada uno (`npm run eval -- v2-terac`).
 
-Métricas para la pantalla `admin/calibration.tsx`:
+La tabla para los jueces (precisión, trampas detectadas, aprobaciones falsas, % derivado a humanos) debe salir de `eval_runs` reales: **no se inventan números**. Si v2 no mejora, se ajustan las reglas y se repite; ese ciclo también es una historia válida. Demo en vivo: la misma foto trampa pasa con v1 y queda bloqueada con v2.
 
-| Métrica | v1-baseline | v2-terac |
-|---|---|---|
-| Precisión frente a las etiquetas humanas | ej. 5/8 | ej. 8/8 |
-| Trampas detectadas | 0/2 | 2/2 |
-| Aprobaciones falsas (dinero liberado a un tramposo) | 2 | 0 |
-| % de casos derivados a humanos | — | — |
-
-Además, **una demo en vivo**: la misma foto de pantalla pasa con v1 (✅ se liberaría el dinero) y queda bloqueada con v2 (🔒 Vault + jurado). Es el momento clave del pitch.
-
-> No inventes números: la tabla tiene que salir de `eval_runs` reales. Si v2 no mejora, ajusta las reglas y vuelve a ejecutar. Ese ciclo también es una historia válida.
-
-## 5. Votos de amigos (Pact Circles) frente a Terac
+## 7. Votos de amigos (Pact Circles) frente a Terac
 
 Si se construye Pact Circles (ver 07), los votos del círculo son **etiquetas débiles**. No entran en `eval/set.json` ni en la calibración: la verdad de referencia es siempre Terac. Se guardan en `circle_votes` y sirven para una métrica aparte, la **tasa de acuerdo entre amigos y Terac**.
 
-## 6. Micro-tareas de clemencia
-- Ronda 1: las proponen los humanos de Terac.
-- Después de calibrar: el agente genera micro-tareas al estilo de las humanas (few-shot con las propuestas de Terac), y Terac solo revisa la prueba de la micro-tarea si hay dudas.
+## 8. Micro-tareas de clemencia (pendiente)
 
-## 7. Cuándo interviene un humano (coste)
-
-Un juez de Terac cuesta más que la comisión de un pacto pequeño: el incentivo mínimo por estudio es $5 y Terac añade un 50% (≈ $7.50 por estudio). Con **lotes** el coste por caso baja a $1–2: la ronda 1 son 12 fotos por $16.50 (≈ $1.38 por foto).
-
-| Situación | Quién decide | Dónde vive |
-|---|---|---|
-| La IA está segura (`shouldAutoApprove`) | La IA, gratis | `rules.ts` |
-| Duda y stake **< `HUMAN_REVIEW_MIN_STAKE_CENTS`** | Sin humano: **segunda prueba** (máx. 2), **testigo** o apelación. Si en 48 h nadie lo resuelve → Vault (−30 de Trust, no −50) | `reviewProof`, `submitProof`, `expireOverdue` |
-| Duda y stake **≥ umbral** | Jurado de Terac (caso abierto al instante) | `reviewProof` → `openJuryCase` |
-| **Apelación** del usuario | Jurado de Terac | `POST /api/pacts/:id/appeal` |
-| Trampa | Solo se castiga (−50 y 7 días sin retiros) si el jurado vota `CHEAT`; la sospecha de la IA sola nunca lo hace | `closeJuryTask` |
-
-- Equivocarse con un stake bajo sale barato: el dinero no se pierde, pasa al Vault y se recupera reconstruyendo el Trust.
-- El umbral por defecto es **$20** (el stake máximo actual, por la falta de sandbox en Whop). En producción súbelo a $30–40 con `HUMAN_REVIEW_MIN_STAKE_CENTS`. La demo usa apelaciones y trampas para enseñar al jurado.
-- **Apelaciones:** el High-Yield Pass incluye `APPEALS_PER_MONTH_PASS` (2) al mes. En Free una apelación exigirá un pago con Whop (fase 4); hasta entonces responde `402 appeal_requires_pass` salvo con `FREE_APPEALS=true` (demo).
-- La caducidad de 48 h solo cuenta si la IA llegó a opinar: una caída del proveedor no penaliza al usuario.
-- **Lotes (pendiente):** los casos de stake alto abren hoy un `jury_task` individual. Para abaratar, un estudio permanente de Terac debe servir una cola (`/jury/queue`, como la ronda 1) y crearse un estudio nuevo cuando haya N casos pendientes.
+- Ronda 1: las proponen los humanos de Terac (la página pide una micro-tarea de 10 minutos cuando el usuario dice estar agobiado).
+- Después de calibrar: el agente genera micro-tareas al estilo de las humanas (few-shot con las propuestas de Terac), y Terac solo revisa la prueba de la micro-tarea si hay dudas. El veredicto `MICRO_TASK` aún no se aplica al pacto.

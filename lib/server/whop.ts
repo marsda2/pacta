@@ -73,9 +73,29 @@ export async function createPassCheckout(userId: string): Promise<CheckoutLinkDt
   return toLink(checkout);
 }
 
-// Devolución del stake. Sin importe, Whop devuelve lo que quede del pago (reembolsar no cuesta
-// nada, pero su comisión del cobro no vuelve). Con `partialCents`, solo esa parte: es el rescate
-// de un tramo del Vault.
+// Recarga del saldo prepagado: un cobro único. El webhook (payment.succeeded con
+// metadata.kind = wallet_topup) la abona al saldo del usuario.
+export async function createTopupCheckout(userId: string, amountCents: number): Promise<CheckoutLinkDto> {
+  const checkout = await whop().checkoutConfigurations.create({
+    account_id: accountId(),
+    mode: 'payment',
+    plan: {
+      currency: 'usd',
+      initial_price: amountCents / 100,
+      plan_type: 'one_time',
+      title: 'PACTA balance',
+      product_id: process.env.WHOP_STAKE_PRODUCT_ID ?? null,
+      metadata: { kind: 'wallet_topup' },
+    },
+    metadata: { kind: 'wallet_topup', user_id: userId, amount_cents: amountCents },
+    redirect_url: `${appUrl()}/wallet`,
+  });
+  return toLink(checkout);
+}
+
+// Devolución de un pago: el stake de un pacto cumplido o una recarga al retirar el saldo. Sin
+// importe, Whop devuelve lo que quede del pago (reembolsar no cuesta nada, pero su comisión del
+// cobro no vuelve). Con `partialCents`, solo esa parte (rescate de un tramo o retirada).
 export async function refundStakePayment(paymentId: string, partialCents?: number): Promise<void> {
   await whop().payments.refund({ id: paymentId, partial_amount: partialCents === undefined ? undefined : partialCents / 100 });
 }

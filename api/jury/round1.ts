@@ -1,42 +1,40 @@
-import { query, withTransaction } from '../../lib/server/db';
+import { query } from '../../lib/server/db';
 import { allow, api, HttpError } from '../../lib/server/http';
+import { casesOf, recordQueueVotes, votedAll, type GivenVotes } from '../../lib/server/jury-queue';
 import { completionUrl, getSubmission } from '../../lib/server/terac';
-import type { JuryVote } from '../../lib/shared/rules';
 
-// Ronda 1 de calibración (docs/04): un único juez de Terac revisa TODO el set de evaluación en
-// una sola página. Los votos se guardan en jury_tasks.raw igual que en el jurado normal, pero
-// aquí NO se cierra el caso ni se toca ningún pacto: son pruebas de evaluación, no reales.
-// (Una ruta estática gana a api/jury/[id].ts.)
-const VERDICTS: readonly JuryVote[] = ['APPROVE', 'REJECT', 'CHEAT'];
+// (Se llama round1 porque nació para la ronda 1, pero es la cola genérica: una sola función de
+// Vercel, ya que el plan Hobby permite 12.)
+// Estudio de Terac con varios casos en una sola página (docs/04 §7): cada juez ve TODOS los casos
+// pendientes del estudio y los vota de una vez. Sirve a la ronda 1 de calibración y a los lotes de
+// apelaciones. El estudio se deduce de la submission de Terac, así que un juez solo ve los casos
+// de SU estudio.
 
-interface CaseRow {
-  id: string;
-  title: string;
-  day_code: string;
-  proof_id: string;
-  emotional_state: string;
+// Solo vota (y ve casos de apelaciones) quien Terac ha enviado a ESTE estudio.
+async function jurorStudy(submissionId: string): Promise<string> {
+  const submission = await getSubmission(submissionId).catch(() => null);
+  if (!submission || !['screen_passed', 'in_progress'].includes(submission.status)) throw new HttpError(403, 'not_a_juror');
+  return submission.opportunity_id;
 }
 
-const casesOf = (opportunityId: string) =>
-  query<CaseRow>(
-    `select jt.id, pc.title, pc.day_code, p.id as proof_id, p.emotional_state
-       from pacta.jury_tasks jt
-       join pacta.proofs p on p.id = jt.proof_id
-       join pacta.pacts pc on pc.id = p.pact_id
-      where jt.terac_task_id = $1 and jt.raw ->> 'round' = '1'
-      order by md5(jt.id::text)`,
-    [opportunityId],
-  );
-
-// GET  /api/jury/round1 → los casos (foto, título, código y si el usuario dice estar agobiado).
+// GET  /api/jury/round1?teracSubmissionId=… → los casos del estudio de ese juez.
+//      Sin submission solo muestra la ronda 1 (datos de evaluación, no privados).
 // POST /api/jury/round1 → {votes: {<caseId>: {verdict, reason?}}, teracSubmissionId, taskId}.
 export default api(async (req, res) => {
   allow(req, 'GET', 'POST');
-  const opportunityId = process.env.TERAC_ROUND1_OPPORTUNITY_ID;
-  if (!opportunityId) throw new HttpError(503, 'round_not_configured');
-  const { rows } = await casesOf(opportunityId);
 
   if (req.method === 'GET') {
+    const submissionId = typeof req.query.teracSubmissionId === 'string' ? req.query.teracSubmissionId : '';
+    const opportunityId = submissionId ? await jurorStudy(submissionId) : process.env.TERAC_ROUND1_OPPORTUNITY_ID;
+    if (!opportunityId) throw new HttpError(503, 'round_not_configured');
+
+    const { rows } = await casesOf(opportunityId);
+    const evidence = rows.length
+      ? await query<{ id: string; jury_task_id: string }>(
+          'select id, jury_task_id from pacta.appeal_evidence where jury_task_id = any($1::uuid[]) order by created_at',
+          [rows.map((c) => c.id)],
+        )
+      : { rows: [] };
     return res.status(200).json({
       cases: rows.map((c) => ({
         id: c.id,
@@ -44,6 +42,9 @@ export default api(async (req, res) => {
         dayCode: c.day_code,
         overwhelmed: c.emotional_state === 'overwhelmed',
         photoUrl: `/api/proofs/${c.proof_id}/image`,
+        appeal: c.raw?.appeal === true,
+        note: c.raw?.note ?? null,
+        evidence: evidence.rows.filter((e) => e.jury_task_id === c.id).map((e) => `/api/proofs/${e.id}/image`),
       })),
     });
   }
@@ -52,32 +53,13 @@ export default api(async (req, res) => {
   if (typeof teracSubmissionId !== 'string' || !teracSubmissionId || teracSubmissionId.length > 100) {
     throw new HttpError(400, 'missing_submission');
   }
-  const given = (votes ?? {}) as Record<string, { verdict?: unknown; reason?: unknown }>;
+  const opportunityId = await jurorStudy(teracSubmissionId);
+  const { rows } = await casesOf(opportunityId);
+
   // Hay que votar todos los casos: un juez a medias no cobra.
-  if (!rows.length || rows.some((c) => !VERDICTS.includes(given[c.id]?.verdict as JuryVote))) {
-    throw new HttpError(400, 'incomplete_votes');
-  }
-
-  // Solo vota quien Terac ha enviado a ESTE estudio.
-  const submission = await getSubmission(teracSubmissionId).catch(() => null);
-  if (submission?.opportunity_id !== opportunityId || !['screen_passed', 'in_progress'].includes(submission.status)) {
-    throw new HttpError(403, 'not_a_juror');
-  }
-
-  const at = new Date().toISOString();
-  await withTransaction(async (q) => {
-    for (const c of rows) {
-      const vote = given[c.id];
-      await q(
-        `update pacta.jury_tasks
-            set raw = coalesce(raw, '{}'::jsonb)
-                      || jsonb_build_object('votes', coalesce(raw -> 'votes', '{}'::jsonb)
-                                                     || jsonb_build_object($2::text, $3::jsonb))
-          where id = $1`,
-        [c.id, teracSubmissionId, JSON.stringify({ verdict: vote.verdict, reason: typeof vote.reason === 'string' ? vote.reason.slice(0, 500) : null, at })],
-      );
-    }
-  });
+  const given = (votes ?? {}) as GivenVotes;
+  if (!votedAll(rows, given)) throw new HttpError(400, 'incomplete_votes');
+  await recordQueueVotes(rows, teracSubmissionId, given);
 
   return res.status(200).json({
     ok: true,
