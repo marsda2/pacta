@@ -39,11 +39,12 @@ interface LedgerRow {
   title: string | null;
 }
 
-// Pactos verificados desde el último fallo o el último rescate: cada tramo pide una racha nueva.
+// Pactos verificados CON DINERO (stake_cents > 0) desde el último fallo o el último rescate:
+// los pactos gratuitos (No money) suben +5 Trust pero no desbloquean tramos de dinero del Vault.
 const USER_SELECT = `
   select u.trust_score, u.tier, u.withdrawals_locked_until,
          (select count(*) from pacta.pacts p
-           where p.user_id = u.id and p.status = 'REFUNDED'
+           where p.user_id = u.id and p.status = 'REFUNDED' and p.stake_cents > 0
              and p.resolved_at > coalesce(greatest(
                    (select max(resolved_at) from pacta.pacts where user_id = u.id and status = 'VAULTED'),
                    (select max(created_at) from pacta.vault_ledger where user_id = u.id and type = 'unlock')),

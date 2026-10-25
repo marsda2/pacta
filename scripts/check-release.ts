@@ -79,7 +79,9 @@ async function main() {
     const vaulted = await vaultSummary(u);
     ok('lost credit appeal places stake minus bond in Vault', vaulted.balanceCents === 750 && (await walletSummary(u)).balanceCents === 500);
     await query('update pacta.users set trust_score = 70 where id = $1', [u]);
-    for (let i = 0; i < 3; i++) await query("insert into pacta.pacts (user_id,title,stake_cents,deadline,day_code,status,proof_methods,resolved_at) values ($1,'QA release streak',0,now(),'QAQA','REFUNDED','{photo}',now()+interval '1 second')", [u]);
+    for (let i = 0; i < 3; i++) await query("insert into pacta.pacts (user_id,title,stake_cents,deadline,day_code,status,proof_methods,resolved_at) values ($1,'QA free streak',0,now(),'QAQA','REFUNDED','{photo}',now()+interval '1 second')", [u]);
+    await rejected('free ($0) pacts do not unlock Vault tranches', redeemTranche(u), /vault_locked/);
+    for (let i = 0; i < 3; i++) await query("insert into pacta.pacts (user_id,title,stake_cents,deadline,day_code,status,proof_methods,resolved_at) values ($1,'QA release streak',100,now(),'QAQA','REFUNDED','{photo}',now()+interval '2 seconds')", [u]);
     const redeemed = await redeemTranche(u);
     ok('Vault redeems credit appeal funds to balance with the correct fee', redeemed.method === 'credit' && redeemed.payoutCents === 675 && redeemed.feeCents === 75 && (await walletSummary(u)).balanceCents === 1175);
     ok('no remaining Vault balance after full redemption', (await vaultSummary(u)).balanceCents === 0);

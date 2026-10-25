@@ -32,15 +32,25 @@ export function checkLevel(stakeCents: number, humanMinCents = HUMAN_REVIEW_MIN_
 }
 
 // Regla de oro: la decide el código, no el prompt. Cualquier otro caso va al jurado. Sin stake,
-// se aplica la regla estricta (la del set de evaluación). El código escrito a mano (dayCodeVisible)
-// es siempre requisito indispensable para demostrar que la foto es en vivo.
-export function shouldAutoApprove(audit: AgentAudit, emotionalState: 'normal' | 'overwhelmed', stakeCents = LIGHT_CHECK_BELOW_CENTS): boolean {
-  if (emotionalState === 'overwhelmed' || !audit.dayCodeVisible) return false;
+// se aplica la regla estricta (la del set de evaluación).
+// - En `light` (< $5 o sin dinero): no se exige código escrito a mano; basta foto en vivo creíble (o GPS verificado).
+// - Desde $5 (`standard` / `human`): el código escrito a mano (`dayCodeVisible`) es obligatorio.
+export function shouldAutoApprove(
+  audit: AgentAudit,
+  emotionalState: 'normal' | 'overwhelmed',
+  stakeCents = LIGHT_CHECK_BELOW_CENTS,
+  gpsVerified = false,
+): boolean {
+  if (emotionalState === 'overwhelmed') return false;
   if (checkLevel(stakeCents) === 'light') {
-    const hardCheat = audit.cheatSignals.some((signal) => signal !== 'none' && signal !== 'screen_photo');
-    return !hardCheat && audit.taskMatch && audit.confidence >= AI_LIGHT_APPROVE_CONFIDENCE;
+    const hardCheat = audit.cheatSignals.some(
+      (signal) => signal !== 'none' && signal !== 'screen_photo' && !(gpsVerified && signal === 'unrelated_scene'),
+    );
+    return !hardCheat && (audit.taskMatch || gpsVerified) && audit.confidence >= AI_LIGHT_APPROVE_CONFIDENCE;
   }
-  if (!audit.cheatSignals.every((signal) => signal === 'none')) return false;
+  const allowedSignal = (signal: CheatSignal) => signal === 'none' || (gpsVerified && signal === 'unrelated_scene');
+  if (!audit.dayCodeVisible || !audit.cheatSignals.every(allowedSignal)) return false;
+  if (gpsVerified && audit.dayCodeVisible && audit.confidence >= AI_LIGHT_APPROVE_CONFIDENCE) return true;
   return audit.verdict === 'APPROVE' && audit.confidence >= AI_AUTO_APPROVE_CONFIDENCE;
 }
 
@@ -121,6 +131,7 @@ export const TRUST_MIN = 0;
 export const TRUST_MAX = 100;
 export const TRUST_DELTA = {
   aiApproved: 15,
+  reputationOnlyApproved: 5,
   juryApproved: 20,
   failedOrExpired: -30,
   cheatConfirmed: -50,

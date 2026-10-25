@@ -9,7 +9,7 @@ import { useCountdown } from '@/components/pact/useCountdown';
 import { Banner, Button, Card, Icon, LoadingBlock, ProgressBar, Screen, ScreenTitle, StatusBadge, StepTracker, Text } from '@/components/ui';
 import { apiFetch } from '@/lib/api/client';
 import { routes } from '@/lib/routes';
-import { formatUsd } from '@/lib/shared/rules';
+import { checkLevel, formatUsd } from '@/lib/shared/rules';
 import { formatDeadline } from '@/lib/shared/time';
 import type { CheckoutLinkDto } from '@/lib/shared/types';
 import { usePacts } from '@/lib/store/pacts';
@@ -65,6 +65,7 @@ export default function ActivePact() {
   const finished = pact.status === 'verified' || pact.status === 'missed';
   const targetDays = pact.targetDays ?? 1;
   const completedDays = pact.completedDays ?? 0;
+  const needsCode = checkLevel(pact.stakeCents) !== 'light';
 
   // El checkout se cerró sin pagar: pedimos un enlace nuevo al servidor y lo abrimos.
   // Dentro de Whop se paga en su modal y al cerrarlo el webhook ya puede haber activado el pacto.
@@ -95,14 +96,19 @@ export default function ActivePact() {
                 <Text variant="caption" color="muted">At stake</Text>
                 <Text variant="heading" color={colors.amber}>{formatUsd(pact.stakeCents)}</Text>
               </View>
-              {pact.dayCode ? (
+              {needsCode && pact.dayCode ? (
                 <View style={styles.metaBox}>
                   <Text variant="caption" color="muted">Required handwritten code</Text>
                   <Text variant="heading" color="forest">{pact.dayCode}</Text>
                 </View>
-              ) : null}
+              ) : (
+                <View style={styles.metaBox}>
+                  <Text variant="caption" color="muted">Verification</Text>
+                  <Text variant="bodyStrong" color="forest">Light check (no code)</Text>
+                </View>
+              )}
             </View>
-            {pact.dayCode ? (
+            {needsCode && pact.dayCode ? (
               <Text variant="caption" color="muted">
                 Write <Text variant="bodyStrong" color="forest">{pact.dayCode}</Text> by hand on a note and include it in your live photo to prove it’s real.
               </Text>

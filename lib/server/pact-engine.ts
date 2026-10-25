@@ -6,6 +6,7 @@ import {
   APPEAL_NOTE_MAX_CHARS,
   APPEAL_PANEL_SIZE,
   APPEALS_PER_MONTH_PASS,
+  checkLevel,
   CREDIT_STAKE_MIN_CENTS,
   appealBondCents,
   HUMAN_REVIEW_MIN_STAKE_CENTS,
@@ -164,6 +165,7 @@ function reviewOf(row: PactRow): PactReviewDto | undefined {
   const signals = Array.isArray(row.ai_cheat_signals) ? row.ai_cheat_signals : [];
   const missingDayCode =
     aiReviewed &&
+    checkLevel(row.stake_cents) !== 'light' &&
     (signals.includes('missing_day_code') || Boolean(row.ai_reason && /code.*(not|missing|absent|cannot|couldn't)/i.test(row.ai_reason)));
   return {
     aiReviewed,
@@ -255,8 +257,12 @@ async function refundPact(q: Queryable, pact: LockedPact, points: number, reason
   if (pact.whop_payment_id) await refundStakePayment(pact.whop_payment_id);
   else if (pact.paid_with_credit && pact.stake_cents > 0) await releaseStake(q, pact.user_id, pact.id, pact.stake_cents);
   await q("update pacta.pacts set status = 'REFUNDED', day_code = $2, resolved_at = now() where id = $1", [pact.id, finalMeta]);
-  await addTrust(q, pact.user_id, points, reason, pact.id);
-  await q('update pacta.users set verified_streak = verified_streak + 1 where id = $1', [pact.user_id]);
+  // Los pactos sin dinero ($0) dan +5 Trust (en vez de +15/+20) y NO cuentan en la racha para desbloquear el Vault.
+  const effectivePoints = pact.stake_cents > 0 ? points : TRUST_DELTA.reputationOnlyApproved;
+  await addTrust(q, pact.user_id, effectivePoints, reason, pact.id);
+  if (pact.stake_cents > 0) {
+    await q('update pacta.users set verified_streak = verified_streak + 1 where id = $1', [pact.user_id]);
+  }
 }
 
 // Vencimiento perezoso (docs/02): se comprueba al leer, sin depender de un cron.
@@ -475,13 +481,16 @@ async function reviewProof(
   emotional: 'normal' | 'overwhelmed',
   gpsSummary?: string,
 ) {
-  const { rows } = await query<{ title: string; day_code: string }>('select title, day_code from pacta.pacts where id = $1', [pactId]);
+  const { rows } = await query<{ title: string; day_code: string; stake_cents: number }>('select title, day_code, stake_cents from pacta.pacts where id = $1', [pactId]);
   const meta = decodeDayCodeMeta(rows[0].day_code);
+  const requireDayCode = checkLevel(rows[0].stake_cents) !== 'light';
+  const gpsVerified = Boolean(gpsSummary);
   const { audit, promptVersion } = await auditProof({
     image,
     title: rows[0].title,
     dayCode: meta.code,
     emotionalState: emotional,
+    requireDayCode,
     locationName: meta.locationName,
     gpsSummary,
   });
@@ -489,20 +498,20 @@ async function reviewProof(
   await withTransaction(async (q) => {
     const pact = await lockPact(q, userId, pactId);
     if (pact.status !== 'AI_REVIEW') return;
-    const storedSignals = audit.dayCodeVisible ? audit.cheatSignals : [...audit.cheatSignals, 'missing_day_code'];
+    const storedSignals = !requireDayCode || audit.dayCodeVisible ? audit.cheatSignals : [...audit.cheatSignals, 'missing_day_code'];
     await q(
       `update pacta.proofs
           set ai_prompt_version = $2, ai_verdict = $3, ai_confidence = $4, ai_cheat_signals = $5, ai_reason = $6
         where id = $1`,
       [proofId, promptVersion, audit.verdict, audit.confidence, JSON.stringify(storedSignals), audit.reason],
     );
-    if (shouldAutoApprove(audit, emotional, pact.stake_cents)) {
+    if (shouldAutoApprove(audit, emotional, pact.stake_cents, gpsVerified)) {
       await refundPact(q, pact, TRUST_DELTA.aiApproved, 'ai_approved');
       return;
     }
-    // Si el único problema es que no se detectó el código escrito a mano y aún le queda un
+    // Si el único problema es que no se detectó el código escrito a mano (en >= $5) y aún le queda un
     // intento de foto, lo dejamos en AI_REVIEW para que pueda repetir la foto con el código.
-    if (!audit.dayCodeVisible) {
+    if (requireDayCode && !audit.dayCodeVisible) {
       const count = await q<{ n: string }>('select count(*) as n from pacta.proofs where pact_id = $1', [pactId]);
       if (Number(count.rows[0].n) < MAX_PROOFS_PER_PACT) return;
     }

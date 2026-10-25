@@ -45,9 +45,9 @@ const WEEKLY_DAYS = [2, 3, 4, 5, 6, 7] as const;
 
 // Cuánto se verifica según lo que hay en juego (rules.ts, checkLevel).
 const checkCopy: Record<CheckLevel, string> = {
-  light: 'Light check: a believable live photo is enough.',
-  standard: 'Strict AI check. If it doubts, retake the photo or ask a witness.',
-  human: 'Big stake: if the AI doubts, a human Terac juror decides.',
+  light: 'Light check (< $5 or free): a live photo (plus GPS if Location is on) is enough — no handwritten code required.',
+  standard: 'Strict AI check ($5+): requires the 4-letter handwritten code in your live photo.',
+  human: 'Big stake ($20+): requires the 4-letter handwritten code; if the AI doubts, a human Terac juror decides.',
 };
 
 // Flujo 01 · Create a pact
@@ -168,7 +168,9 @@ export default function NewPact() {
           ) : null}
           {payWith === 'card' ? <Text variant="small" color="muted">Paid in Whop. Kept pacts are refunded to your card.</Text> : null}
           {payWith === 'none' ? (
-            <Text variant="small" color="muted">Nothing is charged. Miss the deadline and you lose 30 reputation points.</Text>
+            <Text variant="small" color="muted">
+              Nothing is charged (+5 Trust on completion, −30 if missed). Free pacts do not count toward the 3-pact streak to unlock Vault money.
+            </Text>
           ) : null}
         </View>
 

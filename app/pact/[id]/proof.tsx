@@ -5,6 +5,7 @@ import { StyleSheet, View } from 'react-native';
 import { LiveCapture, type Capture } from '@/components/pact/LiveCapture';
 import { Button, Card, Checkbox, ErrorBanner, Icon, Screen, ScreenTitle, Text } from '@/components/ui';
 import { routes } from '@/lib/routes';
+import { checkLevel } from '@/lib/shared/rules';
 import { usePacts, type GpsCheckin } from '@/lib/store/pacts';
 import { colors, radii } from '@/lib/theme';
 
@@ -22,7 +23,8 @@ export default function LiveProof() {
   const [error, setError] = useState<unknown>(null);
   const pact = getPact(id);
   const needsLocation = Boolean(pact?.methods.includes('location'));
-  const code = pact?.dayCode;
+  const needsCode = checkLevel(pact?.stakeCents ?? 0) !== 'light';
+  const code = needsCode ? pact?.dayCode : undefined;
 
   const updateCapture = (next: Capture | null) => {
     setCapture(next);
@@ -101,8 +103,8 @@ export default function LiveProof() {
               </Text>
               <Text variant="caption" color="muted">
                 {gps
-                  ? `GPS verified (${gps.lat.toFixed(4)}, ${gps.lng.toFixed(4)})`
-                  : 'Attach your current GPS location to verify where you took the photo.'}
+                  ? `GPS verified (${gps.lat.toFixed(4)}, ${gps.lng.toFixed(4)}) — the AI will accept your location without needing a building sign in the photo.`
+                  : 'Verify your device GPS so the AI knows you are at the location (no building sign needed in the photo).'}
               </Text>
               {gpsNote ? <Text variant="caption" color="danger">{gpsNote}</Text> : null}
             </View>

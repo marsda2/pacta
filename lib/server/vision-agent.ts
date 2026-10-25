@@ -69,6 +69,7 @@ export interface AuditInput {
   title: string;
   dayCode: string;
   emotionalState: 'normal' | 'overwhelmed';
+  requireDayCode?: boolean;
   locationName?: string;
   gpsSummary?: string;
   promptVersion?: string;
@@ -90,16 +91,22 @@ interface ModelCall {
 }
 
 type Photo = AuditInput['image'];
-const userText = (input: AuditInput) =>
-  [
+const userText = (input: AuditInput) => {
+  const requireCode = input.requireDayCode !== false;
+  return [
     `Habit: ${input.title}`,
     input.locationName ? `Expected location/place: ${input.locationName}` : null,
-    input.gpsSummary ? `Device GPS check-in: ${input.gpsSummary}` : null,
-    `Expected handwritten code: ${input.dayCode}`,
+    input.gpsSummary
+      ? `VERIFIED DEVICE GPS CHECK-IN: ${input.gpsSummary}. The user's physical location at ${input.locationName ?? 'the target place'} is ALREADY confirmed by live GPS. Do NOT reject or flag unrelated_scene just because the photo does not show a building sign or venue logo.`
+      : null,
+    requireCode
+      ? `Expected handwritten code: ${input.dayCode}`
+      : `Light check (< $5 stake): handwritten code is OPTIONAL (set day_code_visible=true even if "${input.dayCode}" is not written in the photo).`,
     `User's state: ${input.emotionalState}`,
   ]
     .filter(Boolean)
     .join('\n');
+};
 
 async function callAnthropic(model: string, system: string, photo: Photo, text: string): Promise<ModelCall> {
   const response = await new Anthropic().messages.create({
