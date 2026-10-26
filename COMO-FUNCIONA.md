@@ -59,9 +59,10 @@ Creas el pacto ──► Whop te cobra el stake ──► ACTIVO ──► subes
 Si pasa el plazo sin subir foto ──► VAULT (−30 Trust)
 ```
 
-- **Código del día:** lo genera el servidor para cada pacto; debe verse escrito a mano en la foto. Anti-trampa barato.
+- **Código del día:** lo genera el servidor para cada pacto; se exige escrito a mano en la foto a partir de $5 salvo que el usuario verifique su **GPS en vivo** en pactos con ubicación (donde el GPS + foto en vivo bastan sin papel ni boli). Para stakes `< $5` o sin dinero (`Light`), basta con foto en vivo o **check-in GPS de 1 toque** si el pacto tiene ubicación.
+- **Calendario semanal y horas inteligentes (`app/pact/new.tsx`):** en modo puntual (`One-time`) se eligen tarjetas visuales de fecha y al elegir *Today* se ocultan las horas del día que ya han pasado; las horas se agrupan por franja (`Morning`, `Afternoon`, `Evening`) o hora exacta escrita. En modo hábito semanal (`Weekly habit`) se marcan los días concretos de la semana (`M T W T F S S`, p. ej. `Tue · Wed · Thu`), mostrando un aviso activo el día que toca hacer check-in.
 - **"Agobiado":** si marcas que estás abrumado, la IA nunca aprueba sola; va a revisión humana (la micro-tarea de clemencia aún no está hecha).
-- **Pactos sin dinero:** stake 0, solo arriesgan reputación, no pasan por Whop; se usan en el onboarding y la demo.
+- **Pactos sin dinero:** stake 0, solo arriesgan reputación (+5 Trust al cumplir, −30 al fallar y no cuentan para la racha de 3 pactos que desbloquea el dinero del Vault); no pasan por Whop.
 - **Vencimientos "perezosos":** no hay cron; los plazos vencidos se aplican cuando alguien lee los pactos.
 
 ## 4. Quién decide si cumpliste

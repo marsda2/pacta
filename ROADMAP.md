@@ -52,9 +52,9 @@ Tokens, iconos y componentes portados del *UI Component Library* y de *Windows &
 
 Los seis flujos de *Windows & Flows* están construidos. Empezaron con un store en memoria y desde la fase 3 usan la API (`lib/store/pacts.tsx`).
 
-- ✅ 01 Crear pacto → `app/pact/new.tsx`
-- ✅ 02 Pacto activo (cuenta atrás, pasos, "I'm stuck") → `app/pact/[id]/index.tsx`
-- ✅ 03 Prueba en vivo → `app/pact/[id]/proof.tsx`
+- ✅ 01 Crear pacto → `app/pact/new.tsx` (selector visual de fecha o días de la semana `M T W T F S S`, horas agrupadas por franja `Morning/Afternoon/Evening` que ocultan las horas ya pasadas de hoy y opción de hora exacta)
+- ✅ 02 Pacto activo (cuenta atrás, tira semanal `M T W T F S S`, aviso de día de check-in, Quick GPS Check-in de 1 toque en pactos Light con ubicación y Pomodoro opcional) → `app/pact/[id]/index.tsx`
+- ✅ 03 Prueba en vivo (código a mano solo en `≥ $5` cuando no se usa GPS en vivo; verificación GPS que exime de cartel del edificio y de papel con código) → `app/pact/[id]/proof.tsx`
 - ✅ 04 Copilot → `app/(tabs)/copilot.tsx`
 - ✅ 05 Revisión de testigo (invitado, sin cuenta) → `app/witness/[id].tsx`
 - ✅ 06 Resultado (cumplido / fallado) → `app/pact/[id]/result.tsx`

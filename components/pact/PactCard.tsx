@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import { Icon, StatusBadge, Text, type IconName } from '@/components/ui';
 import { formatUsd } from '@/lib/shared/rules';
-import { formatClockTime } from '@/lib/shared/time';
+import { formatClockTime, formatScheduledDays, isTodayScheduled } from '@/lib/shared/time';
 import type { Pact, ProofMethod } from '@/lib/shared/types';
 import { colors, radii, shadows } from '@/lib/theme';
 
@@ -19,6 +19,9 @@ interface PactCardProps {
 }
 
 export function PactCard({ pact, onPress }: PactCardProps) {
+  const scheduledText = pact.scheduledDays?.length ? formatScheduledDays(pact.scheduledDays) : '';
+  const dueToday = pact.status !== 'verified' && pact.status !== 'missed' && pact.status !== 'pending' && isTodayScheduled(pact.scheduledDays);
+
   return (
     <Pressable
       accessibilityRole="button"
@@ -42,13 +45,19 @@ export function PactCard({ pact, onPress }: PactCardProps) {
         </View>
       </View>
 
-      {(pact.targetDays && pact.targetDays > 1) || pact.locationName ? (
+      {(pact.targetDays && pact.targetDays > 1) || pact.locationName || dueToday ? (
         <View style={styles.badges}>
+          {dueToday ? (
+            <View style={[styles.badge, styles.badgeDue]}>
+              <Icon name="timer" size={14} color={colors.white} />
+              <Text variant="caption" color="white">Check-in due today</Text>
+            </View>
+          ) : null}
           {pact.targetDays && pact.targetDays > 1 ? (
             <View style={styles.badge}>
               <Icon name="calendar" size={14} color={colors.forest} />
               <Text variant="caption" color="forest">
-                {pact.completedDays ?? 0}/{pact.targetDays} days this week
+                {scheduledText ? `${scheduledText} · ` : ''}{pact.completedDays ?? 0}/{pact.targetDays} days
               </Text>
             </View>
           ) : null}
@@ -106,6 +115,9 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: radii.pill,
     backgroundColor: colors.mintSoft,
+  },
+  badgeDue: {
+    backgroundColor: colors.forest,
   },
   methods: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around' },
   method: { flexDirection: 'row', alignItems: 'center', gap: 6 },

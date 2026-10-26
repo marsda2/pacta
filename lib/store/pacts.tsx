@@ -19,6 +19,7 @@ export interface NewPactInput {
   dueAt: number;
   methods: ProofMethod[];
   targetDays?: number;
+  scheduledDays?: number[];
   locationName?: string;
   // Pacto sin dinero: se arriesga solo reputación (el servidor ignora stakeCents).
   reputationOnly?: boolean;

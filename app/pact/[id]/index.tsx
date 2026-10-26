@@ -6,11 +6,11 @@ import { PaxSays } from '@/components/companion/Pax';
 import { FocusSessionCard } from '@/components/pact/FocusSessionCard';
 import { PactResultCard } from '@/components/pact/PactResultCard';
 import { useCountdown } from '@/components/pact/useCountdown';
-import { Banner, Button, Card, Icon, LoadingBlock, ProgressBar, Screen, ScreenTitle, StatusBadge, StepTracker, Text } from '@/components/ui';
+import { Banner, Button, Card, ErrorBanner, Icon, LoadingBlock, ProgressBar, Screen, ScreenTitle, StatusBadge, StepTracker, Text } from '@/components/ui';
 import { apiFetch } from '@/lib/api/client';
 import { routes } from '@/lib/routes';
 import { checkLevel, formatUsd } from '@/lib/shared/rules';
-import { formatDeadline } from '@/lib/shared/time';
+import { currentWeekday, formatClockTime, formatDeadline, formatScheduledDays, isTodayScheduled, WEEKDAYS } from '@/lib/shared/time';
 import type { CheckoutLinkDto } from '@/lib/shared/types';
 import { usePacts } from '@/lib/store/pacts';
 import { colors, radii } from '@/lib/theme';
@@ -22,9 +22,11 @@ const STEPS = ['Outline', 'Draft', 'Review'] as const;
 export default function ActivePact() {
   const router = useRouter();
   const { id, autostart } = useLocalSearchParams<{ id: string; autostart?: string }>();
-  const { getPact, setFocusRemaining, loading, refetch } = usePacts();
+  const { getPact, setFocusRemaining, submitProof, loading, refetch } = usePacts();
   const pact = getPact(id);
   const [showFocus, setShowFocus] = useState(Boolean(autostart));
+  const [checkingGps, setCheckingGps] = useState(false);
+  const [gpsError, setGpsError] = useState<unknown>(null);
 
   const timer = useCountdown(pact?.focusRemainingSec ?? 0, (remaining) => {
     if (pact && remaining % 5 === 0) setFocusRemaining(pact.id, remaining);
@@ -65,13 +67,48 @@ export default function ActivePact() {
   const finished = pact.status === 'verified' || pact.status === 'missed';
   const targetDays = pact.targetDays ?? 1;
   const completedDays = pact.completedDays ?? 0;
-  const needsCode = checkLevel(pact.stakeCents) !== 'light';
+  const hasLocation = pact.methods.includes('location');
+  const isLight = checkLevel(pact.stakeCents) === 'light';
+  const needsCode = !isLight && !hasLocation;
+  const todayIdx = currentWeekday();
+  const dueToday = isTodayScheduled(pact.scheduledDays);
 
   // El checkout se cerró sin pagar: pedimos un enlace nuevo al servidor y lo abrimos.
   // Dentro de Whop se paga en su modal y al cerrarlo el webhook ya puede haber activado el pacto.
   const payStake = async () => {
     const link = await apiFetch<CheckoutLinkDto>(`/api/pacts/${pact.id}/checkout`, { method: 'POST' });
     if ((await openCheckout(link)) === 'paid') refetch();
+  };
+
+  // Para pactos Light (< $5 o reputación) con Location: check-in GPS de 1 toque sin foto.
+  const quickGpsCheckIn = () => {
+    if (typeof navigator === 'undefined' || !navigator.geolocation) {
+      router.push(routes.proof(pact.id));
+      return;
+    }
+    setCheckingGps(true);
+    setGpsError(null);
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          await submitProof(pact.id, undefined, {
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+            accuracy: pos.coords.accuracy,
+          });
+          setCheckingGps(false);
+          router.push(routes.result(pact.id));
+        } catch (e) {
+          setGpsError(e);
+          setCheckingGps(false);
+        }
+      },
+      () => {
+        setGpsError(new Error('Could not read live GPS. Please allow location permissions or submit with a photo.'));
+        setCheckingGps(false);
+      },
+      { enableHighAccuracy: true, timeout: 10_000 },
+    );
   };
 
   return (
@@ -82,6 +119,13 @@ export default function ActivePact() {
         <PactResultCard pact={pact} onPlanNext={() => router.replace(routes.newPact)} onViewDetails={() => router.push(routes.result(pact.id))} />
       ) : (
         <>
+          {dueToday ? (
+            <Banner
+              title={`Today is your scheduled check-in day!`}
+              subtitle={`Remember to check in${pact.locationName ? ` at ${pact.locationName}` : ''} before ${formatClockTime(pact.dueAt)}.`}
+            />
+          ) : null}
+
           <Card style={styles.summaryCard}>
             <View style={styles.summaryTop}>
               <View style={styles.summaryCol}>
@@ -104,7 +148,13 @@ export default function ActivePact() {
               ) : (
                 <View style={styles.metaBox}>
                   <Text variant="caption" color="muted">Verification</Text>
-                  <Text variant="bodyStrong" color="forest">Light check (no code)</Text>
+                  <Text variant="bodyStrong" color="forest">
+                    {hasLocation && isLight
+                      ? '1-Tap GPS or Photo'
+                      : hasLocation
+                        ? 'Live GPS + Photo (no code)'
+                        : 'Light check (no code)'}
+                  </Text>
                 </View>
               )}
             </View>
@@ -117,10 +167,34 @@ export default function ActivePact() {
             {targetDays > 1 ? (
               <View style={styles.progressSection}>
                 <View style={styles.summaryTop}>
-                  <Text variant="small" color="muted">Weekly habit progress</Text>
+                  <Text variant="small" color="muted">
+                    {pact.scheduledDays?.length ? `Schedule: ${formatScheduledDays(pact.scheduledDays)}` : 'Weekly habit progress'}
+                  </Text>
                   <Text variant="bodyStrong">{completedDays} / {targetDays} days</Text>
                 </View>
                 <ProgressBar step={completedDays} total={targetDays} />
+
+                {pact.scheduledDays?.length ? (
+                  <View style={styles.weekStrip}>
+                    {WEEKDAYS.map((w) => {
+                      const scheduled = pact.scheduledDays?.includes(w.id);
+                      const isToday = w.id === todayIdx;
+                      return (
+                        <View
+                          key={w.id}
+                          style={[
+                            styles.weekDayCell,
+                            scheduled && styles.weekDayScheduled,
+                            isToday && styles.weekDayToday,
+                          ]}
+                        >
+                          <Text variant="caption" color={scheduled ? 'white' : 'muted'}>{w.short}</Text>
+                          {isToday ? <View style={[styles.todayDot, scheduled && styles.todayDotOn]} /> : null}
+                        </View>
+                      );
+                    })}
+                  </View>
+                ) : null}
               </View>
             ) : null}
 
@@ -154,7 +228,33 @@ export default function ActivePact() {
             <Banner title="Proof uploaded" subtitle="We’re reviewing it now." />
           ) : (
             <View style={styles.actions}>
-              <Button label={targetDays > 1 ? `Submit today's proof (${completedDays + 1}/${targetDays})` : 'Submit proof'} icon="arrowRight" onPress={() => router.push(routes.proof(pact.id))} />
+              {gpsError ? <ErrorBanner error={gpsError} /> : null}
+              {hasLocation && isLight ? (
+                <Button
+                  label={
+                    checkingGps
+                      ? 'Verifying GPS location…'
+                      : targetDays > 1
+                        ? `Quick GPS Check-in (${completedDays + 1}/${targetDays})`
+                        : 'Quick GPS Check-in'
+                  }
+                  leadingIcon="location"
+                  disabled={checkingGps}
+                  onPress={quickGpsCheckIn}
+                />
+              ) : null}
+              <Button
+                label={
+                  targetDays > 1
+                    ? `Submit photo proof (${completedDays + 1}/${targetDays})`
+                    : hasLocation && isLight
+                      ? 'Or submit photo proof'
+                      : 'Submit proof'
+                }
+                variant={hasLocation && isLight ? 'outline' : 'primary'}
+                icon="arrowRight"
+                onPress={() => router.push(routes.proof(pact.id))}
+              />
               <Button
                 label={showFocus ? 'Hide Pomodoro timer' : 'Start Pomodoro / Focus timer'}
                 variant="outline"
@@ -195,7 +295,36 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.mint,
   },
-  progressSection: { gap: 6 },
+  progressSection: { gap: 8 },
+  weekStrip: { flexDirection: 'row', gap: 6, marginTop: 4 },
+  weekDayCell: {
+    flex: 1,
+    minHeight: 36,
+    borderRadius: radii.sm,
+    backgroundColor: colors.mintWash,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 2,
+  },
+  weekDayScheduled: {
+    backgroundColor: colors.forest,
+    borderColor: colors.forest,
+  },
+  weekDayToday: {
+    borderWidth: 2,
+    borderColor: colors.amber,
+  },
+  todayDot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: colors.amber,
+  },
+  todayDotOn: {
+    backgroundColor: colors.white,
+  },
   locationRow: {
     flexDirection: 'row',
     alignItems: 'center',

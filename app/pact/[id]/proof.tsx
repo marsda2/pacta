@@ -23,7 +23,9 @@ export default function LiveProof() {
   const [error, setError] = useState<unknown>(null);
   const pact = getPact(id);
   const needsLocation = Boolean(pact?.methods.includes('location'));
-  const needsCode = checkLevel(pact?.stakeCents ?? 0) !== 'light';
+  const isLight = checkLevel(pact?.stakeCents ?? 0) === 'light';
+  // Si el usuario verifica su GPS en vivo (p.ej. en el gimnasio), no le obligamos a llevar papel y boli con el código.
+  const needsCode = !isLight && !gps;
   const code = needsCode ? pact?.dayCode : undefined;
 
   const updateCapture = (next: Capture | null) => {
@@ -64,7 +66,7 @@ export default function LiveProof() {
     }
   };
 
-  const canSubmit = Boolean(capture) && (!code || confirmedCode) && !sending;
+  const canSubmit = (Boolean(capture) || (isLight && Boolean(gps))) && (!code || confirmedCode) && !sending;
 
   return (
     <Screen>
@@ -86,7 +88,8 @@ export default function LiveProof() {
             <View style={styles.flex}>
               <Text variant="bodyStrong">Write &ldquo;{code}&rdquo; by hand on paper</Text>
               <Text variant="small" color="muted">
-                Place the handwritten code next to your task or screen so it is clearly visible in the photo. Without it, the AI will reject the proof.
+                Place the handwritten code next to your task or screen so it is clearly visible in the photo.
+                {needsLocation ? ' Or verify your live GPS below to skip the paper code.' : ' Without it, the AI will reject the proof.'}
               </Text>
             </View>
           </View>
@@ -103,8 +106,10 @@ export default function LiveProof() {
               </Text>
               <Text variant="caption" color="muted">
                 {gps
-                  ? `GPS verified (${gps.lat.toFixed(4)}, ${gps.lng.toFixed(4)}) — the AI will accept your location without needing a building sign in the photo.`
-                  : 'Verify your device GPS so the AI knows you are at the location (no building sign needed in the photo).'}
+                  ? isLight
+                    ? `GPS verified (${gps.lat.toFixed(4)}, ${gps.lng.toFixed(4)}) — you can complete your check-in right now without a photo, or attach a photo below.`
+                    : `GPS verified (${gps.lat.toFixed(4)}, ${gps.lng.toFixed(4)}) — no handwritten code or building sign needed! Just snap a live photo.`
+                  : 'Verify your device GPS so we know you are at the location (skips the handwritten paper code and building sign).'}
               </Text>
               {gpsNote ? <Text variant="caption" color="danger">{gpsNote}</Text> : null}
             </View>
@@ -134,7 +139,12 @@ export default function LiveProof() {
 
       <View style={styles.actions}>
         {error ? <ErrorBanner error={error} /> : null}
-        <Button label={sending ? 'Uploading…' : 'Use this photo'} icon="arrowRight" disabled={!canSubmit} onPress={submit} />
+        <Button
+          label={sending ? 'Uploading…' : !capture && isLight && gps ? 'Complete GPS check-in' : 'Submit proof'}
+          icon="arrowRight"
+          disabled={!canSubmit}
+          onPress={submit}
+        />
         <Text variant="caption" color="muted" style={styles.next}>
           {capture && code && !confirmedCode
             ? `Check the confirmation box above to verify that "${code}" is visible in your photo.`

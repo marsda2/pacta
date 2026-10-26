@@ -84,27 +84,40 @@ interface DayCodeMeta {
   code: string;
   targetDays: number;
   completedDays: number;
+  scheduledDays?: number[];
   locationName?: string;
 }
 
 export function encodeDayCodeMeta(meta: DayCodeMeta): string {
   const code = meta.code.slice(0, 4);
-  const target = Math.max(1, Math.min(7, Math.floor(meta.targetDays || 1)));
+  const days = Array.isArray(meta.scheduledDays)
+    ? [...new Set(meta.scheduledDays.filter((d) => Number.isInteger(d) && d >= 0 && d <= 6))]
+    : [];
+  const target = Math.max(1, Math.min(7, Math.floor(days.length > 0 ? days.length : (meta.targetDays || 1))));
   const done = Math.max(0, Math.min(target, Math.floor(meta.completedDays || 0)));
   const loc = (meta.locationName ?? '').replace(/\|/g, ' ').trim().slice(0, 60);
-  if (target === 1 && done === 0 && !loc) return code;
-  return `${code}|${target}|${done}|${loc}`;
+  if (target === 1 && done === 0 && !loc && days.length === 0) return code;
+  const targetSpec = days.length > 0 ? `${target},${days.join('.')}` : `${target}`;
+  return `${code}|${targetSpec}|${done}|${loc}`;
 }
 
 export function decodeDayCodeMeta(raw: string): DayCodeMeta {
   const [code = '', t, d, ...rest] = (raw ?? '').split('|');
-  const targetDays = Math.max(1, Math.min(7, Number.parseInt(t ?? '1', 10) || 1));
+  const [targetPart = '1', daysPart = ''] = (t ?? '1').split(',');
+  const scheduledDays = daysPart
+    ? daysPart
+        .split('.')
+        .map((x) => Number.parseInt(x, 10))
+        .filter((n) => Number.isInteger(n) && n >= 0 && n <= 6)
+    : undefined;
+  const targetDays = Math.max(1, Math.min(7, scheduledDays?.length || Number.parseInt(targetPart, 10) || 1));
   const completedDays = Math.max(0, Math.min(targetDays, Number.parseInt(d ?? '0', 10) || 0));
   const loc = rest.join('|').trim();
   return {
     code: code.slice(0, 4),
     targetDays,
     completedDays,
+    scheduledDays: scheduledDays && scheduledDays.length > 0 ? scheduledDays : undefined,
     locationName: loc || undefined,
   };
 }
@@ -144,6 +157,7 @@ function toDto(row: PactRow): PactDto {
     dayCode: meta.code,
     targetDays: meta.targetDays,
     completedDays: status === 'verified' ? meta.targetDays : meta.completedDays,
+    scheduledDays: meta.scheduledDays,
     locationName: meta.locationName,
     proofImagePath: row.proof_id && row.storage_path?.startsWith('db:') ? `/api/proofs/${row.proof_id}/image` : undefined,
     proofAt: row.proof_at?.getTime(),
@@ -317,6 +331,7 @@ export interface NewPact {
   dueAt: unknown;
   methods: unknown;
   targetDays?: unknown;
+  scheduledDays?: unknown;
   locationName?: unknown;
   reputationOnly?: unknown;
   // 'credit': se paga con el saldo prepagado (desde $1, sin Whop); si no, con tarjeta en Whop.
@@ -343,10 +358,18 @@ export async function createPact(userId: string, input: NewPact): Promise<PactDt
   const requested = Array.isArray(input.methods) ? input.methods : [];
   const methods = METHODS.filter((m) => m === 'photo' || requested.includes(m));
 
-  const targetDays = typeof input.targetDays === 'number' && Number.isInteger(input.targetDays) ? Math.max(1, Math.min(7, input.targetDays)) : 1;
+  const scheduledDays = Array.isArray(input.scheduledDays)
+    ? input.scheduledDays.filter((d): d is number => typeof d === 'number' && Number.isInteger(d) && d >= 0 && d <= 6)
+    : undefined;
+  const targetDays =
+    scheduledDays && scheduledDays.length > 0
+      ? Math.max(1, Math.min(7, scheduledDays.length))
+      : typeof input.targetDays === 'number' && Number.isInteger(input.targetDays)
+        ? Math.max(1, Math.min(7, input.targetDays))
+        : 1;
   const locationName = typeof input.locationName === 'string' && methods.includes('location') ? input.locationName.trim().slice(0, 60) : undefined;
   const rawCode = Array.from({ length: 4 }, () => CODE_ALPHABET[randomInt(CODE_ALPHABET.length)]).join('');
-  const dayCode = encodeDayCodeMeta({ code: rawCode, targetDays, completedDays: 0, locationName });
+  const dayCode = encodeDayCodeMeta({ code: rawCode, targetDays, completedDays: 0, scheduledDays, locationName });
   if (reputationOnly) {
     const freeId = randomUUID();
     await query(
@@ -458,9 +481,20 @@ export async function submitProof(userId: string, pactId: string, input: NewProo
     await q(
       `insert into pacta.proofs (id, pact_id, storage_path, captured_live, emotional_state)
        values ($1, $2, $3, true, $4)`,
-      [proofId, pactId, image ? `db:${proofId}` : 'demo', emotional],
+      [proofId, pactId, image ? `db:${proofId}` : gpsSummary ? 'gps' : 'demo', emotional],
     );
     if (image) await q('insert into pacta.proof_images (proof_id, mime, data) values ($1, $2, $3)', [proofId, image.mime, image.data]);
+    // En pactos < $5 o sin dinero (light), un check-in GPS verificado basta para registrar el día al instante.
+    if (!image && gpsSummary && checkLevel(pact.stake_cents) === 'light') {
+      await q(
+        `update pacta.proofs
+            set ai_prompt_version = 'gps-checkin', ai_verdict = 'APPROVE', ai_confidence = 1, ai_cheat_signals = '["none"]'::jsonb, ai_reason = $2
+          where id = $1`,
+        [proofId, `Verified by live GPS check-in (${gpsSummary})`],
+      );
+      await refundPact(q, pact, TRUST_DELTA.aiApproved, 'gps_checkin_approved');
+      return;
+    }
     await q("update pacta.pacts set status = 'AI_REVIEW' where id = $1", [pactId]);
   });
 
@@ -483,8 +517,9 @@ async function reviewProof(
 ) {
   const { rows } = await query<{ title: string; day_code: string; stake_cents: number }>('select title, day_code, stake_cents from pacta.pacts where id = $1', [pactId]);
   const meta = decodeDayCodeMeta(rows[0].day_code);
-  const requireDayCode = checkLevel(rows[0].stake_cents) !== 'light';
   const gpsVerified = Boolean(gpsSummary);
+  // Si hay GPS en vivo verificado, la combinación (GPS en vivo + Foto en vivo) sustituye al papel escrito a mano.
+  const requireDayCode = checkLevel(rows[0].stake_cents) !== 'light' && !gpsVerified;
   const { audit, promptVersion } = await auditProof({
     image,
     title: rows[0].title,

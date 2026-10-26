@@ -40,9 +40,11 @@ export interface PactDto {
   stepIndex: number;
   // Código de 4 caracteres que debe escribirse a mano en la foto en vivo.
   dayCode?: string;
-  // Hábitos semanales: días objetivo (1 = pacto único, 2–7 = hábito semanal) y días ya verificados.
+  // Hábitos semanales: días objetivo (1 = pacto único, 2–7 = hábito semanal), días ya verificados
+  // y días de la semana programados (0 = Dom, 1 = Lun ... 6 = Sáb).
   targetDays?: number;
   completedDays?: number;
+  scheduledDays?: number[];
   // Lugar asociado cuando se activa la verificación por ubicación (ej. "SmartFit Gym").
   locationName?: string;
   // Ruta relativa a la imagen de la prueba y cuándo se subió, si la hay.
